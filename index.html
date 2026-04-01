@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a1814">
 <title>Tsundoku</title>
+<link rel="icon" type="image/png" href="fav.png">
+<link rel="apple-touch-icon" href="fav.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -87,13 +89,12 @@ body { background:var(--bg); font-family:'DM Sans',sans-serif; color:var(--text)
 .signout-btn { background:none; border:1.5px solid var(--border); border-radius:100px; color:var(--text-muted); font-size:12px; font-family:'DM Sans',sans-serif; padding:6px 14px; cursor:pointer; transition:all 0.2s; letter-spacing:0.04em; white-space:nowrap; font-weight:500; }
 
 /* FILTER + SEARCH ROW */
-.toolbar { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
-.toolbar::-webkit-scrollbar { display:none; }
-.filter-tabs { display:flex; gap:8px; flex-shrink:0; }
-.tab-btn { padding:7px 16px; border-radius:100px; border:1.5px solid var(--border); background:transparent; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s ease; white-space:nowrap; flex-shrink:0; }
+.toolbar { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:nowrap; min-width:0; }
+.filter-tabs { display:flex; gap:6px; flex:1; min-width:0; overflow-x:auto; scrollbar-width:none; }
+.filter-tabs::-webkit-scrollbar { display:none; }
+.tab-btn { padding:7px 13px; border-radius:100px; border:1.5px solid var(--border); background:transparent; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s ease; white-space:nowrap; flex-shrink:0; }
 .tab-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
-.toolbar-spacer { flex:1; min-width:8px; }
-.search-btn { display:flex; align-items:center; gap:7px; padding:7px 14px; border-radius:100px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; flex-shrink:0; transition:all 0.2s; }
+.search-btn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; min-width:36px; border-radius:100px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; flex-shrink:0; transition:all 0.2s; padding:0; }
 .search-btn.active { background:var(--accent); color:#fff; }
 .search-btn svg { flex-shrink:0; }
 
@@ -279,10 +280,8 @@ body { background:var(--bg); font-family:'DM Sans',sans-serif; color:var(--text)
           <button class="tab-btn" data-filter="read" onclick="setFilter('read')">Read</button>
           <button class="tab-btn" data-filter="unread" onclick="setFilter('unread')">Unread</button>
         </div>
-        <div class="toolbar-spacer"></div>
         <button class="search-btn" id="searchToggleBtn" onclick="toggleSearch()">
-          Search
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
       </div>
       <div class="search-bar-wrap" id="searchBarWrap">
@@ -653,9 +652,8 @@ function resetAddModal(){
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 </script>
 </body>
-</html>
 
-<head>
+  <head>
   <meta charset="UTF-8">
   <title>Tsundoku</title>
 
@@ -668,9 +666,4 @@ function showToast(msg){ const t=document.getElementById('toast'); t.textContent
 
   <meta name="twitter:card" content="summary_large_image">
 </head>
-
-<head>
-  ...
-  <link rel="icon" type="image/png" href="fav_icon.png">
-  <link rel="apple-touch-icon" href="fav_icon.png">
-</head>
+</html>
