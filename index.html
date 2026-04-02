@@ -521,20 +521,37 @@ function renderGrid(){
       ${coverHtml(b)}<div class="status-dot ${b.status}"></div>
     </div>`).join('');
 
-  grid.querySelectorAll('.book-card').forEach(card=>{
-  const id=card.dataset.id;
-  const isTouch=()=>window.matchMedia('(hover:none)').matches;
+  function openQuickMenu(id,card){
+  qmBookId=id;
+  const menu=document.getElementById('quickMenu');
+  const app=document.getElementById('app');
+  const ar=app.getBoundingClientRect(), cr=card.getBoundingClientRect();
+  let top=cr.bottom-ar.top+6, left=cr.left-ar.left;
+  if(left+152>ar.width-8)left=ar.width-160;
+  if(top+220>ar.height-8)top=(cr.top-ar.top)-226;
+  menu.style.top=top+'px'; menu.style.left=left+'px';
+  const book=books.find(b=>b.id===id);
+  menu.querySelectorAll('[data-qm]').forEach(btn=>btn.classList.toggle('current-status',book&&btn.dataset.qm===book.status));
 
-  // Touch (mobile): long-press for quick menu, tap to open detail
-  card.addEventListener('touchstart', e=>startPress(e,id,card),{passive:true});
-  card.addEventListener('touchend',   e=>endPress(e,id,card));
-  card.addEventListener('touchcancel',()=>cancelPress(card));
+  const isMouse=!window.matchMedia('(hover:none)').matches;
+  if(isMouse){
+    // desktop: no dismiss overlay, attach mouseleave to menu itself
+    menu.onmouseleave=(e)=>{
+      if(!e.relatedTarget||!e.relatedTarget.closest('.book-card')) closeQuickMenu();
+    };
+  } else {
+    document.getElementById('qmDismiss').classList.add('active');
+  }
+  menu.classList.add('visible');
+}
 
-  // Mouse (desktop): hover shows quick menu, click opens detail
-  card.addEventListener('mouseenter', ()=>{ if(!isTouch()) openQuickMenu(id,card); });
-  card.addEventListener('mouseleave', ()=>{ if(!isTouch()) closeQuickMenu(); });
-  card.addEventListener('click',      ()=>{ if(!isTouch()) openDetailModal(id); });
-});
+function closeQuickMenu(){
+  const menu=document.getElementById('quickMenu');
+  menu.classList.remove('visible');
+  menu.onmouseleave=null;
+  document.getElementById('qmDismiss').classList.remove('active');
+  qmBookId=null;
+}
 }
 
 // ── SEARCH ──
