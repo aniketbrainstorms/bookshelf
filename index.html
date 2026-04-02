@@ -36,8 +36,7 @@
   --safe-right: env(safe-area-inset-right, 0px);
 }
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
-html, body { height:100%; width:100%; overflow:hidden; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }html, body { height:100%; width:100%; overflow:hidden; }
 body { background:var(--bg); font-family:'DM Sans',sans-serif; color:var(--text); }
 
 /* ── SHELL ── */
@@ -523,14 +522,19 @@ function renderGrid(){
     </div>`).join('');
 
   grid.querySelectorAll('.book-card').forEach(card=>{
-    const id=card.dataset.id;
-    card.addEventListener('mousedown',  e=>startPress(e,id,card));
-    card.addEventListener('touchstart', e=>startPress(e,id,card),{passive:true});
-    card.addEventListener('mouseup',    e=>endPress(e,id,card));
-    card.addEventListener('touchend',   e=>endPress(e,id,card));
-    card.addEventListener('mouseleave', ()=>cancelPress(card));
-    card.addEventListener('touchcancel',()=>cancelPress(card));
-  });
+  const id=card.dataset.id;
+  const isTouch=()=>window.matchMedia('(hover:none)').matches;
+
+  // Touch (mobile): long-press for quick menu, tap to open detail
+  card.addEventListener('touchstart', e=>startPress(e,id,card),{passive:true});
+  card.addEventListener('touchend',   e=>endPress(e,id,card));
+  card.addEventListener('touchcancel',()=>cancelPress(card));
+
+  // Mouse (desktop): hover shows quick menu, click opens detail
+  card.addEventListener('mouseenter', ()=>{ if(!isTouch()) openQuickMenu(id,card); });
+  card.addEventListener('mouseleave', ()=>{ if(!isTouch()) closeQuickMenu(); });
+  card.addEventListener('click',      ()=>{ if(!isTouch()) openDetailModal(id); });
+});
 }
 
 // ── SEARCH ──
