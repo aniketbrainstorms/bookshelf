@@ -412,7 +412,7 @@ const isTouch = () => window.matchMedia('(hover:none)').matches;
 // Update hint bar text based on device type
 function updateHintBar() {
   const hint = document.getElementById('hintBar');
-  if (hint) hint.textContent = isTouch() ? 'Tap to view · Hold to quick-edit' : 'Click to quick-edit';
+  if (hint) hint.textContent = isTouch() ? 'Hold to quick-edit' : 'Click to quick-edit';
 }
 
 // ── PALETTES ──
