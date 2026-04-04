@@ -1402,20 +1402,23 @@ function onBsInput() {
 
 async function fetchBookSearch(query) {
   try {
-    let qParam = encodeURIComponent(query);
-    if (bsSearchCategory === 'intitle') qParam = `intitle:${qParam}`;
-    else if (bsSearchCategory === 'inauthor') qParam = `inauthor:${qParam}`;
-    
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${qParam}&maxResults=40`;
+    let q = query;
+    if (bsSearchCategory === 'intitle') q = `intitle:${query}`;
+    else if (bsSearchCategory === 'inauthor') q = `inauthor:${query}`;
+
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=40&langRestrict=en`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error('Network error');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderBsResults(data.items || []);
-  } catch {
+  } catch (err) {
+    console.error('Book search error:', err);
     document.getElementById('bsResults').innerHTML =
       '<div class="bs-state"><p>Search failed.<br>Check your connection or add manually.</p></div>';
   }
 }
+
+let bsResultsCache = [];
 
 function renderBsResults(items) {
   if (!items.length) {
@@ -1423,28 +1426,36 @@ function renderBsResults(items) {
       '<div class="bs-state"><p>No results found.<br>Try a different keyword or add manually.</p></div>';
     return;
   }
-  document.getElementById('bsResults').innerHTML = items.map(item => {
+  bsResultsCache = items.map(item => {
     const vol = item.volumeInfo || {};
-    const title = escapeHtml(vol.title || 'Unknown Title');
-    const author = escapeHtml((vol.authors || [])[0] || 'Unknown Author');
     let coverUrl = vol.imageLinks?.thumbnail || vol.imageLinks?.smallThumbnail || '';
     if (coverUrl) {
       coverUrl = coverUrl.replace(/^http:/, 'https:');
       coverUrl = coverUrl.replace('zoom=1', 'zoom=3').replace('&edge=curl', '');
     }
-    
-    const coverContent = coverUrl
-      ? `<img src="${escapeAttr(coverUrl)}" alt="" onerror="this.parentElement.innerHTML=''">`
+    return { title: vol.title || 'Unknown Title', author: (vol.authors || [])[0] || '', coverUrl };
+  });
+
+  document.getElementById('bsResults').innerHTML = bsResultsCache.map((r, i) => {
+    const coverContent = r.coverUrl
+      ? `<img src="${escapeAttr(r.coverUrl)}" alt="" onerror="this.parentElement.innerHTML=''">`
       : '';
-    return `<div class="bs-result" onclick="selectBsResult('${escapeAttr(vol.title||'')}','${escapeAttr((vol.authors||[])[0]||'')}','${escapeAttr(coverUrl)}')">
+    return `<div class="bs-result" data-index="${i}">
       <div class="bs-result-cover">${coverContent}</div>
       <div class="bs-result-info">
-        <div class="bs-result-title">${title}</div>
-        <div class="bs-result-author">${author}</div>
+        <div class="bs-result-title">${escapeHtml(r.title)}</div>
+        <div class="bs-result-author">${escapeHtml(r.author)}</div>
       </div>
       <span class="bs-result-add">+</span>
     </div>`;
   }).join('');
+
+  document.getElementById('bsResults').querySelectorAll('.bs-result').forEach(el => {
+    el.addEventListener('click', () => {
+      const r = bsResultsCache[parseInt(el.dataset.index)];
+      if (r) selectBsResult(r.title, r.author, r.coverUrl);
+    });
+  });
 }
 
 function selectBsResult(title, author, coverUrl) {
