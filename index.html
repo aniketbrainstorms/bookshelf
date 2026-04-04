@@ -458,7 +458,6 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
                onerror="this.outerHTML='<span style=\'font-size:24px;font-weight:700;color:var(--text)\'>Tsundoku</span>'">
         </div>
         <div class="header-right">
-          <span class="book-count" id="bookCount">0 books</span>
           <button class="profile-avatar" id="profileAvatarBtn" onclick="openProfileModal()">?</button>
         </div>
       </div>
@@ -940,9 +939,6 @@ function renderGrid() {
   updateTabCounts();
   const grid = document.getElementById('bookGrid');
   const filtered = getSortedFiltered();
-
-  const cnt = currentFilter === 'all' ? books.length : books.filter(b => b.status === currentFilter).length;
-  document.getElementById('bookCount').textContent = `${cnt} book${cnt !== 1 ? 's' : ''}`;
 
   if (!filtered.length) {
     grid.classList.remove('reading-mode');
