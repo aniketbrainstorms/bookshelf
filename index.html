@@ -148,7 +148,6 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .search-bar-inner { display: flex; align-items: center; gap: 10px; padding: 0 0 12px; }
 .search-input { flex: 1; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
 .search-input:focus { border-color: var(--accent); }
-.search-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .search-input::placeholder { color: var(--text-muted); }
 .search-clear { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px; padding: 0 4px; line-height: 1; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .search-clear.visible { opacity: 1; pointer-events: all; }
@@ -156,6 +155,32 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 .divider { height: 1px; background: var(--border); flex-shrink: 0; }
 .hint-bar { text-align: center; font-size: 11px; color: var(--text-muted); padding: 6px 0 8px; flex-shrink: 0; opacity: 0.55; letter-spacing: 0.02em; }
+
+/* SHELF BANNER */
+.shelf-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px max(var(--safe-right),16px) 8px max(var(--safe-left),16px);
+  background: rgba(201,113,74,0.08);
+  border-bottom: 1px solid rgba(201,113,74,0.2);
+  flex-shrink: 0;
+}
+.shelf-banner-left {
+  display: flex; align-items: center; gap: 7px;
+  color: var(--accent); font-size: 13px; font-weight: 600;
+}
+.shelf-banner-count {
+  font-size: 11px; font-weight: 400; opacity: 0.7;
+  background: rgba(201,113,74,0.18); padding: 2px 7px; border-radius: 100px;
+}
+.shelf-banner-close {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid rgba(201,113,74,0.35);
+  border-radius: 100px; padding: 5px 11px;
+  color: var(--accent); font-size: 12px; font-weight: 500;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  transition: background 0.2s;
+}
+.shelf-banner-close:hover { background: rgba(201,113,74,0.12); }
 
 /* GRID */
 .grid-container {
@@ -252,7 +277,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .bottom-bar {
   position: absolute; bottom: 0; left: 0; right: 0;
   height: calc(72px + var(--safe-bottom));
-  background: linear-gradient(to top, var(--bg) 60%, transparent 100%);
+  background: transparent;
   display: flex; align-items: center; justify-content: flex-end;
   padding-right: max(var(--safe-right), 20px);
   padding-bottom: max(var(--safe-bottom), 16px);
@@ -278,6 +303,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   transform: translateY(100%);
   transition: transform 0.38s cubic-bezier(0.32,0.72,0,1);
   pointer-events: none;
+  overflow: hidden;
 }
 .book-search-overlay.open {
   transform: translateY(0);
@@ -320,10 +346,9 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   transition: border-color 0.2s;
 }
 .bs-input:focus { border-color: var(--accent); }
-.bs-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .bs-input::placeholder { color: var(--text-muted); }
 .bs-results {
-  flex: 1; overflow-y: auto; padding: 0 max(var(--safe-right),16px);
+  flex: 1; overflow-y: auto; padding: 0 max(var(--safe-right),16px) 80px;
   scrollbar-width: none;
 }
 .bs-results::-webkit-scrollbar { display: none; }
@@ -347,14 +372,19 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .bs-state p { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
 .bs-state .loading-spinner { margin: 0 auto; }
 .bs-footer {
-  padding: 10px max(var(--safe-right),16px) max(calc(var(--safe-bottom)+16px),24px);
-  border-top: 1px solid var(--border); flex-shrink: 0;
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 12px max(var(--safe-right),16px) max(calc(var(--safe-bottom)+16px),24px);
+  background: linear-gradient(to top, var(--bg) 70%, transparent 100%);
+  flex-shrink: 0;
+  pointer-events: none;
 }
+.bs-footer button { pointer-events: all; }
 
 /* MODALS */
 .modal-overlay { position: absolute; inset: 0; background: rgba(14,12,10,0.8); backdrop-filter: blur(8px); display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 10; }
 .modal-overlay.visible { opacity: 1; pointer-events: all; }
-.modal-sheet { width: 100%; background: var(--surface); border-radius: 24px 24px 0 0; padding: 0 max(var(--safe-right),24px) max(calc(var(--safe-bottom) + 24px),40px) max(var(--safe-left),24px); transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); border-top: 1px solid var(--border); max-height: 92%; overflow-y: auto; }
+.modal-sheet { width: 100%; background: var(--surface); border-radius: 24px 24px 0 0; padding: 0 max(var(--safe-right),24px) max(calc(var(--safe-bottom) + 24px),40px) max(var(--safe-left),24px); transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); border-top: 1px solid var(--border); max-height: 92%; overflow-y: auto; touch-action: pan-y; }
 .modal-sheet::-webkit-scrollbar { display: none; }
 .modal-overlay.visible .modal-sheet { transform: translateY(0); }
 .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 20px; flex-shrink: 0; }
@@ -491,7 +521,6 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
           <button class="tab-btn active" data-filter="reading" onclick="setFilter('reading')">Reading <span class="tab-count" id="count-reading">0</span></button>
           <button class="tab-btn" data-filter="read" onclick="setFilter('read')">Read <span class="tab-count" id="count-read">0</span></button>
           <button class="tab-btn" data-filter="unread" onclick="setFilter('unread')">Unread <span class="tab-count" id="count-unread">0</span></button>
-          <button class="tab-btn" data-filter="all" onclick="setFilter('all')">All <span class="tab-count" id="count-all">0</span></button>
         </div>
         <button class="search-btn" id="sortToggleBtn" onclick="openSortMenu(this)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
@@ -510,7 +539,18 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     </div>
 
     <div class="divider"></div>
-    <div class="hint-bar" id="hintBar">Tap to view · Hold to quick-edit</div>
+    <div class="hint-bar" id="hintBar">Hold to quick-edit</div>
+    <div class="shelf-banner" id="shelfBanner" style="display:none">
+      <div class="shelf-banner-left">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>My Shelf</span>
+        <span class="shelf-banner-count" id="shelfBannerCount"></span>
+      </div>
+      <button class="shelf-banner-close" onclick="setFilter('reading')" aria-label="Back to tabs">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Back to tabs
+      </button>
+    </div>
 
     <div class="grid-container">
       <div class="book-grid" id="bookGrid"></div>
@@ -541,7 +581,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
       <div class="bs-state"><p>Type a title, author, or ISBN to search</p></div>
     </div>
     <div class="bs-footer">
-      <button class="modal-btn ghost" style="margin:0" onclick="openManualAdd()">Add manually instead</button>
+      <button class="modal-btn" style="margin:0;background:var(--accent);border:none;color:#fff" onclick="openManualAdd()">Add manually instead</button>
     </div>
   </div>
 
@@ -671,6 +711,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
         </div>
       </div>
       <div class="divider" style="margin:0 0 20px"></div>
+      <button class="modal-btn ghost" style="margin-bottom:10px" onclick="closeModal('profileModal'); setFilter('all')">📚 My Shelf <span id="count-all" style="font-size:12px;opacity:0.6">0</span></button>
       <button class="modal-btn secondary" onclick="signOut()">Log Out</button>
     </div>
   </div>
@@ -715,7 +756,7 @@ function isTouch() {
 
 function updateHintBar() {
   const hint = document.getElementById('hintBar');
-  if (hint) hint.textContent = isTouch() ? 'Tap to view · Hold to quick-edit' : 'Click to open menu';
+  if (hint) hint.textContent = isTouch() ? 'Hold to quick-edit' : 'Click to open menu';
 }
 
 // ── PALETTES ──
@@ -971,6 +1012,19 @@ function renderGrid() {
   const grid = document.getElementById('bookGrid');
   const filtered = getSortedFiltered();
 
+  // Toggle shelf banner vs hint bar
+  const isShelf = currentFilter === 'all';
+  const hintBar = document.getElementById('hintBar');
+  const banner = document.getElementById('shelfBanner');
+  const bannerCount = document.getElementById('shelfBannerCount');
+  if (hintBar) hintBar.style.display = isShelf ? 'none' : '';
+  if (banner) banner.style.display = isShelf ? 'flex' : 'none';
+  if (bannerCount) bannerCount.textContent = books.length + ' books';
+
+  // Accent ring on avatar when in shelf view
+  const avatarBtn = document.getElementById('profileAvatarBtn');
+  if (avatarBtn) avatarBtn.style.borderColor = isShelf ? 'var(--accent)' : '';
+
   if (!filtered.length) {
     grid.classList.remove('reading-mode');
     grid.innerHTML = `<div class="empty-state"><span class="empty-icon">📭</span><p>${getEmptyStateMessage()}</p></div>`;
@@ -1051,7 +1105,7 @@ function endPress(e, id, card) {
   if (!isPressing) return; isPressing = false; clearTimeout(longPressTimer);
   card.classList.remove('pressing', 'long-pressed');
   if (!didLongPress) {
-    if (card.classList.contains('reading-card')) openProgressModal(id);
+    if (card.classList.contains('reading-card')) openDetailModal(id);
     else openDetailModal(id);
   }
   didLongPress = false;
@@ -1398,6 +1452,57 @@ function closeModal(id) {
 function handleOverlayClick(e, id) {
   if (e.target === document.getElementById(id)) closeModal(id);
 }
+
+// ── SWIPE TO DISMISS MODALS ──
+(function initSwipeDismiss() {
+  const DISMISS_THRESHOLD = 120;
+  const VELOCITY_THRESHOLD = 0.5;
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    const sheet = overlay.querySelector('.modal-sheet');
+    if (!sheet) return;
+    let startY = 0, currentY = 0, startTime = 0, isDragging = false;
+
+    const handle = sheet.querySelector('.modal-handle');
+    const dragTarget = handle || sheet;
+
+    dragTarget.addEventListener('touchstart', e => {
+      if (sheet.scrollTop > 0 && !handle) return;
+      startY = e.touches[0].clientY;
+      currentY = startY;
+      startTime = Date.now();
+      isDragging = true;
+      sheet.style.transition = 'none';
+    }, { passive: true });
+
+    dragTarget.addEventListener('touchmove', e => {
+      if (!isDragging) return;
+      currentY = e.touches[0].clientY;
+      const delta = Math.max(0, currentY - startY);
+      sheet.style.transform = `translateY(${delta}px)`;
+    }, { passive: true });
+
+    dragTarget.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      const delta = currentY - startY;
+      const elapsed = Date.now() - startTime;
+      const velocity = delta / elapsed;
+      sheet.style.transition = '';
+
+      if (delta > DISMISS_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
+        const modalId = overlay.id;
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+          sheet.style.transform = '';
+          closeModal(modalId);
+        }, 320);
+      } else {
+        sheet.style.transform = '';
+      }
+    });
+  });
+})();
 
 function setPillStatus(ctx, status) {
   if (ctx === 'add') addStatus = status; else editStatus = status;
