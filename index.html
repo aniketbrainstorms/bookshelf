@@ -1465,64 +1465,120 @@ function onBsInput() {
 }
 
 async function fetchBookSearch(query) {
-  try {
-    let qParam = encodeURIComponent(query);
-    if (bsSearchCategory === 'intitle') qParam = `intitle:${qParam}`;
-    else if (bsSearchCategory === 'inauthor') qParam = `inauthor:${qParam}`;
-    
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${qParam}&maxResults=40`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Network error');
+  const resultsEl = document.getElementById('bsResults');
+  const isIsbn = /^[\d\-]{9,17}$/.test(query.replace(/\s/g,''));
+
+  // ── SOURCE 1: Google Books ──
+  async function searchGoogle(q, cat) {
+    let qParam = encodeURIComponent(q);
+    if (cat === 'intitle') qParam = `intitle:${qParam}`;
+    else if (cat === 'inauthor') qParam = `inauthor:${qParam}`;
+    else if (isIsbn) qParam = `isbn:${qParam}`;
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${qParam}&maxResults=40&langRestrict=en`);
+    if (!res.ok) return [];
     const data = await res.json();
-    renderBsResults(data.items || []);
-  } catch {
-    document.getElementById('bsResults').innerHTML =
-      '<div class="bs-state"><p>Search failed.<br>Check your connection or add manually.</p></div>';
+    return (data.items || []).map(item => {
+      const v = item.volumeInfo || {};
+      let cover = v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || '';
+      if (cover) cover = cover.replace(/^http:/, 'https:').replace('zoom=1','zoom=3').replace('&edge=curl','');
+      return { title: v.title || '', author: (v.authors||[])[0] || '', cover, source: 'google', isbn: (v.industryIdentifiers||[]).find(x=>x.type==='ISBN_13')?.identifier || '' };
+    });
+  }
+
+  // ── SOURCE 2: Open Library ──
+  async function searchOpenLibrary(q, cat) {
+    let field = 'q';
+    if (cat === 'intitle') field = 'title';
+    else if (cat === 'inauthor') field = 'author';
+    else if (isIsbn) field = 'isbn';
+    const res = await fetch(`https://openlibrary.org/search.json?${field}=${encodeURIComponent(q)}&limit=30&fields=title,author_name,cover_i,isbn`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.docs || []).filter(d => d.title).map(d => ({
+      title: d.title || '',
+      author: (d.author_name||[])[0] || '',
+      cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '',
+      source: 'ol',
+      isbn: (d.isbn||[])[0] || ''
+    }));
+  }
+
+  try {
+    // Run both in parallel
+    const [gBooks, olBooks] = await Promise.allSettled([
+      searchGoogle(query, bsSearchCategory),
+      searchOpenLibrary(query, bsSearchCategory)
+    ]);
+    const g = gBooks.status === 'fulfilled' ? gBooks.value : [];
+    const ol = olBooks.status === 'fulfilled' ? olBooks.value : [];
+
+    // Deduplicate: prefer Google Books entries, skip OL dupes by title+author
+    const seen = new Set(g.map(b => (b.title+b.author).toLowerCase().replace(/\s/g,'')));
+    const merged = [...g, ...ol.filter(b => {
+      const key = (b.title+b.author).toLowerCase().replace(/\s/g,'');
+      if (seen.has(key)) return false;
+      seen.add(key); return true;
+    })];
+
+    renderBsResults(merged);
+  } catch(e) {
+    resultsEl.innerHTML = '<div class="bs-state"><p>Search failed.<br>Check your connection or add manually.</p></div>';
   }
 }
 
 function renderBsResults(items) {
+  const el = document.getElementById('bsResults');
   if (!items.length) {
-    document.getElementById('bsResults').innerHTML =
-      '<div class="bs-state"><p>No results found.<br>Try a different keyword or add manually.</p></div>';
+    el.innerHTML = '<div class="bs-state"><p>No results found.<br>Try a different keyword or add manually.</p></div>';
     return;
   }
-  document.getElementById('bsResults').innerHTML = items.map(item => {
-    const vol = item.volumeInfo || {};
-    const title = escapeHtml(vol.title || 'Unknown Title');
-    const author = escapeHtml((vol.authors || [])[0] || 'Unknown Author');
-    let coverUrl = vol.imageLinks?.thumbnail || vol.imageLinks?.smallThumbnail || '';
-    if (coverUrl) {
-      coverUrl = coverUrl.replace(/^http:/, 'https:');
-      coverUrl = coverUrl.replace('zoom=1', 'zoom=3').replace('&edge=curl', '');
-    }
-    
-    const coverContent = coverUrl
-      ? `<img src="${escapeAttr(coverUrl)}" alt="" onerror="this.parentElement.innerHTML=''">`
+  el.innerHTML = items.map((book, i) => {
+    const coverContent = book.cover
+      ? `<img src="${escapeAttr(book.cover)}" alt="" onerror="this.parentElement.innerHTML=''">`
       : '';
-    return `<div class="bs-result" onclick="selectBsResult('${escapeAttr(vol.title||'')}','${escapeAttr((vol.authors||[])[0]||'')}','${escapeAttr(coverUrl)}')">
+    return `<div class="bs-result" data-bs-index="${i}">
       <div class="bs-result-cover">${coverContent}</div>
       <div class="bs-result-info">
-        <div class="bs-result-title">${title}</div>
-        <div class="bs-result-author">${author}</div>
+        <div class="bs-result-title">${escapeHtml(book.title || 'Unknown Title')}</div>
+        <div class="bs-result-author">${escapeHtml(book.author || 'Unknown Author')}</div>
       </div>
       <span class="bs-result-add">+</span>
     </div>`;
   }).join('');
+
+  // Store results on the element to avoid inline-onclick encoding issues
+  el._bsResults = items;
+  el.querySelectorAll('.bs-result').forEach(row => {
+    row.addEventListener('click', () => {
+      const book = el._bsResults[+row.dataset.bsIndex];
+      if (book) selectBsResult(book.title, book.author, book.cover);
+    });
+  });
 }
 
 function selectBsResult(title, author, coverUrl) {
   closeBookSearch();
   addCoverFile = null;
   addCoverUrl = coverUrl || null;
-  document.getElementById('addTitle').value = title;
-  document.getElementById('addAuthor').value = author;
+  document.getElementById('addTitle').value = title || '';
+  document.getElementById('addAuthor').value = author || '';
   document.getElementById('addCoverUrlInput').value = coverUrl || '';
+  const uploadEl = document.getElementById('addCoverUpload');
   if (coverUrl) {
-    document.getElementById('addCoverUpload').innerHTML =
-      `<img class="cover-preview" src="${escapeAttr(coverUrl)}" onerror="this.style.display='none'"/><span style="font-size:13px;color:var(--text-dim)">Cover ready ✓</span><input type="file" accept="image/*" onchange="handleCoverUpload(event,'add')"/>`;
+    const img = document.createElement('img');
+    img.className = 'cover-preview';
+    img.src = coverUrl;
+    img.onerror = () => img.remove();
+    const label = document.createElement('span');
+    label.style.cssText = 'font-size:13px;color:var(--text-dim)';
+    label.textContent = 'Cover ready ✓';
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file'; fileInput.accept = 'image/*';
+    fileInput.onchange = e => handleCoverUpload(e, 'add');
+    uploadEl.innerHTML = '';
+    uploadEl.append(img, label, fileInput);
   }
-  document.getElementById('addModal').classList.add('visible');
+  setTimeout(() => document.getElementById('addModal').classList.add('visible'), 80);
 }
 
 function openManualAdd() {
