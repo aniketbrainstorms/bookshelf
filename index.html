@@ -365,9 +365,8 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── PUBLIC SHELF OVERLAY ── */
 .public-shelf-screen {
-  position: fixed; inset: 0; background: var(--bg);
+  position: absolute; inset: 0; background: var(--bg);
   display: flex; flex-direction: column; z-index: 100;
-  overflow: hidden;
 }
 .public-shelf-header {
   padding: max(var(--safe-top),20px) max(var(--safe-right),20px) 0 max(var(--safe-left),20px);
@@ -409,7 +408,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 }
 .public-shelf-empty p { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
 .public-shelf-content {
-  flex: 1; overflow-y: auto; padding: 12 max(var(--safe-right),16px) max(calc(var(--safe-bottom)+24px),24px) max(var(--safe-left),16px);
+  flex: 1; overflow-y: auto; padding: 0 max(var(--safe-right),16px) max(calc(var(--safe-bottom)+24px),24px) max(var(--safe-left),16px);
   scrollbar-width: none;
 }
 .public-shelf-content::-webkit-scrollbar { display: none; }
@@ -540,15 +539,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
       <div class="book-grid" id="publicBookGrid"></div>
     </div>
   </div>
-    </div>
-    <!-- PUBLIC SORT MENU -->
-    <div class="quick-menu" id="publicSortMenu" style="z-index:110">
-      <span class="qm-label">Sort by</span>
-      <button class="qm-item current-status" data-psort="title" onclick="setPublicSort('title')">Title (A–Z)</button>
-      <button class="qm-item" data-psort="author" onclick="setPublicSort('author')">Author (A–Z)</button>
-    </div>
-    <div class="qm-dismiss" id="publicQmDismiss" onclick="closePublicSortMenu()"></div>
-  </div>
+
   <!-- BOOK SEARCH OVERLAY -->
   <div class="book-search-overlay" id="bookSearchOverlay">
     <div class="bs-header">
@@ -599,6 +590,13 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     <button class="qm-item current-status" data-sort="recent" onclick="setSort('recent')">Recently Added</button>
     <button class="qm-item" data-sort="title" onclick="setSort('title')">Title (A–Z)</button>
     <button class="qm-item" data-sort="author" onclick="setSort('author')">Author (A–Z)</button>
+  </div>
+
+  <!-- PUBLIC SORT MENU -->
+  <div class="quick-menu" id="publicSortMenu">
+    <span class="qm-label">Sort by</span>
+    <button class="qm-item current-status" data-psort="title" onclick="setPublicSort('title')">Title (A–Z)</button>
+    <button class="qm-item" data-psort="author" onclick="setPublicSort('author')">Author (A–Z)</button>
   </div>
 
   <!-- QUICK MENU -->
@@ -864,12 +862,8 @@ function getShelfParam() {
 (async function init() {
   const slug = getShelfParam();
   if (slug) {
-    // Public shelf mode — skip auth, prevent zoom, hide all other UI
+    // Public shelf mode — skip auth entirely
     document.getElementById('loadingScreen').classList.add('hidden');
-    // Prevent pinch zoom on iOS Safari
-    document.addEventListener('touchmove', e => {
-      if (e.touches.length > 1) e.preventDefault();
-    }, { passive: false });
     await loadPublicShelf(slug);
     return;
   }
@@ -1026,9 +1020,6 @@ function copyShelfLink() {
 
 // ── PUBLIC SHELF ──
 async function loadPublicShelf(slug) {
-  // Hide everything else in #app so zooming out shows nothing
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('authScreen').style.display = 'none';
   document.getElementById('publicShelfScreen').style.display = 'flex';
 
   // Fetch the profile for this slug
@@ -1091,22 +1082,19 @@ function renderPublicShelf() {
 // ── PUBLIC SORT ──
 function openPublicSortMenu(btn) {
   const menu = document.getElementById('publicSortMenu');
-  const screen = document.getElementById('publicShelfScreen');
-  const ar = screen.getBoundingClientRect();
+  const ar = document.getElementById('app').getBoundingClientRect();
   const br = btn.getBoundingClientRect();
   const menuWidth = 160; const margin = 8;
   const rightEdge = br.right - ar.left;
   const left = Math.min(rightEdge - menuWidth, ar.width - menuWidth - margin);
   menu.style.top = (br.bottom - ar.top + 6) + 'px';
   menu.style.left = Math.max(margin, left) + 'px';
-  document.getElementById('publicQmDismiss').classList.add('active');
+  document.getElementById('qmDismiss').classList.add('active');
   menu.classList.add('visible');
 }
 function closePublicSortMenu() {
   const m = document.getElementById('publicSortMenu');
   if (m) m.classList.remove('visible');
-  const d = document.getElementById('publicQmDismiss');
-  if (d) d.classList.remove('active');
 }
 function setPublicSort(s) {
   publicSort = s;
