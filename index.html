@@ -365,8 +365,9 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── PUBLIC SHELF OVERLAY ── */
 .public-shelf-screen {
-  position: absolute; inset: 0; background: var(--bg);
+  position: fixed; inset: 0; background: var(--bg);
   display: flex; flex-direction: column; z-index: 100;
+  overflow: hidden;
 }
 .public-shelf-header {
   padding: max(var(--safe-top),20px) max(var(--safe-right),20px) 0 max(var(--safe-left),20px);
@@ -863,8 +864,12 @@ function getShelfParam() {
 (async function init() {
   const slug = getShelfParam();
   if (slug) {
-    // Public shelf mode — skip auth entirely
+    // Public shelf mode — skip auth, prevent zoom, hide all other UI
     document.getElementById('loadingScreen').classList.add('hidden');
+    // Prevent pinch zoom on iOS Safari
+    document.addEventListener('touchmove', e => {
+      if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
     await loadPublicShelf(slug);
     return;
   }
@@ -1021,6 +1026,9 @@ function copyShelfLink() {
 
 // ── PUBLIC SHELF ──
 async function loadPublicShelf(slug) {
+  // Hide everything else in #app so zooming out shows nothing
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'none';
   document.getElementById('publicShelfScreen').style.display = 'flex';
 
   // Fetch the profile for this slug
