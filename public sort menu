@@ -604,7 +604,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   </div>
 
   <!-- QM DISMISS -->
-  <div class="qm-dismiss" id="qmDismiss" onclick="closeQuickMenu(); closeSortMenu(); closePublicSortMenu();"></div>
+  <div class="qm-dismiss" id="qmDismiss" onclick="closeQuickMenu(); closeSortMenu(); closePublicSortMenu(); closeShelfSortMenu();"></div>
 
   <!-- SORT MENU (main app) -->
   <div class="quick-menu" id="sortMenu">
@@ -612,6 +612,14 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     <button class="qm-item current-status" data-sort="recent" onclick="setSort('recent')">Recently Added</button>
     <button class="qm-item" data-sort="title" onclick="setSort('title')">Title (A–Z)</button>
     <button class="qm-item" data-sort="author" onclick="setSort('author')">Author (A–Z)</button>
+  </div>
+
+<!-- SHELF SORT MENU -->
+  <div class="quick-menu" id="shelfSortMenu">
+    <span class="qm-label">Sort by</span>
+    <button class="qm-item current-status" data-ssort="recent" onclick="setShelfSort('recent')">Recently Added</button>
+    <button class="qm-item" data-ssort="title" onclick="setShelfSort('title')">Title (A–Z)</button>
+    <button class="qm-item" data-ssort="author" onclick="setShelfSort('author')">Author (A–Z)</button>
   </div>
 
   <!-- PUBLIC SORT MENU -->
@@ -792,6 +800,18 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
       </button>
       <span class="shelf-header-title">My Shelf</span>
       <span class="shelf-header-count" id="shelfOverlayCount"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 16px 12px;">
+      <div class="search-row-input-wrap" style="flex:1">
+        <span class="search-row-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" class="search-row-input" id="shelfSearchInput" placeholder="Search shelf" oninput="renderShelfGrid()" autocomplete="off" autocorrect="off" spellcheck="false" />
+        <button class="search-row-clear" id="shelfSearchClear" onclick="clearShelfSearch()">×</button>
+      </div>
+      <button class="sort-btn" id="shelfSortBtn" onclick="openShelfSortMenu(this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+      </button>
     </div>
     <div class="divider"></div>
     <div class="grid-container" style="padding-bottom: max(calc(var(--safe-bottom) + 32px),32px)">
@@ -1078,8 +1098,11 @@ function renderPublicShelf() {
   let list = [...publicBooks];
   if (q) list = list.filter(b => (b.title||'').toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q));
 
-  list.sort((a, b) => {
-    if (publicSort === 'author') return (a.author||'').localeCompare(b.author||'');
+list.sort((a, b) => {
+    if (publicSort === 'author') {
+      const cmp = (a.author||'').localeCompare(b.author||'');
+      return cmp !== 0 ? cmp : (a.title||'').localeCompare(b.title||'');
+    }
     return (a.title||'').localeCompare(b.title||'');
   });
 
@@ -1100,6 +1123,7 @@ function renderPublicShelf() {
 // ── PUBLIC SORT ──
 function openPublicSortMenu(btn) {
   const menu = document.getElementById('publicSortMenu');
+  menu.querySelectorAll('.qm-item').forEach(i => i.classList.toggle('current-status', i.dataset.psort === publicSort));
   const ar = document.getElementById('app').getBoundingClientRect();
   const br = btn.getBoundingClientRect();
   const menuWidth = 160; const margin = 8;
@@ -1455,18 +1479,54 @@ function openProfileModal() {
 }
 
 // ── MY SHELF VIEW ──
+let shelfSort = 'recent';
 function openShelfView() {
   closeModal('profileModal');
+  const si = document.getElementById('shelfSearchInput');
+  if (si) { si.value = ''; document.getElementById('shelfSearchClear').classList.remove('visible'); }
   renderShelfGrid();
   document.getElementById('shelfOverlay').classList.add('open');
 }
 function closeShelfView() { document.getElementById('shelfOverlay').classList.remove('open'); }
+function clearShelfSearch() {
+  const si = document.getElementById('shelfSearchInput');
+  si.value = ''; document.getElementById('shelfSearchClear').classList.remove('visible');
+  renderShelfGrid(); si.focus();
+}
+function openShelfSortMenu(btn) {
+  const menu = document.getElementById('shelfSortMenu');
+  menu.querySelectorAll('.qm-item').forEach(i => i.classList.toggle('current-status', i.dataset.ssort === shelfSort));
+  const ar = document.getElementById('app').getBoundingClientRect();
+  const br = btn.getBoundingClientRect();
+  const menuWidth = 160, margin = 8;
+  const left = Math.min(br.right - ar.left - menuWidth, ar.width - menuWidth - margin);
+  menu.style.top = (br.bottom - ar.top + 6) + 'px';
+  menu.style.left = Math.max(margin, left) + 'px';
+  document.getElementById('qmDismiss').classList.add('active');
+  menu.classList.add('visible');
+}
+function closeShelfSortMenu() {
+  const m = document.getElementById('shelfSortMenu'); if (m) m.classList.remove('visible');
+}
+function setShelfSort(s) {
+  shelfSort = s;
+  closeShelfSortMenu();
+  document.getElementById('qmDismiss').classList.remove('active');
+  renderShelfGrid();
+}
 function renderShelfGrid() {
   const grid = document.getElementById('shelfGrid');
   const countEl = document.getElementById('shelfOverlayCount');
-  const all = [...books].sort((a, b) => {
-    if (currentSort === 'title') return (a.title||'').localeCompare(b.title||'');
-    if (currentSort === 'author') return (a.author||'').localeCompare(b.author||'');
+  const q = (document.getElementById('shelfSearchInput')?.value || '').toLowerCase().trim();
+  let all = [...books];
+  if (q) all = all.filter(b => (b.title||'').toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q));
+  document.getElementById('shelfSearchClear')?.classList.toggle('visible', q.length > 0);
+  all.sort((a, b) => {
+    if (shelfSort === 'title') return (a.title||'').localeCompare(b.title||'');
+    if (shelfSort === 'author') {
+      const cmp = (a.author||'').localeCompare(b.author||'');
+      return cmp !== 0 ? cmp : (a.title||'').localeCompare(b.title||'');
+    }
     return new Date(b.created_at) - new Date(a.created_at);
   });
   if (countEl) countEl.textContent = all.length === 1 ? '1 book' : `${all.length} books`;
