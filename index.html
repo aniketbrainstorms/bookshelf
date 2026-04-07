@@ -1130,7 +1130,11 @@ function getSortedFiltered() {
   if (q) list = list.filter(b => (b.title||'').toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q));
   list.sort((a, b) => {
     if (currentSort === 'title') return (a.title||'').localeCompare(b.title||'');
-    if (currentSort === 'author') return (a.author||'').localeCompare(b.author||'');
+    if (currentSort === 'author') {
+  const authorCmp = (a.author||'').trim().toLowerCase().localeCompare((b.author||'').trim().toLowerCase());
+  if (authorCmp !== 0) return authorCmp;
+  return (a.title||'').trim().toLowerCase().localeCompare((b.title||'').trim().toLowerCase());
+}
     return new Date(b.created_at) - new Date(a.created_at);
   });
   return list;
