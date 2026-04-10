@@ -1233,10 +1233,11 @@ list.sort((a, b) => {
   }
   grid.classList.remove('reading-mode');
   grid.innerHTML = list.map((b, i) => `
-    <div class="pub-book-card" style="animation-delay:${Math.min(i,12)*0.035}s">
+    <div class="pub-book-card" data-id="${b.id}" data-title="${escapeAttr(b.title||'')}" data-author="${escapeAttr(b.author||'')}" style="animation-delay:${Math.min(i,12)*0.035}s">
       ${coverHtml(b)}
       <div class="status-dot ${b.status}"></div>
     </div>`).join('');
+  if (typeof alphaBarRefresh === 'function') alphaBarRefresh('public');
 }
 
 // ── PUBLIC SORT ──
@@ -1943,9 +1944,19 @@ function showToast(msg) {
     bar.style.right  = '0px';
   }
 
+  function positionPublicBar() {
+    const bar = document.getElementById('publicAlphaBar');
+    const container = document.getElementById('publicShelfContent');
+    if (!bar || !container) return;
+    const rect = container.getBoundingClientRect();
+    bar.style.top    = rect.top + 'px';
+    bar.style.bottom = (window.innerHeight - rect.bottom) + 'px';
+    bar.style.right  = '0px';
+  }
+
   function getCards(ctx) {
     const grid = document.getElementById(CONTEXTS[ctx].gridId);
-    return grid ? Array.from(grid.querySelectorAll('.book-card[data-id], .reading-card[data-id]')) : [];
+    return grid ? Array.from(grid.querySelectorAll('.book-card[data-id], .reading-card[data-id], .pub-book-card[data-id]')) : [];
   }
 
   function getActiveLetters(ctx) {
@@ -1979,7 +1990,8 @@ function showToast(msg) {
     }
 
     // Position the fixed bar over the exact grid area
-    if (ctx === 'main') positionMainBar();
+    if (ctx === 'main')   positionMainBar();
+    if (ctx === 'public') positionPublicBar();
 
     track.innerHTML = '';
     ALL_LETTERS.forEach(letter => {
@@ -2137,8 +2149,9 @@ function showToast(msg) {
 
   window.alphaBarRefresh = function (ctx) {
     setTimeout(() => {
-      if (ctx === 'main'  || !ctx) buildBar('main');
-      if (ctx === 'shelf' || !ctx) buildBar('shelf');
+      if (ctx === 'main'   || !ctx) buildBar('main');
+      if (ctx === 'shelf'  || !ctx) buildBar('shelf');
+      if (ctx === 'public' || !ctx) buildBar('public');
     }, 80);
   };
 
