@@ -2137,11 +2137,6 @@ function showToast(msg) {
     });
   }
 
-  // Re-position fixed bar on resize (orientation change etc.)
-  window.addEventListener('resize', () => {
-    positionMainBar();
-  });
-
   window.alphaBarRefresh = function (ctx) {
     setTimeout(() => {
       if (ctx === 'main'  || !ctx) buildBar('main');
@@ -2157,15 +2152,14 @@ function showToast(msg) {
     setupMouseEvents('shelf');
     setupTouchEvents('public');
     setupMouseEvents('public');
-    // Reposition on any layout shift (safe-area changes, keyboard, etc.)
-    window.addEventListener('resize', () => {
-      const mainBar = document.getElementById('mainAlphaBar');
-      if (mainBar && mainBar.classList.contains('visible')) positionBar('main');
-      const shelfBar = document.getElementById('shelfAlphaBar');
-      if (shelfBar && shelfBar.classList.contains('visible')) positionBar('shelf');
-      const publicBar = document.getElementById('publicAlphaBar');
-      if (publicBar && publicBar.classList.contains('visible')) positionBar('public');
-    });
+    
+    // Reposition resiliently across iOS screen rotation animation delays
+    const handleLayoutShift = () => {
+      alphaBarRefresh(); // Fires buildBar logic at 80ms
+      setTimeout(() => alphaBarRefresh(), 300); // Fallback for laggy orientation completion
+    };
+    window.addEventListener('resize', handleLayoutShift);
+    window.addEventListener('orientationchange', handleLayoutShift);
   });
 })();
 // ── END A–Z SCROLLBAR ─────────────────────────────────────────────────────
