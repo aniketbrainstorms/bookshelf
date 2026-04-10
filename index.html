@@ -50,6 +50,93 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   display: flex; flex-direction: column; overflow: hidden;
 }
 
+/* ── A–Z Alphabet Scrollbar ─────────────────────────────────── */
+#alphaBar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 40;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+#alphaBar.visible {
+  pointer-events: auto;
+  opacity: 1;
+}
+#alphaBar .alpha-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+  background: rgba(30, 24, 20, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 11px;
+  padding: 4px 0;
+  border: 1px solid rgba(201,113,74,0.15);
+}
+#alphaBar .alpha-letter {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #c9714a;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.1s, color 0.1s, transform 0.1s;
+  min-height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#alphaBar .alpha-letter.active {
+  background: #c9714a;
+  color: #1a110a;
+  transform: scale(1.15);
+}
+#alphaBar .alpha-letter:active {
+  transform: scale(0.9);
+}
+
+/* Letter popout bubble */
+#alphaBubble {
+  position: fixed;
+  right: 30px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px 12px 0 12px;
+  background: #c9714a;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 41;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+  box-shadow: 0 4px 24px rgba(201,113,74,0.45);
+  letter-spacing: -1px;
+}
+#alphaBubble.show {
+  opacity: 1;
+  transform: scale(1);
+}
+  
 /* ── LOADING ── */
 .loading-screen {
   position: absolute; inset: 0; background: var(--bg);
@@ -1759,6 +1846,246 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
 }
+
+<!-- A–Z Alphabet Scrollbar -->
+<div id="alphaBar">
+  <div class="alpha-track" id="alphaTrack"></div>
+</div>
+<div id="alphaBubble"></div>
+
+// ── A–Z Alphabet Scrollbar ────────────────────────────────────
+(function () {
+  const ARTICLES = new Set(['the', 'a', 'an']);
+
+  function sortKey(str) {
+    if (!str) return '#';
+    const words = str.trim().toLowerCase().split(/\s+/);
+    const first = ARTICLES.has(words[0]) && words.length > 1 ? words[1] : words[0];
+    return first;
+  }
+
+  function getLetterForKey(key) {
+    if (!key) return '#';
+    const c = key[0];
+    if (/[a-z]/.test(c)) return c.toUpperCase();
+    return '#';
+  }
+
+  function buildAlphaIndex(books, sortMode) {
+    // Returns Map<letter, firstBookElement> after render
+    const index = new Map();
+    const field = sortMode === 'author' ? 'author' : 'title';
+    books.forEach(book => {
+      const key = sortKey(book[field] || '');
+      const letter = getLetterForKey(key);
+      if (!index.has(letter)) index.set(letter, book.id);
+    });
+    return index;
+  }
+
+  function getActiveBooksFromDOM() {
+    // Read rendered book cards from the grid
+    const cards = document.querySelectorAll('#bookGrid [data-book-id]');
+    return Array.from(cards);
+  }
+
+  function getFirstCardForLetter(letter) {
+    const cards = getActiveBooksFromDOM();
+    const sort = window._currentSort || 'recently_added';
+    const field = sort === 'author' ? 'data-author' : 'data-title';
+    for (const card of cards) {
+      const val = card.getAttribute(field) || '';
+      const key = sortKey(val);
+      const l = getLetterForKey(key);
+      if (l === letter) return card;
+    }
+    return null;
+  }
+
+  function getLettersFromDOM() {
+    const cards = getActiveBooksFromDOM();
+    const sort = window._currentSort || 'recently_added';
+    const field = sort === 'author' ? 'data-author' : 'data-title';
+    const seen = new Set();
+    const letters = [];
+    for (const card of cards) {
+      const val = card.getAttribute(field) || '';
+      const key = sortKey(val);
+      const l = getLetterForKey(key);
+      if (!seen.has(l)) {
+        seen.add(l);
+        letters.push(l);
+      }
+    }
+    return letters;
+  }
+
+  function buildBar() {
+    const sort = window._currentSort || 'recently_added';
+    const bar = document.getElementById('alphaBar');
+    const track = document.getElementById('alphaTrack');
+    const bubble = document.getElementById('alphaBubble');
+    if (!bar || !track || !bubble) return;
+
+    // Only show for title/author sorts
+    if (sort === 'recently_added') {
+      bar.classList.remove('visible');
+      return;
+    }
+
+    const activeLetters = new Set(getLettersFromDOM());
+    if (activeLetters.size < 2) {
+      bar.classList.remove('visible');
+      return;
+    }
+
+    // Build full A–Z + #
+    const allLetters = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+    track.innerHTML = '';
+
+    allLetters.forEach(l => {
+      const el = document.createElement('div');
+      el.className = 'alpha-letter';
+      el.textContent = l;
+      el.dataset.letter = l;
+      if (!activeLetters.has(l)) {
+        el.style.color = 'rgba(201,113,74,0.25)';
+        el.style.pointerEvents = 'none';
+      }
+      track.appendChild(el);
+    });
+
+    bar.classList.add('visible');
+    positionBubble(-999);
+  }
+
+  function haptic() {
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+
+  let lastActiveLetter = null;
+
+  function activateLetter(letter, yForBubble) {
+    const bubble = document.getElementById('alphaBubble');
+    const track = document.getElementById('alphaTrack');
+    if (!track || !bubble) return;
+
+    // Update active state
+    track.querySelectorAll('.alpha-letter').forEach(el => {
+      el.classList.toggle('active', el.dataset.letter === letter);
+    });
+
+    // Position and show bubble
+    bubble.textContent = letter;
+    positionBubble(yForBubble);
+    bubble.classList.add('show');
+
+    if (letter !== lastActiveLetter) {
+      haptic();
+      lastActiveLetter = letter;
+
+      // Scroll to first card with this letter
+      const card = getFirstCardForLetter(letter);
+      if (card) {
+        const scrollContainer = document.documentElement;
+        const cardRect = card.getBoundingClientRect();
+        const scrollTop = window.scrollY + cardRect.top - 100;
+        window.scrollTo({ top: Math.max(0, scrollTop), behavior: 'smooth' });
+      }
+    }
+  }
+
+  function positionBubble(clientY) {
+    const bubble = document.getElementById('alphaBubble');
+    if (!bubble) return;
+    const bh = 52;
+    const clampedY = Math.max(60, Math.min(window.innerHeight - bh - 20, clientY - bh / 2));
+    bubble.style.top = clampedY + 'px';
+  }
+
+  function hideBubble() {
+    const bubble = document.getElementById('alphaBubble');
+    const track = document.getElementById('alphaTrack');
+    if (bubble) bubble.classList.remove('show');
+    if (track) track.querySelectorAll('.alpha-letter').forEach(el => el.classList.remove('active'));
+    lastActiveLetter = null;
+  }
+
+  function letterFromPoint(clientY) {
+    const track = document.getElementById('alphaTrack');
+    if (!track) return null;
+    const letters = track.querySelectorAll('.alpha-letter');
+    for (const el of letters) {
+      const r = el.getBoundingClientRect();
+      if (clientY >= r.top && clientY <= r.bottom) {
+        return el.dataset.letter;
+      }
+    }
+    // clamp to edges
+    if (letters.length === 0) return null;
+    const first = letters[0].getBoundingClientRect();
+    const last = letters[letters.length - 1].getBoundingClientRect();
+    if (clientY < first.top) return letters[0].dataset.letter;
+    if (clientY > last.bottom) return letters[letters.length - 1].dataset.letter;
+    return null;
+  }
+
+  // Touch events
+  function setupEvents() {
+    const bar = document.getElementById('alphaBar');
+    if (!bar) return;
+
+    bar.addEventListener('touchstart', e => {
+      e.stopPropagation();
+      const t = e.touches[0];
+      const letter = letterFromPoint(t.clientY);
+      if (letter) activateLetter(letter, t.clientY);
+    }, { passive: true });
+
+    bar.addEventListener('touchmove', e => {
+      e.stopPropagation();
+      const t = e.touches[0];
+      const letter = letterFromPoint(t.clientY);
+      if (letter) activateLetter(letter, t.clientY);
+      positionBubble(t.clientY);
+    }, { passive: true });
+
+    bar.addEventListener('touchend', e => {
+      e.stopPropagation();
+      setTimeout(hideBubble, 600);
+    }, { passive: true });
+
+    // Mouse events for desktop
+    let mouseDown = false;
+    bar.addEventListener('mousedown', e => {
+      mouseDown = true;
+      const letter = letterFromPoint(e.clientY);
+      if (letter) activateLetter(letter, e.clientY);
+    });
+    window.addEventListener('mousemove', e => {
+      if (!mouseDown) return;
+      const trackRect = document.getElementById('alphaTrack')?.getBoundingClientRect();
+      if (!trackRect) return;
+      if (e.clientX < trackRect.left - 30) { mouseDown = false; hideBubble(); return; }
+      const letter = letterFromPoint(e.clientY);
+      if (letter) activateLetter(letter, e.clientY);
+    });
+    window.addEventListener('mouseup', () => {
+      if (mouseDown) { mouseDown = false; setTimeout(hideBubble, 400); }
+    });
+  }
+
+  // Hook into renderGrid — expose a global refresh function
+  window._alphaBarRefresh = function () {
+    setTimeout(buildBar, 60); // slight delay to let DOM settle
+  };
+
+  // Initial setup
+  document.addEventListener('DOMContentLoaded', () => {
+    setupEvents();
+    buildBar();
+  });
+})();
 </script>
 </body>
 </html>
