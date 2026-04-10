@@ -166,6 +166,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   flex: 1; overflow-y: auto;
   padding: 16px max(var(--safe-right),16px) max(calc(var(--safe-bottom) + 24px),24px) max(var(--safe-left),16px);
   scrollbar-width: none;
+  position: relative;
 }
 .grid-container::-webkit-scrollbar { display: none; }
 .book-grid { display: grid; gap: 10px; grid-template-columns: repeat(4, 1fr); }
@@ -375,7 +376,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .share-slug-save:disabled { opacity: 0.5; }
 
 /* MY SHELF OVERLAY */
-.shelf-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 12; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); pointer-events: none; }
+.shelf-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 12; display: flex; flex-direction: column; overflow: hidden; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); pointer-events: none; }
 .shelf-overlay.open { transform: translateX(0); pointer-events: all; }
 .shelf-header { display: flex; align-items: center; gap: 10px; padding: max(var(--safe-top),16px) max(var(--safe-right),16px) 14px max(var(--safe-left),16px); flex-shrink: 0; }
 .shelf-back-btn { width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: all 0.2s; flex-shrink: 0; }
@@ -386,7 +387,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 /* ── PUBLIC SHELF OVERLAY ── */
 .public-shelf-screen {
   position: absolute; inset: 0; background: var(--bg);
-  display: flex; flex-direction: column; z-index: 100;
+  display: flex; flex-direction: column; overflow: hidden; z-index: 100;
 }
 .public-shelf-header {
   padding: max(var(--safe-top),20px) max(var(--safe-right),20px) 0 max(var(--safe-left),20px);
@@ -458,6 +459,108 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 /* TOAST */
 .toast { position: absolute; bottom: calc(24px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: var(--text-dim); white-space: nowrap; opacity: 0; transition: all 0.3s ease; z-index: 30; pointer-events: none; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── A–Z ALPHABET SCROLLBAR ── */
+.alpha-bar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 35;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  /* top/bottom set dynamically by JS to sit below header, above safe-bottom */
+}
+.alpha-bar.visible {
+  pointer-events: auto;
+  opacity: 1;
+}
+/* Shelf overlay bar sits inside position:absolute overlay — use absolute there */
+#shelfAlphaBar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.alpha-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(22, 20, 16, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 10px;
+  padding: 4px 0;
+  border: 1px solid rgba(201,113,74,0.2);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+  touch-action: none;
+  /* prevent the track itself from overflowing the bar */
+  max-height: calc(100% - 16px);
+  overflow: hidden;
+}
+.alpha-letter {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  width: 18px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.1s, color 0.1s, transform 0.08s;
+  flex-shrink: 0;
+}
+.alpha-letter.active {
+  background: var(--accent);
+  color: #1a1108;
+  transform: scale(1.25);
+  z-index: 1;
+}
+.alpha-letter.dim {
+  color: rgba(201,113,74,0.2);
+  pointer-events: none;
+}
+
+/* Letter pop bubble — always fixed to viewport */
+.alpha-bubble {
+  position: fixed;
+  right: 28px;
+  width: 52px;
+  height: 52px;
+  border-radius: 13px 13px 0 13px;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 36;
+  opacity: 0;
+  transform: scale(0.5) translateX(8px);
+  transition: opacity 0.13s ease, transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+  box-shadow: 0 4px 24px rgba(201,113,74,0.55);
+  letter-spacing: -1px;
+  will-change: transform, opacity;
+}
+.alpha-bubble.show {
+  opacity: 1;
+  transform: scale(1) translateX(0);
+}
 </style>
 </head>
 <body>
@@ -531,8 +634,13 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     </div>
     <div class="divider"></div>
     <div class="hint-bar" id="hintBar">Tap to view · Hold to quick-edit</div>
-    <div class="grid-container">
+    <div class="grid-container" id="mainGridContainer">
       <div class="book-grid" id="bookGrid"></div>
+      <!-- A–Z bar for main shelf -->
+      <div class="alpha-bar" id="mainAlphaBar">
+        <div class="alpha-track" id="mainAlphaTrack"></div>
+      </div>
+      <div class="alpha-bubble" id="mainAlphaBubble"></div>
     </div>
   </div>
 
@@ -814,8 +922,13 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
       </button>
     </div>
     <div class="divider"></div>
-    <div class="grid-container" style="padding-bottom: max(calc(var(--safe-bottom) + 32px),32px)">
+    <div class="grid-container" style="padding-bottom: max(calc(var(--safe-bottom) + 32px),32px)" id="shelfGridContainer">
       <div class="book-grid" id="shelfGrid"></div>
+      <!-- A–Z bar for shelf overlay -->
+      <div class="alpha-bar" id="shelfAlphaBar">
+        <div class="alpha-track" id="shelfAlphaTrack"></div>
+      </div>
+      <div class="alpha-bubble" id="shelfAlphaBubble"></div>
     </div>
   </div>
 
@@ -1155,10 +1268,10 @@ function getSortedFiltered() {
   list.sort((a, b) => {
     if (currentSort === 'title') return (a.title||'').localeCompare(b.title||'');
     if (currentSort === 'author') {
-  const authorCmp = (a.author||'').trim().toLowerCase().localeCompare((b.author||'').trim().toLowerCase());
-  if (authorCmp !== 0) return authorCmp;
-  return (a.title||'').trim().toLowerCase().localeCompare((b.title||'').trim().toLowerCase());
-}
+      const authorCmp = (a.author||'').trim().toLowerCase().localeCompare((b.author||'').trim().toLowerCase());
+      if (authorCmp !== 0) return authorCmp;
+      return (a.title||'').localeCompare(b.title||'');
+    }
     return new Date(b.created_at) - new Date(a.created_at);
   });
   return list;
@@ -1234,7 +1347,7 @@ function renderGrid() {
   } else {
     grid.classList.remove('reading-mode');
     grid.innerHTML = filtered.map((b, i) => `
-      <div class="book-card" data-id="${b.id}" style="animation-delay:${Math.min(i,12)*0.035}s">
+      <div class="book-card" data-id="${b.id}" data-title="${escapeAttr(b.title||'')}" data-author="${escapeAttr(b.author||'')}" style="animation-delay:${Math.min(i,12)*0.035}s">
         ${coverHtml(b)}<div class="status-dot ${b.status}"></div>
       </div>`).join('');
     grid.querySelectorAll('.book-card').forEach(card => {
@@ -1249,6 +1362,8 @@ function renderGrid() {
       });
     });
   }
+  // refresh A–Z bar after DOM settles
+  if (typeof alphaBarRefresh === 'function') alphaBarRefresh('main');
 }
 
 // ── SEARCH (shelf) ──
@@ -1335,6 +1450,7 @@ function setSort(sortType) {
   document.querySelectorAll('#sortMenu .qm-item').forEach(btn => btn.classList.toggle('current-status', btn.dataset.sort === sortType));
   closeSortMenu();
   renderGrid();
+  if (typeof alphaBarRefresh === 'function') alphaBarRefresh('main');
 }
 
 // ── SCANNER ──
@@ -1513,6 +1629,7 @@ function setShelfSort(s) {
   closeShelfSortMenu();
   document.getElementById('qmDismiss').classList.remove('active');
   renderShelfGrid();
+  if (typeof alphaBarRefresh === 'function') alphaBarRefresh('shelf');
 }
 function renderShelfGrid() {
   const grid = document.getElementById('shelfGrid');
@@ -1536,7 +1653,7 @@ function renderShelfGrid() {
   }
   grid.classList.remove('reading-mode');
   grid.innerHTML = all.map((b, i) => `
-    <div class="book-card" data-id="${b.id}" style="animation-delay:${Math.min(i,12)*0.035}s">
+    <div class="book-card" data-id="${b.id}" data-title="${escapeAttr(b.title||'')}" data-author="${escapeAttr(b.author||'')}" style="animation-delay:${Math.min(i,12)*0.035}s">
       ${coverHtml(b)}<div class="status-dot ${b.status}"></div>
     </div>`).join('');
   grid.querySelectorAll('.book-card').forEach(card => {
@@ -1550,6 +1667,8 @@ function renderShelfGrid() {
       else openQuickMenu(id, card);
     });
   });
+  // refresh A–Z bar after DOM settles
+  if (typeof alphaBarRefresh === 'function') alphaBarRefresh('shelf');
 }
 
 // ── BOOK SEARCH ──
@@ -1730,6 +1849,7 @@ function setFilter(filter) {
   currentFilter = filter;
   document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
   renderGrid();
+  if (typeof alphaBarRefresh === 'function') alphaBarRefresh('main');
 }
 function resetAddModal() {
   document.getElementById('addTitle').value = '';
@@ -1759,6 +1879,268 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
 }
+
+// ── A–Z ALPHABET SCROLLBAR ─────────────────────────────────────────────────
+// position:fixed on main shelf (scrolls independently of content)
+// position:absolute on shelf overlay (overlay is already full-screen fixed)
+(function () {
+  const ALL_LETTERS = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+
+  function firstLetter(str) {
+    if (!str) return '#';
+    const c = str.trim()[0].toLowerCase();
+    return /[a-z]/.test(c) ? c.toUpperCase() : '#';
+  }
+
+  function haptic() {
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch (e) {}
+  }
+
+  const CONTEXTS = {
+    main: {
+      barId:       'mainAlphaBar',
+      trackId:     'mainAlphaTrack',
+      bubbleId:    'mainAlphaBubble',
+      gridId:      'bookGrid',
+      containerId: 'mainGridContainer',
+      getSort:     () => currentSort,
+    },
+    shelf: {
+      barId:       'shelfAlphaBar',
+      trackId:     'shelfAlphaTrack',
+      bubbleId:    'shelfAlphaBubble',
+      gridId:      'shelfGrid',
+      containerId: 'shelfGridContainer',
+      getSort:     () => shelfSort,
+    },
+  };
+
+  const lastLetter  = { main: null, shelf: null };
+  const mouseState  = { main: false, shelf: false };
+
+  // ── Position the main bar so it sits exactly over the grid area ──
+  function positionMainBar() {
+    const bar = document.getElementById('mainAlphaBar');
+    const container = document.getElementById('mainGridContainer');
+    if (!bar || !container) return;
+    const rect = container.getBoundingClientRect();
+    bar.style.top    = rect.top + 'px';
+    bar.style.bottom = (window.innerHeight - rect.bottom) + 'px';
+    bar.style.right  = '0px';
+  }
+
+  function getCards(ctx) {
+    const grid = document.getElementById(CONTEXTS[ctx].gridId);
+    return grid ? Array.from(grid.querySelectorAll('.book-card[data-id]')) : [];
+  }
+
+  function getActiveLetters(ctx) {
+    const sort  = CONTEXTS[ctx].getSort();
+    const field = sort === 'author' ? 'data-author' : 'data-title';
+    const seen  = new Set();
+    getCards(ctx).forEach(card => seen.add(firstLetter(card.getAttribute(field) || '')));
+    return seen;
+  }
+
+  function buildBar(ctx) {
+    const cfg    = CONTEXTS[ctx];
+    const bar    = document.getElementById(cfg.barId);
+    const track  = document.getElementById(cfg.trackId);
+    const bubble = document.getElementById(cfg.bubbleId);
+    if (!bar || !track || !bubble) return;
+
+    const sort = cfg.getSort();
+
+    if (sort === 'recent') {
+      bar.classList.remove('visible');
+      hideBubble(ctx);
+      return;
+    }
+
+    const activeLetters = getActiveLetters(ctx);
+    if (activeLetters.size < 2) {
+      bar.classList.remove('visible');
+      hideBubble(ctx);
+      return;
+    }
+
+    // Position the fixed bar over the exact grid area
+    if (ctx === 'main') positionMainBar();
+
+    track.innerHTML = '';
+    ALL_LETTERS.forEach(letter => {
+      const el = document.createElement('div');
+      el.className  = 'alpha-letter' + (activeLetters.has(letter) ? '' : ' dim');
+      el.textContent = letter;
+      el.dataset.letter = letter;
+      track.appendChild(el);
+    });
+
+    bar.classList.add('visible');
+  }
+
+  function hideBubble(ctx) {
+    const cfg    = CONTEXTS[ctx];
+    const bubble = document.getElementById(cfg.bubbleId);
+    const track  = document.getElementById(cfg.trackId);
+    if (bubble) bubble.classList.remove('show');
+    if (track)  track.querySelectorAll('.alpha-letter').forEach(el => el.classList.remove('active'));
+    lastLetter[ctx] = null;
+  }
+
+  function activateLetter(ctx, letter, clientY) {
+    if (!letter) return;
+    const cfg    = CONTEXTS[ctx];
+    const track  = document.getElementById(cfg.trackId);
+    const bubble = document.getElementById(cfg.bubbleId);
+    if (!track || !bubble) return;
+
+    // Highlight active letter in strip
+    track.querySelectorAll('.alpha-letter').forEach(el =>
+      el.classList.toggle('active', el.dataset.letter === letter));
+
+    // Position bubble — always uses viewport clientY since bubble is position:fixed
+    const bubbleH  = 52;
+    const topBound = 60;
+    const botBound = window.innerHeight - bubbleH - 16;
+    const clampedY = Math.max(topBound, Math.min(botBound, clientY - bubbleH / 2));
+    bubble.style.top = clampedY + 'px';
+    bubble.textContent = letter;
+    bubble.classList.add('show');
+
+    if (letter !== lastLetter[ctx]) {
+      lastLetter[ctx] = letter;
+      haptic();
+      scrollToLetter(ctx, letter);
+    }
+  }
+
+  function scrollToLetter(ctx, letter) {
+    const cfg   = CONTEXTS[ctx];
+    const sort  = cfg.getSort();
+    const field = sort === 'author' ? 'data-author' : 'data-title';
+    const container = document.getElementById(cfg.containerId);
+    if (!container) return;
+
+    for (const card of getCards(ctx)) {
+      if (firstLetter(card.getAttribute(field) || '') === letter) {
+        // scrollTop + getBoundingClientRect delta is correct here:
+        // container.scrollTop is the current scroll offset.
+        // card.getBoundingClientRect().top - container.getBoundingClientRect().top
+        // gives the card's position RELATIVE TO THE VISIBLE CONTAINER TOP,
+        // which may be negative (card above viewport) or positive (below).
+        // Adding container.scrollTop converts that to an absolute scroll position.
+        // This is scroll-position-independent and works correctly at any scroll depth.
+        const cTop   = container.getBoundingClientRect().top;
+        const cardTop = card.getBoundingClientRect().top;
+        const target = container.scrollTop + (cardTop - cTop) - 8;
+        container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+        return;
+      }
+    }
+  }
+
+  function letterFromY(ctx, clientY) {
+    const track = document.getElementById(CONTEXTS[ctx].trackId);
+    if (!track) return null;
+    const active = Array.from(track.querySelectorAll('.alpha-letter:not(.dim)'));
+    for (const el of active) {
+      const r = el.getBoundingClientRect();
+      if (clientY >= r.top && clientY <= r.bottom) return el.dataset.letter;
+    }
+    // Edge clamp — snap to nearest active letter
+    const all = track.querySelectorAll('.alpha-letter');
+    if (!all.length) return null;
+    const firstRect = all[0].getBoundingClientRect();
+    const lastRect  = all[all.length - 1].getBoundingClientRect();
+    if (clientY < firstRect.top) {
+      return active.length ? active[0].dataset.letter : null;
+    }
+    if (clientY > lastRect.bottom) {
+      return active.length ? active[active.length - 1].dataset.letter : null;
+    }
+    return null;
+  }
+
+  function setupTouchEvents(ctx) {
+    const bar = document.getElementById(CONTEXTS[ctx].barId);
+    if (!bar) return;
+
+    bar.addEventListener('touchstart', e => {
+      e.stopPropagation();
+      const t = e.touches[0];
+      const letter = letterFromY(ctx, t.clientY);
+      if (letter) activateLetter(ctx, letter, t.clientY);
+    }, { passive: true });
+
+    bar.addEventListener('touchmove', e => {
+      e.stopPropagation();
+      const t = e.touches[0];
+      const letter = letterFromY(ctx, t.clientY);
+      if (letter) activateLetter(ctx, letter, t.clientY);
+    }, { passive: true });
+
+    bar.addEventListener('touchend', e => {
+      e.stopPropagation();
+      setTimeout(() => hideBubble(ctx), 700);
+    }, { passive: true });
+
+    bar.addEventListener('touchcancel', e => {
+      e.stopPropagation();
+      hideBubble(ctx);
+    }, { passive: true });
+  }
+
+  function setupMouseEvents(ctx) {
+    const bar = document.getElementById(CONTEXTS[ctx].barId);
+    if (!bar) return;
+
+    bar.addEventListener('mousedown', e => {
+      e.preventDefault();
+      mouseState[ctx] = true;
+      const letter = letterFromY(ctx, e.clientY);
+      if (letter) activateLetter(ctx, letter, e.clientY);
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!mouseState[ctx]) return;
+      const letter = letterFromY(ctx, e.clientY);
+      if (letter) activateLetter(ctx, letter, e.clientY);
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (mouseState[ctx]) {
+        mouseState[ctx] = false;
+        setTimeout(() => hideBubble(ctx), 500);
+      }
+    });
+  }
+
+  // Re-position fixed bar on resize (orientation change etc.)
+  window.addEventListener('resize', () => {
+    positionMainBar();
+  });
+
+  window.alphaBarRefresh = function (ctx) {
+    setTimeout(() => {
+      if (ctx === 'main'  || !ctx) buildBar('main');
+      if (ctx === 'shelf' || !ctx) buildBar('shelf');
+    }, 80);
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupTouchEvents('main');
+    setupMouseEvents('main');
+    setupTouchEvents('shelf');
+    setupMouseEvents('shelf');
+    // Reposition on any layout shift (safe-area changes, keyboard, etc.)
+    window.addEventListener('resize', () => {
+      const mainBar = document.getElementById('mainAlphaBar');
+      if (mainBar && mainBar.classList.contains('visible')) positionMainBar();
+    });
+  });
+})();
+// ── END A–Z SCROLLBAR ─────────────────────────────────────────────────────
 </script>
 </body>
 </html>
