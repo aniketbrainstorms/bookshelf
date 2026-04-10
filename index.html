@@ -484,12 +484,10 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   pointer-events: auto;
   opacity: 1;
 }
-/* Shelf overlay bar sits inside position:absolute overlay — use absolute there */
-#shelfAlphaBar {
+/* Shelf overlay bubble must be absolute to stay inside the overlay */
+#shelfAlphaBubble {
   position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  right: 28px;
 }
 .alpha-track {
   display: flex;
@@ -719,8 +717,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   </div>
 
   <!-- QM DISMISS -->
-  <div class="qm-dismiss" id="qmDismiss" onclick="closeQuickMenu(); closeSortMenu(); closePublicSortMenu(); closeShelfSortMenu();"></div>
-
+  <div class="qm-dismiss" id="qmDismiss" onclick="closeQuickMenu(); closeSortMenu(); closePublicSortMenu(); closeShelfSortMenu(); document.getElementById('qmDismiss').classList.remove('active');"></div>
   <!-- SORT MENU (main app) -->
   <div class="quick-menu" id="sortMenu">
     <span class="qm-label">Sort by</span>
@@ -1257,6 +1254,11 @@ function openPublicSortMenu(btn) {
 function closePublicSortMenu() {
   const m = document.getElementById('publicSortMenu');
   if (m) m.classList.remove('visible');
+  if (!document.getElementById('quickMenu').classList.contains('visible') &&
+      !document.getElementById('sortMenu').classList.contains('visible') &&
+      !document.getElementById('shelfSortMenu').classList.contains('visible')) {
+    document.getElementById('qmDismiss').classList.remove('active');
+  }
 }
 function setPublicSort(s) {
   publicSort = s;
@@ -1448,7 +1450,8 @@ function openSortMenu(btn) {
 function closeSortMenu() {
   if (document.getElementById('sortMenu')) document.getElementById('sortMenu').classList.remove('visible');
   if (!document.getElementById('quickMenu').classList.contains('visible') &&
-      !document.getElementById('publicSortMenu').classList.contains('visible')) {
+      !document.getElementById('publicSortMenu').classList.contains('visible') &&
+      !document.getElementById('shelfSortMenu').classList.contains('visible')) {
     document.getElementById('qmDismiss').classList.remove('active');
   }
 }
@@ -1630,6 +1633,11 @@ function openShelfSortMenu(btn) {
 }
 function closeShelfSortMenu() {
   const m = document.getElementById('shelfSortMenu'); if (m) m.classList.remove('visible');
+  if (!document.getElementById('quickMenu').classList.contains('visible') &&
+      !document.getElementById('sortMenu').classList.contains('visible') &&
+      !document.getElementById('publicSortMenu').classList.contains('visible')) {
+    document.getElementById('qmDismiss').classList.remove('active');
+  }
 }
 function setShelfSort(s) {
   shelfSort = s;
@@ -1856,7 +1864,11 @@ function setFilter(filter) {
   currentFilter = filter;
   document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
   renderGrid();
-  if (typeof alphaBarRefresh === 'function') alphaBarRefresh('main');
+  if (typeof alphaBarRefresh === 'function') {
+    // Reset stale letter state before rebuilding bar for new tab
+    if (window._alphaLastLetter) window._alphaLastLetter.main = null;
+    alphaBarRefresh('main');
+  }
 }
 function resetAddModal() {
   document.getElementById('addTitle').value = '';
@@ -1930,8 +1942,9 @@ function showToast(msg) {
     },
   };
 
-  const lastLetter  = { main: null, shelf: null };
-  const mouseState  = { main: false, shelf: false };
+  const lastLetter  = { main: null, shelf: null, public: null };
+  const mouseState  = { main: false, shelf: false, public: false };
+  const hideTimer   = { main: null, shelf: null, public: null };
 
   // ── Position the main bar so it sits exactly over the grid area ──
   function positionMainBar() {
@@ -1968,19 +1981,20 @@ function showToast(msg) {
   }
 
   function buildBar(ctx) {
-    const cfg    = CONTEXTS[ctx];
-    const bar    = document.getElementById(cfg.barId);
-    const track  = document.getElementById(cfg.trackId);
-    const bubble = document.getElementById(cfg.bubbleId);
-    if (!bar || !track || !bubble) return;
+  const cfg    = CONTEXTS[ctx];
+  const bar    = document.getElementById(cfg.barId);
+  const track  = document.getElementById(cfg.trackId);
+  const bubble = document.getElementById(cfg.bubbleId);
+  if (!bar || !track || !bubble) return;
 
-    const sort = cfg.getSort();
+  const sort = cfg.getSort();
 
-    if (sort === 'recent') {
-      bar.classList.remove('visible');
-      hideBubble(ctx);
-      return;
-    }
+  // Suppress on Reading tab (list layout) or recent sort
+  if (sort === 'recent' || (ctx === 'main' && currentFilter === 'reading')) {
+    bar.classList.remove('visible');
+    hideBubble(ctx);
+    return;
+  }
 
     const activeLetters = getActiveLetters(ctx);
     if (activeLetters.size < 2) {
@@ -2025,12 +2039,20 @@ function showToast(msg) {
     track.querySelectorAll('.alpha-letter').forEach(el =>
       el.classList.toggle('active', el.dataset.letter === letter));
 
-    // Position bubble — always uses viewport clientY since bubble is position:fixed
-    const bubbleH  = 52;
-    const topBound = 60;
-    const botBound = window.innerHeight - bubbleH - 16;
-    const clampedY = Math.max(topBound, Math.min(botBound, clientY - bubbleH / 2));
-    bubble.style.top = clampedY + 'px';
+    // Shelf bubble is position:absolute inside overlay — use offset relative to overlay
+    const bubbleH = 52;
+    let topY;
+    if (ctx === 'shelf') {
+      const overlayRect = document.getElementById('shelfOverlay').getBoundingClientRect();
+      const topBound = overlayRect.top + 60;
+      const botBound = overlayRect.bottom - bubbleH - 16;
+      topY = Math.max(topBound, Math.min(botBound, clientY - bubbleH / 2)) - overlayRect.top;
+    } else {
+      const topBound = 60;
+      const botBound = window.innerHeight - bubbleH - 16;
+      topY = Math.max(topBound, Math.min(botBound, clientY - bubbleH / 2));
+    }
+    bubble.style.top = topY + 'px';
     bubble.textContent = letter;
     bubble.classList.add('show');
 
@@ -2059,7 +2081,8 @@ function showToast(msg) {
         // This is scroll-position-independent and works correctly at any scroll depth.
         const cTop   = container.getBoundingClientRect().top;
         const cardTop = card.getBoundingClientRect().top;
-        const target = container.scrollTop + (cardTop - cTop) - 8;
+        const headerOffset = (ctx === 'main' && currentFilter === 'reading') ? 16 : 8;
+        const target = container.scrollTop + (cardTop - cTop) - headerOffset;
         container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
         return;
       }
@@ -2074,17 +2097,12 @@ function showToast(msg) {
       const r = el.getBoundingClientRect();
       if (clientY >= r.top && clientY <= r.bottom) return el.dataset.letter;
     }
-    // Edge clamp — snap to nearest active letter
-    const all = track.querySelectorAll('.alpha-letter');
-    if (!all.length) return null;
-    const firstRect = all[0].getBoundingClientRect();
-    const lastRect  = all[all.length - 1].getBoundingClientRect();
-    if (clientY < firstRect.top) {
-      return active.length ? active[0].dataset.letter : null;
-    }
-    if (clientY > lastRect.bottom) {
-      return active.length ? active[active.length - 1].dataset.letter : null;
-    }
+    // Edge clamp — snap to nearest *active* (non-dim) letter only
+    if (!active.length) return null;
+    const firstRect = active[0].getBoundingClientRect();
+    const lastRect  = active[active.length - 1].getBoundingClientRect();
+    if (clientY < firstRect.top) return active[0].dataset.letter;
+    if (clientY > lastRect.bottom) return active[active.length - 1].dataset.letter;
     return null;
   }
 
@@ -2101,14 +2119,16 @@ function showToast(msg) {
 
     bar.addEventListener('touchmove', e => {
       e.stopPropagation();
+      e.preventDefault(); // own the gesture — stop grid from scrolling simultaneously
       const t = e.touches[0];
       const letter = letterFromY(ctx, t.clientY);
       if (letter) activateLetter(ctx, letter, t.clientY);
-    }, { passive: true });
+    }, { passive: false });
 
     bar.addEventListener('touchend', e => {
       e.stopPropagation();
-      setTimeout(() => hideBubble(ctx), 700);
+      clearTimeout(hideTimer[ctx]);
+      hideTimer[ctx] = setTimeout(() => hideBubble(ctx), 700);
     }, { passive: true });
 
     bar.addEventListener('touchcancel', e => {
@@ -2137,7 +2157,8 @@ function showToast(msg) {
     window.addEventListener('mouseup', () => {
       if (mouseState[ctx]) {
         mouseState[ctx] = false;
-        setTimeout(() => hideBubble(ctx), 500);
+        clearTimeout(hideTimer[ctx]);
+        hideTimer[ctx] = setTimeout(() => hideBubble(ctx), 500);
       }
     });
   }
@@ -2154,6 +2175,8 @@ function showToast(msg) {
       if (ctx === 'public' || !ctx) buildBar('public');
     }, 80);
   };
+  // Expose lastLetter so setFilter can reset stale state on tab switch
+  window._alphaLastLetter = lastLetter;
 
   document.addEventListener('DOMContentLoaded', () => {
     setupTouchEvents('main');
