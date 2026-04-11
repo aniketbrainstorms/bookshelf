@@ -1490,35 +1490,56 @@ async function openScannerModal() {
         } catch (e) {}
       }, 500);
     } else {
-      // Fallback — ZXing for Safari 16 and below
-      showToast('Loading scanner…');
-      let zxing, BarcodeFormat, DecodeHintType;
-      try {
-        zxing = await import('https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/esm/index.js');
-        const zxingLib = await import('https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/esm/index.js');
-        BarcodeFormat = zxingLib.BarcodeFormat;
-        DecodeHintType = zxingLib.DecodeHintType;
-      } catch (importErr) {
+      // Fallback — canvas polling for Safari (no BarcodeDetector, no ESM imports)
+      showToast('Starting scanner…');
+      const canvas = document.createElement('canvas');
+      const ctx2d = canvas.getContext('2d', { willReadFrequently: true });
+
+      // Dynamically load ZXing UMD (works on Safari, no ESM needed)
+      await new Promise((resolve, reject) => {
+        if (window.ZXing) { resolve(); return; }
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.19.2/umd/index.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      }).catch(() => {
         showToast('Scanner unavailable — enter ISBN manually');
         closeScannerModal();
         document.getElementById('bsInput').focus();
         return;
-      }
-      hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-        BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.UPC_A
-      ]);
-      const reader = new zxing.BrowserMultiFormatReader(hints, { delayBetweenScanAttempts: 400 });
-      reader.decodeFromVideoElement(video, (result, err) => {
-        if (result) {
-          const isbn = result.getText();
-          reader.reset();
-          closeScannerModal();
-          document.getElementById('bsInput').value = isbn;
-          onBsInput();
-        }
       });
-      // Store reset fn so closeScannerModal can clean it up
-      video._zxingReader = reader;
+
+      if (!window.ZXing) return;
+
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A,
+      ]);
+      const reader = new ZXing.BrowserMultiFormatReader(hints);
+
+      scannerInterval = setInterval(() => {
+        if (!scannerStream || video.readyState < 2) return;
+        try {
+          canvas.width = video.videoWidth || 640;
+          canvas.height = video.videoHeight || 480;
+          ctx2d.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx2d.getImageData(0, 0, canvas.width, canvas.height);
+          const luminanceSource = new ZXing.RGBLuminanceSource(imageData.data, canvas.width, canvas.height);
+          const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+          const result = reader.decode(binaryBitmap);
+          if (result) {
+            const isbn = result.getText();
+            closeScannerModal();
+            document.getElementById('bsInput').value = isbn;
+            onBsInput();
+          }
+        } catch (e) {
+          // NotFoundException is thrown every frame when no barcode found — ignore
+        }
+      }, 350);
     }
   } catch (err) {
     closeScannerModal();
