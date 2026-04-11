@@ -1518,28 +1518,24 @@ async function openScannerModal() {
         ZXing.BarcodeFormat.EAN_8,
         ZXing.BarcodeFormat.UPC_A,
       ]);
-      const reader = new ZXing.BrowserMultiFormatReader(hints);
+      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
 
-      scannerInterval = setInterval(() => {
-        if (!scannerStream || video.readyState < 2) return;
-        try {
-          canvas.width = video.videoWidth || 640;
-          canvas.height = video.videoHeight || 480;
-          ctx2d.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = ctx2d.getImageData(0, 0, canvas.width, canvas.height);
-          const luminanceSource = new ZXing.RGBLuminanceSource(imageData.data, canvas.width, canvas.height);
-          const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
-          const result = reader.decode(binaryBitmap);
-          if (result) {
-            const isbn = result.getText();
-            closeScannerModal();
-            document.getElementById('bsInput').value = isbn;
-            onBsInput();
-          }
-        } catch (e) {
-          // NotFoundException is thrown every frame when no barcode found — ignore
+      const reader = new ZXing.BrowserMultiFormatReader(hints, 200);
+
+      // Let ZXing drive its own decode loop against the live video element
+      reader.decodeFromStream(scannerStream, video, (result, err) => {
+        if (result) {
+          const isbn = result.getText();
+          reader.reset();
+          closeScannerModal();
+          document.getElementById('bsInput').value = isbn;
+          onBsInput();
         }
-      }, 350);
+        // err is NotFoundException on every non-decode frame — safe to ignore
+      });
+
+      // Store reader so closeScannerModal can reset it
+      video._zxingReader = reader;
     }
   } catch (err) {
     closeScannerModal();
@@ -1556,8 +1552,9 @@ function closeScannerModal() {
   document.getElementById('scannerModal').classList.remove('visible');
   const video = document.getElementById('scannerVideo');
   if (video._zxingReader) { try { video._zxingReader.reset(); } catch(e) {} video._zxingReader = null; }
+  clearInterval(scannerInterval); scannerInterval = null;
   if (scannerStream) { scannerStream.getTracks().forEach(t => t.stop()); scannerStream = null; }
-  clearInterval(scannerInterval);
+  video.srcObject = null;
 }
 
 // ── QUICK ACTIONS ──
