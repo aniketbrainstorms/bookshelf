@@ -1468,29 +1468,58 @@ function setSort(sortType) {
 
 // ── SCANNER ──
 async function openScannerModal() {
-  if (!('BarcodeDetector' in window)) { showToast('Scanner not supported on this browser'); return; }
   document.getElementById('scannerModal').classList.add('visible');
   const video = document.getElementById('scannerVideo');
   try {
     scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
     video.srcObject = scannerStream;
     await video.play();
-    const detector = new BarcodeDetector({ formats: ['ean_13'] });
-    scannerInterval = setInterval(async () => {
-      try {
-        const barcodes = await detector.detect(video);
-        if (barcodes.length > 0) {
-          const isbn = barcodes[0].rawValue;
+
+    if ('BarcodeDetector' in window) {
+      // Native API — Chrome, Android, Safari 17+
+      const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a'] });
+      scannerInterval = setInterval(async () => {
+        try {
+          const barcodes = await detector.detect(video);
+          if (barcodes.length > 0) {
+            const isbn = barcodes[0].rawValue;
+            closeScannerModal();
+            document.getElementById('bsInput').value = isbn;
+            onBsInput();
+          }
+        } catch (e) {}
+      }, 500);
+    } else {
+      // Fallback — ZXing for Safari 16 and below
+      showToast('Loading scanner…');
+      const zxing = await import('https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/esm/index.js');
+      const hints = new Map();
+      const { BarcodeFormat, DecodeHintType } = await import('https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/esm/index.js');
+      hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+        BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.UPC_A
+      ]);
+      const reader = new zxing.BrowserMultiFormatReader(hints, { delayBetweenScanAttempts: 400 });
+      reader.decodeFromVideoElement(video, (result, err) => {
+        if (result) {
+          const isbn = result.getText();
+          reader.reset();
           closeScannerModal();
           document.getElementById('bsInput').value = isbn;
           onBsInput();
         }
-      } catch (e) {}
-    }, 500);
-  } catch (err) { showToast('Camera access denied or failed'); closeScannerModal(); }
+      });
+      // Store reset fn so closeScannerModal can clean it up
+      video._zxingReader = reader;
+    }
+  } catch (err) {
+    showToast('Camera access denied — check Safari settings');
+    closeScannerModal();
+  }
 }
 function closeScannerModal() {
   document.getElementById('scannerModal').classList.remove('visible');
+  const video = document.getElementById('scannerVideo');
+  if (video._zxingReader) { try { video._zxingReader.reset(); } catch(e) {} video._zxingReader = null; }
   if (scannerStream) { scannerStream.getTracks().forEach(t => t.stop()); scannerStream = null; }
   clearInterval(scannerInterval);
 }
