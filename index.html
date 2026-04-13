@@ -2785,10 +2785,12 @@ function showToast(msg) {
     scroll.querySelectorAll('.lo-card').forEach(card => {
       const id = card.dataset.id;
       let didLong = false;
-      let touchActivated = false;
+      let touchStartX = 0, touchStartY = 0;
 
-      card.addEventListener('touchstart', () => {
-        didLong = false; touchActivated = false;
+      card.addEventListener('touchstart', e => {
+        didLong = false;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
         card.classList.add('pressing');
         loLongTimer = setTimeout(() => {
           didLong = true;
@@ -2797,22 +2799,23 @@ function showToast(msg) {
         }, 500);
       }, { passive: true });
 
-      card.addEventListener('touchend', () => {
+      card.addEventListener('touchend', e => {
         clearTimeout(loLongTimer);
         card.classList.remove('pressing');
         if (!didLong) {
-          touchActivated = true;
-          openListDetail(id);
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
+          if (Math.abs(dx) < 10 && Math.abs(dy) < 10) openListDetail(id);
         }
       });
 
       card.addEventListener('touchcancel', () => {
         clearTimeout(loLongTimer);
         card.classList.remove('pressing');
+        didLong = true; // prevent click from firing
       });
 
       card.addEventListener('click', () => {
-        if (touchActivated) { touchActivated = false; return; }
         if (!didLong) openListDetail(id);
       });
     });
