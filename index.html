@@ -693,7 +693,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── LIST DETAIL OVERLAY ── */
 #listDetailOverlay {
-  position: fixed; inset: 0; background: var(--bg); z-index: 60;
+  position: absolute; inset: 0; background: var(--bg); z-index: 60;
   display: flex; flex-direction: column; overflow: hidden;
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
@@ -977,6 +977,8 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   </div>
 
   <!-- QUICK MENU -->
+  <!-- NEW -->
+  <!-- QUICK MENU -->
   <div class="quick-menu" id="quickMenu">
     <span class="qm-label">Move to</span>
     <button class="qm-item" data-qm="reading" onclick="quickSetStatus('reading')"><span class="qm-dot" style="background:var(--accent)"></span>Reading</button>
@@ -984,7 +986,19 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     <button class="qm-item" data-qm="unread" onclick="quickSetStatus('unread')"><span class="qm-dot" style="background:var(--text-muted)"></span>Unread</button>
     <div class="qm-sep"></div>
     <button class="qm-item" onclick="editFromMenu()"><span style="font-size:14px">✏️</span>Edit details</button>
+    <button class="qm-item" onclick="addToListFromMenu()"><span style="font-size:14px">📋</span>Add to list</button>
     <button class="qm-item delete-item" onclick="deleteFromMenu()"><span style="font-size:14px">🗑</span>Remove</button>
+  </div>
+
+  <!-- ADD TO LIST PICKER -->
+  <div class="modal-overlay" id="addToListModal" onclick="if(event.target===this)closeModal('addToListModal')">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <h2 class="modal-title">Add to List</h2>
+      <p class="modal-subtitle" id="addToListBookTitle"></p>
+      <div id="addToListContent" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+      <button class="modal-btn ghost" style="margin-top:4px" onclick="closeModal('addToListModal')">Cancel</button>
+    </div>
   </div>
 
   <!-- ADD MODAL -->
@@ -1249,7 +1263,17 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 </div>
 
 <!-- LIST DETAIL OVERLAY -->
-<div class="shelf-overlay" id="listDetailOverlay">
+<div class="shelf-overlay" id="listsOverlay">
+  ... existing content ...
+  <div id="loDim" onclick="loCloseDim()"></div>
+  <div class="quick-menu" id="loQM"> ... </div>
+  <div id="loSheet"> ... </div>
+
+  <!-- LIST DETAIL lives INSIDE listsOverlay so z-index stacks correctly -->
+  <div id="listDetailOverlay" style="position:absolute;inset:0;background:var(--bg);z-index:60;display:flex;flex-direction:column;overflow:hidden;transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);pointer-events:none;">
+    ... all existing listDetailOverlay content unchanged ...
+  </div>
+</div>
   <div class="ld-header">
     <button class="shelf-back-btn" onclick="closeListDetail()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -1940,7 +1964,48 @@ async function deleteFromMenu() {
   books = books.filter(b => b.id !== id); renderGrid();
   await dbDelete(id);
 }
+// ── ADD TO LIST FROM QUICK MENU ──
+function addToListFromMenu() {
+  const id = qmBookId;
+  closeQuickMenu();
+  document.getElementById('qmDismiss').classList.remove('active');
+  const book = books.find(b => b.id === id);
+  if (!book) return;
 
+  const content = document.getElementById('addToListContent');
+  document.getElementById('addToListBookTitle').textContent = book.title;
+
+  if (!loLists || !loLists.length) {
+    content.innerHTML = `<p style="color:var(--text-muted);font-size:14px;text-align:center;padding:16px 0">No lists yet.<br>Create one from your Profile → My Lists.</p>`;
+  } else {
+    content.innerHTML = loLists.map(list => `
+      <button onclick="confirmAddToList('${list.id}','${id}')"
+        style="display:flex;align-items:center;gap:12px;width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;text-align:left;transition:border-color 0.2s"
+        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="font-size:20px;flex-shrink:0">${escapeHtml(list.emoji || '📚')}</span>
+        <span style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(list.name)}</span>
+        <span style="font-size:11px;color:var(--text-muted);flex-shrink:0">${(list._books||[]).length} books</span>
+      </button>`).join('');
+  }
+
+  document.getElementById('addToListModal').classList.add('visible');
+}
+
+async function confirmAddToList(listId, bookId) {
+  closeModal('addToListModal');
+  // Avoid duplicates
+  const { data: existing } = await sb.from('list_books').select('id').eq('list_id', listId).eq('book_id', bookId).maybeSingle();
+  if (existing) { showToast('Already in that list'); return; }
+  const { error } = await sb.from('list_books').insert({ list_id: listId, book_id: bookId });
+  if (error) { showToast('Could not add to list'); return; }
+  // Update local _books cache so cover stacks refresh
+  const list = loLists.find(l => l.id === listId);
+  const book = books.find(b => b.id === bookId);
+  if (list && book) list._books = [...(list._books || []), book];
+  showToast('Added to list ✓');
+}
+  
+  
 // ── DETAIL MODAL ──
 const STATUS_LABELS = { reading: 'Reading', read: 'Read', unread: 'Unread' };
 function updateDetailBadge(status) {
@@ -2937,16 +3002,21 @@ function showToast(msg) {
     document.querySelectorAll('#ldFilterRow .ld-chip').forEach(c => c.classList.toggle('active', c.dataset.f === 'all'));
 
     ldRenderList();
-    document.getElementById('listDetailOverlay').classList.add('open');
+    // Make sure the overlay is inside listsOverlay before opening
+    const lo = document.getElementById('listsOverlay');
+    const ld = document.getElementById('listDetailOverlay');
+    if (ld.parentElement !== lo) lo.appendChild(ld);
+    requestAnimationFrame(() => ld.classList.add('open'));
   };
 
   window.closeListDetail = function () {
-    document.getElementById('listDetailOverlay').classList.remove('open');
-    document.getElementById('ldProgressFill').style.width = '0%';
-    // refresh list cards (cover stacks may have changed)
+    const ld = document.getElementById('listDetailOverlay');
+    ld.classList.remove('open');
+    setTimeout(() => {
+      document.getElementById('ldProgressFill').style.width = '0%';
+    }, 350);
     loRenderLists();
   };
-
   document.getElementById('ldFilterRow').addEventListener('click', e => {
     const chip = e.target.closest('.ld-chip'); if (!chip) return;
     ldCurrentFilter = chip.dataset.f;
@@ -3059,13 +3129,21 @@ function showToast(msg) {
   // More button — rename current list
   document.getElementById('ldMoreBtn').addEventListener('click', () => {
     const list = loLists.find(l => l.id === ldCurrentListId); if (!list) return;
-    loQMTargetId = list.id; loQMRename();
-    // show the sheet on top of detail overlay
-    document.getElementById('loSheet').style.zIndex = '18';
-    document.getElementById('loDim').style.zIndex   = '17';
-    document.getElementById('listsOverlay').style.zIndex = '13';
-    document.getElementById('listDetailOverlay').appendChild(document.getElementById('loSheet'));
-    document.getElementById('listDetailOverlay').appendChild(document.getElementById('loDim'));
+    loSheetEditingId = list.id;
+    loSelectedEmoji = list.emoji || '📚';
+    document.getElementById('loSheetTitle').textContent = 'Rename list';
+    document.getElementById('loListNameInput').value = list.name;
+    document.getElementById('loSheetSaveBtn').textContent = 'Save changes';
+    loRefreshEmojiRow();
+    // Open sheet inside listDetailOverlay so it layers correctly
+    const ld = document.getElementById('listDetailOverlay');
+    const sheet = document.getElementById('loSheet');
+    const dim   = document.getElementById('loDim');
+    if (sheet.parentElement !== ld) ld.appendChild(sheet);
+    if (dim.parentElement   !== ld) ld.appendChild(dim);
+    sheet.classList.add('open');
+    dim.classList.add('on');
+    setTimeout(() => document.getElementById('loListNameInput').focus(), 320);
   });
 
 })();
