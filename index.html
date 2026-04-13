@@ -693,7 +693,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── LIST DETAIL OVERLAY ── */
 #listDetailOverlay {
-  position: absolute; inset: 0; background: var(--bg); z-index: 50;
+  position: fixed; inset: 0; background: var(--bg); z-index: 60;
   display: flex; flex-direction: column; overflow: hidden;
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
@@ -1405,6 +1405,7 @@ function getShelfParam() {
       updateHintBar();
       loadBooks();
       loadProfile();
+      loLoadLists();
     } else {
       currentUser = null;
       document.getElementById('authScreen').style.display = 'flex';
@@ -2700,7 +2701,7 @@ function showToast(msg) {
   };
 
   // ── SUPABASE ──
-  async function loLoadLists() {
+  window.loLoadLists = async function loLoadLists() {
     if (!currentUser) return;
     const { data, error } = await sb.from('lists').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     if (error) { showToast('Could not load lists'); return; }
