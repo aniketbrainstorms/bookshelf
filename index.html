@@ -1234,6 +1234,10 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   <div id="loDim" onclick="loCloseDim()"></div>
   <div class="quick-menu" id="loQM">
     <span class="qm-label">List options</span>
+    <button class="qm-item" onclick="loQMOpen()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Open list
+    </button>
     <button class="qm-item" onclick="loQMRename()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Rename
@@ -2888,8 +2892,13 @@ function showToast(msg) {
     document.getElementById('loDim').classList.add('on');
   }
   function loCloseQM() { document.getElementById('loQM').classList.remove('visible'); loQMTargetId = null; }
-  window.loCloseDim = function () { loCloseQM(); loCloseSheet(); document.getElementById('loDim').classList.remove('on'); };
-
+  
+    window.loCloseDim = function () { loCloseQM(); loCloseSheet(); document.getElementById('loDim').classList.remove('on'); };
+    window.loQMOpen = function () {
+    const id = loQMTargetId; loCloseQM();
+    document.getElementById('loDim').classList.remove('on');
+    openListDetail(id);
+    };
   window.loQMRename = function () {
     const list = loLists.find(l => l.id === loQMTargetId); loCloseQM();
     if (!list) return;
