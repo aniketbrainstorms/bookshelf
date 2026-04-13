@@ -788,7 +788,65 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 #ldDim.on { opacity: 1; pointer-events: all; }
 
 @keyframes loFadeIn { from { opacity:0; transform:translateY(8px) scale(0.97); } to { opacity:1; transform:none; } }
-</style>
+
+/* ── LIST DETAIL VIEW TOGGLE ── */
+.ld-view-toggle { display:flex; gap:4px; flex-shrink:0; }
+.ld-view-btn { width:32px; height:32px; border-radius:8px; background:transparent; border:1.5px solid var(--border); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; transition:all 0.18s; }
+.ld-view-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* ── LIST DETAIL GRID VIEW ── */
+.ld-book-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding-bottom:8px; }
+.ld-book-grid-card { display:flex; flex-direction:column; gap:4px; cursor:pointer; }
+.ld-book-grid-cover { aspect-ratio:2/3; border-radius:7px; overflow:hidden; background:var(--surface2); position:relative; }
+.ld-book-grid-cover img { width:100%; height:100%; object-fit:cover; }
+.ld-book-grid-info { padding:0 1px; }
+.ld-book-grid-title { font-size:10px; font-weight:600; color:var(--text); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.ld-book-grid-author { font-size:9px; color:var(--text-muted); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; margin-top:1px; }
+.ld-grid-dot { position:absolute; top:4px; right:4px; width:7px; height:7px; border-radius:50%; border:1.5px solid rgba(0,0,0,0.4); }
+.ld-grid-dot.reading { background:var(--accent); }
+.ld-grid-dot.read { background:var(--green); }
+.ld-grid-dot.unread { background:var(--text-muted); }
+
+/* ── LIST DETAIL SORT MENU ── */
+#ldSortMenu { position:absolute; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:6px; min-width:160px; box-shadow:0 8px 32px rgba(0,0,0,0.55); z-index:70; opacity:0; transform:scale(0.82); transform-origin:top right; pointer-events:none; transition:opacity 0.18s, transform 0.2s cubic-bezier(0.34,1.4,0.64,1); }
+#ldSortMenu.visible { opacity:1; transform:scale(1); pointer-events:all; }
+
+/* ── LIST DETAIL ALPHA BAR ── */
+#ldAlphaBar { position:absolute; right:2px; top:0; bottom:0; width:22px; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:7; pointer-events:none; opacity:0; transition:opacity 0.2s ease; }
+#ldAlphaBar.visible { pointer-events:auto; opacity:1; }
+#ldAlphaTrack { display:flex; flex-direction:column; align-items:center; background:rgba(22,20,16,0.88); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-radius:10px; padding:4px 0; border:1px solid rgba(201,113,74,0.2); box-shadow:0 2px 16px rgba(0,0,0,0.4); touch-action:none; max-height:calc(100% - 16px); overflow:hidden; }
+#ldAlphaBubble { position:fixed; right:28px; width:52px; height:52px; border-radius:13px 13px 0 13px; background:var(--accent); color:#fff; font-family:'DM Sans',sans-serif; font-size:28px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:71; opacity:0; transform:scale(0.5) translateX(8px); transition:opacity 0.13s ease, transform 0.15s cubic-bezier(0.34,1.56,0.64,1); pointer-events:none; box-shadow:0 4px 24px rgba(201,113,74,0.55); }
+#ldAlphaBubble.show { opacity:1; transform:scale(1) translateX(0); }
+
+/* ── LIST ADD BOOK SHEET ── */
+#ldAddSheet { position:absolute; bottom:0; left:0; right:0; z-index:75; background:var(--surface); border-radius:22px 22px 0 0; border-top:1px solid var(--border); display:flex; flex-direction:column; max-height:88%; transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.32,0.72,0,1); }
+#ldAddSheet.open { transform:translateY(0); }
+#ldAddSheetDim { position:absolute; inset:0; background:rgba(14,12,10,0.8); backdrop-filter:blur(6px); z-index:72; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+#ldAddSheetDim.on { opacity:1; pointer-events:all; }
+.ldas-handle { width:36px; height:4px; background:var(--border); border-radius:2px; margin:12px auto 16px; flex-shrink:0; }
+.ldas-title { font-size:20px; font-weight:700; color:var(--text); padding:0 20px; margin-bottom:14px; flex-shrink:0; }
+.ldas-tabs { display:flex; gap:6px; padding:0 20px 12px; flex-shrink:0; border-bottom:1px solid var(--border); }
+.ldas-tab { padding:7px 14px; border-radius:100px; border:1.5px solid var(--border); background:transparent; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.18s; white-space:nowrap; }
+.ldas-tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.ldas-search-wrap { padding:12px 20px; flex-shrink:0; position:relative; }
+.ldas-search-input { width:100%; background:var(--surface2); border:1.5px solid var(--border); border-radius:10px; padding:11px 36px 11px 38px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; box-sizing:border-box; }
+.ldas-search-input:focus { border-color:var(--accent); }
+.ldas-search-input::placeholder { color:var(--text-muted); }
+.ldas-search-icon { position:absolute; left:31px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; }
+.ldas-results { flex:1; overflow-y:auto; padding:0 20px; scrollbar-width:none; }
+.ldas-results::-webkit-scrollbar { display:none; }
+.ldas-result { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:opacity 0.15s; }
+.ldas-result:last-child { border-bottom:none; }
+.ldas-result:active { opacity:0.65; }
+.ldas-result-cover { width:36px; height:52px; border-radius:5px; overflow:hidden; background:var(--surface2); flex-shrink:0; }
+.ldas-result-cover img { width:100%; height:100%; object-fit:contain; }
+.ldas-result-info { flex:1; min-width:0; }
+.ldas-result-title { font-size:13px; font-weight:500; color:var(--text); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.ldas-result-author { font-size:11px; color:var(--text-muted); margin-top:2px; }
+.ldas-result-meta { font-size:10px; color:var(--text-muted); margin-top:2px; opacity:0.7; }
+.ldas-result-add { width:28px; height:28px; border-radius:50%; background:var(--accent); border:none; color:#fff; font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; line-height:1; padding:0; }
+.ldas-result-add.added { background:var(--green); font-size:13px; }
+.ldas-footer { padding:12px 20px max(calc(var(--safe-bottom)+16px),20px); border-top:1px solid var(--border); flex-shrink:0; }</style>
 </head>
 <body>
 <div id="app">
@@ -1257,8 +1315,111 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     <button class="lo-sheet-btn" id="loSheetSaveBtn" onclick="loSaveList()">Create list</button>
     <button class="lo-sheet-cancel" onclick="loCloseSheet()">Cancel</button>
   </div>
-      <!-- LIST DETAIL OVERLAY — must be INSIDE listsOverlay -->
+     <!-- LIST DETAIL OVERLAY — must be INSIDE listsOverlay -->
     <div id="listDetailOverlay" style="position:absolute;inset:0;background:var(--bg);z-index:60;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="ld-header">
+        <button class="shelf-back-btn" onclick="closeListDetail()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <span class="ld-header-title" id="ldHeaderTitle">List</span>
+        <button class="ld-more-btn" id="ldMoreBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <div class="ld-hero">
+        <div class="ld-fan-stack" id="ldFanStack"></div>
+        <div class="ld-hero-info">
+          <div class="ld-hero-emoji" id="ldHeroEmoji">📚</div>
+          <div class="ld-hero-name" id="ldHeroName"></div>
+          <div class="ld-hero-meta">
+            <span id="ldHeroCount"></span>
+            <span class="ld-hero-meta-dot"></span>
+            <span id="ldHeroUpdated"></span>
+          </div>
+          <button class="ld-add-btn" id="ldAddBtn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add book
+          </button>
+        </div>
+      </div>
+      <div class="ld-progress">
+        <div class="ld-progress-bg"><div class="ld-progress-fill" id="ldProgressFill" style="width:0%"></div></div>
+        <div class="ld-progress-label"><span id="ldProgressLabel">0 of 0 read</span><span id="ldProgressPct">0%</span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="ld-toolbar">
+        <div class="ld-filter-row" id="ldFilterRow">
+          <button class="ld-chip active" data-f="all">All</button>
+          <button class="ld-chip" data-f="owned">Owned</button>
+          <button class="ld-chip" data-f="not-owned">Not Owned</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <button class="sort-btn" id="ldSortBtn" style="width:32px;height:32px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+          </button>
+          <div class="ld-view-toggle">
+            <button class="ld-view-btn active" id="ldViewList" title="List view">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button class="ld-view-btn" id="ldViewGrid" title="Grid view">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Sort menu for list detail -->
+      <div id="ldSortMenu">
+        <span class="qm-label">Sort by</span>
+        <button class="qm-item current-status" data-ldsort="recent">Recently Added</button>
+        <button class="qm-item" data-ldsort="title">Title (A–Z)</button>
+        <button class="qm-item" data-ldsort="author">Author (A–Z)</button>
+      </div>
+      <div class="ld-list-scroll" id="ldListScroll"></div>
+      <!-- A–Z bar for list detail -->
+      <div class="alpha-bar" id="ldAlphaBar">
+        <div class="alpha-track" id="ldAlphaTrack"></div>
+      </div>
+      <div class="alpha-bubble" id="ldAlphaBubble"></div>
+      <div id="ldDim" onclick="ldCloseQM()"></div>
+      <div class="quick-menu" id="ldQM">
+        <span class="qm-label">Book options</span>
+        <button class="qm-item" onclick="ldQMAction('view')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View details
+        </button>
+        <button class="qm-item" onclick="ldQMAction('toggle-owned')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Toggle owned
+        </button>
+        <button class="qm-item" onclick="ldQMAction('remove')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Remove from list
+        </button>
+      </div>
+      <!-- Add Book Sheet -->
+      <div id="ldAddSheetDim" onclick="ldCloseAddSheet()"></div>
+      <div id="ldAddSheet">
+        <div class="ldas-handle"></div>
+        <div class="ldas-title">Add a book</div>
+        <div class="ldas-tabs">
+          <button class="ldas-tab active" data-ldastab="search" id="ldasTabSearch">Search</button>
+          <button class="ldas-tab" data-ldastab="shelf" id="ldasTabShelf">From my shelf</button>
+          <button class="ldas-tab" data-ldastab="manual" id="ldasTabManual">Add manually</button>
+        </div>
+        <div class="ldas-search-wrap" id="ldasSearchWrap">
+          <span class="ldas-search-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" class="ldas-search-input" id="ldasSearchInput" placeholder="Search title or author…" autocomplete="off" autocorrect="off" spellcheck="false" />
+        </div>
+        <div class="ldas-results" id="ldasResults">
+          <div class="bs-state"><p style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px 0">Type to search books</p></div>
+        </div>
+        <div class="ldas-footer">
+          <button class="modal-btn ghost" style="margin:0" id="ldasManualBtn">Add manually instead</button>
+        </div>
+      </div>
+    </div>
       <div class="ld-header">
         <button class="shelf-back-btn" onclick="closeListDetail()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -2660,16 +2821,21 @@ function showToast(msg) {
     ['#3a2040','#9a6ac0'],['#3d2a1e','#c0814a'],['#1e1e2d','#6a72c0'],
     ['#2d1e1e','#c06a6a'],['#1e2d2a','#6ac0b8'],['#3a3020','#b0963c'],['#2a1e2d','#a06ab8']
   ];
-  let loLists = [];          // loaded from Supabase
+  let loLists = [];
   window._getLoLists = () => loLists;
-  let ldBooks  = [];          // books in the open list
+  let ldBooks = [];
   let loSelectedEmoji = LO_EMOJIS[0];
   let loSheetEditingId = null;
   let loQMTargetId = null;
-  let ldCurrentListId  = null;
-  let ldCurrentFilter  = 'all';
-  let ldQMTargetId     = null;
+  let ldCurrentListId = null;
+  let ldCurrentFilter = 'all';
+  let ldCurrentSort = 'recent';
+  let ldCurrentView = 'list'; // 'list' | 'grid'
+  let ldQMTargetId = null;
   let loLongTimer = null, ldLongTimer = null;
+  let ldasCurrentTab = 'search';
+  let ldasSearchTimer = null;
+  let ldasAddedIds = new Set(); // track which books were added this session
 
   // ── HELPERS ──
   function loPal(i) { return LO_PALETTES[i % LO_PALETTES.length]; }
@@ -2700,7 +2866,6 @@ function showToast(msg) {
   }
 
   function fanCoversFor(list) {
-    // Use first 3 books from this list if available, else placeholder palettes
     const base = (list._books || []).slice(0, 3);
     while (base.length < 3) base.push(null);
     const listIdNum = typeof list.id === 'string'
@@ -2760,13 +2925,12 @@ function showToast(msg) {
     const { data, error } = await sb.from('lists').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     if (error) { showToast('Could not load lists'); return; }
     loLists = data || [];
-    // load books for each list to show covers + count
     await Promise.all(loLists.map(async list => {
       const { data: lb } = await sb.from('list_books').select('books(*)').eq('list_id', list.id);
       list._books = (lb || []).map(r => r.books).filter(Boolean);
     }));
     updateListsCount();
-  }
+  };
 
   async function loCreateList(name, emoji) {
     const { data, error } = await sb.from('lists').insert({ user_id: currentUser.id, name, emoji }).select().single();
@@ -2791,6 +2955,26 @@ function showToast(msg) {
     const { error } = await sb.from('list_books').delete().eq('list_id', listId).eq('book_id', bookId);
     if (error) showToast('Could not remove book');
     return !error;
+  }
+
+  // ── OWNED FLAG — stored in list_books as a metadata field ──
+  // We store owned state locally for now (no extra DB column needed)
+  // using a per-list localStorage key. If you add an `owned` bool column to list_books, swap here.
+  function ldOwnedKey(listId) { return `tsundoku_owned_${listId}`; }
+  function ldGetOwned(listId) {
+    try { return JSON.parse(localStorage.getItem(ldOwnedKey(listId)) || '[]'); } catch { return []; }
+  }
+  function ldSetOwned(listId, arr) {
+    try { localStorage.setItem(ldOwnedKey(listId), JSON.stringify(arr)); } catch {}
+  }
+  function ldIsOwned(listId, bookId) { return ldGetOwned(listId).includes(String(bookId)); }
+  function ldToggleOwned(listId, bookId) {
+    const owned = ldGetOwned(listId);
+    const id = String(bookId);
+    const idx = owned.indexOf(id);
+    if (idx === -1) owned.push(id); else owned.splice(idx, 1);
+    ldSetOwned(listId, owned);
+    return owned.includes(id);
   }
 
   // ── LISTS OVERLAY ──
@@ -2868,12 +3052,12 @@ function showToast(msg) {
       card.addEventListener('touchcancel', () => {
         clearTimeout(loLongTimer);
         card.classList.remove('pressing');
-        didLong = true; // prevent click from firing
+        didLong = true;
       });
 
       card.addEventListener('click', e => {
-  if (!didLong) openListDetail(id);
-});
+        if (!didLong) openListDetail(id);
+      });
     });
   }
 
@@ -2895,14 +3079,14 @@ function showToast(msg) {
     document.getElementById('loDim').classList.add('on');
   }
   function loCloseQM() { document.getElementById('loQM').classList.remove('visible'); loQMTargetId = null; }
-  
-    window.loCloseDim = function () { loCloseQM(); loCloseSheet(); document.getElementById('loDim').classList.remove('on'); };
-    window.loQMOpen = function () {
-      const id = loQMTargetId;
-      loCloseQM();
-      document.getElementById('loDim').classList.remove('on');
-      setTimeout(() => openListDetail(id), 50);
-    };
+
+  window.loCloseDim = function () { loCloseQM(); loCloseSheet(); document.getElementById('loDim').classList.remove('on'); };
+  window.loQMOpen = function () {
+    const id = loQMTargetId;
+    loCloseQM();
+    document.getElementById('loDim').classList.remove('on');
+    setTimeout(() => openListDetail(id), 50);
+  };
   window.loQMRename = function () {
     const list = loLists.find(l => String(l.id) === String(loQMTargetId)); loCloseQM();
     if (!list) return;
@@ -2944,7 +3128,7 @@ function showToast(msg) {
   };
   window.loSaveList = async function () {
     const name = document.getElementById('loListNameInput').value.trim();
-    const inp  = document.getElementById('loListNameInput');
+    const inp = document.getElementById('loListNameInput');
     if (!name) { inp.style.borderColor = 'var(--accent)'; return; }
     inp.style.borderColor = '';
     const btn = document.getElementById('loSheetSaveBtn'); btn.disabled = true; btn.textContent = 'Saving…';
@@ -2970,9 +3154,11 @@ function showToast(msg) {
   // ── LIST DETAIL ──
   window.openListDetail = async function (listId) {
     const list = loLists.find(l => String(l.id) === String(listId)); if (!list) return;
-    ldCurrentListId = listId; ldCurrentFilter = 'all';
+    ldCurrentListId = listId;
+    ldCurrentFilter = 'all';
+    ldCurrentSort = 'recent';
+    ldasAddedIds = new Set();
 
-    // Load fresh books for this list
     const { data: lb } = await sb.from('list_books').select('books(*)').eq('list_id', listId);
     ldBooks = (lb || []).map(r => r.books).filter(Boolean);
     list._books = ldBooks;
@@ -2982,23 +3168,20 @@ function showToast(msg) {
     document.getElementById('ldHeroName').textContent    = list.name;
     document.getElementById('ldHeroCount').textContent   = `${ldBooks.length} ${ldBooks.length === 1 ? 'book' : 'books'}`;
     document.getElementById('ldHeroUpdated').textContent = `updated ${timeSince(list.updated_at || list.created_at)}`;
-
-    // Fan stack
     document.getElementById('ldFanStack').innerHTML = fanCoversFor(list);
 
-    // Progress
-    const readCount = ldBooks.filter(b => b.status === 'read').length;
-    const total = ldBooks.length;
-    const pct = total ? Math.round(readCount / total * 100) : 0;
-    document.getElementById('ldProgressLabel').textContent = `${readCount} of ${total} read`;
-    document.getElementById('ldProgressPct').textContent   = `${pct}%`;
-    setTimeout(() => { document.getElementById('ldProgressFill').style.width = pct + '%'; }, 120);
+    ldUpdateProgress();
 
     // Reset filter chips
-    ldCurrentFilter = 'all';
     document.querySelectorAll('#ldFilterRow .ld-chip').forEach(c => c.classList.toggle('active', c.dataset.f === 'all'));
+    // Reset sort
+    document.querySelectorAll('#ldSortMenu .qm-item').forEach(i => i.classList.toggle('current-status', i.dataset.ldsort === 'recent'));
+    // Reset view
+    ldSetView(ldCurrentView);
 
     ldRenderList();
+    ldBuildAlphaBar();
+
     const ld = document.getElementById('listDetailOverlay');
     requestAnimationFrame(() => ld.classList.add('open'));
   };
@@ -3006,41 +3189,146 @@ function showToast(msg) {
   window.closeListDetail = function () {
     const ld = document.getElementById('listDetailOverlay');
     ld.classList.remove('open');
-    setTimeout(() => {
-      document.getElementById('ldProgressFill').style.width = '0%';
-    }, 350);
+    ldCloseAddSheet();
+    setTimeout(() => { document.getElementById('ldProgressFill').style.width = '0%'; }, 350);
     loRenderLists();
   };
+
+  function ldUpdateProgress() {
+    const ownedIds = ldGetOwned(ldCurrentListId);
+    const total = ldBooks.length;
+    const ownedCount = ldBooks.filter(b => ownedIds.includes(String(b.id))).length;
+    const pct = total ? Math.round(ownedCount / total * 100) : 0;
+    document.getElementById('ldProgressLabel').textContent = `${ownedCount} of ${total} owned`;
+    document.getElementById('ldProgressPct').textContent = `${pct}%`;
+    setTimeout(() => { document.getElementById('ldProgressFill').style.width = pct + '%'; }, 120);
+  }
+
+  // Filter chips
   document.getElementById('ldFilterRow').addEventListener('click', e => {
     const chip = e.target.closest('.ld-chip'); if (!chip) return;
     ldCurrentFilter = chip.dataset.f;
     document.querySelectorAll('#ldFilterRow .ld-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     ldRenderList();
+    ldBuildAlphaBar();
   });
+
+  // View toggle
+  function ldSetView(view) {
+    ldCurrentView = view;
+    document.getElementById('ldViewList').classList.toggle('active', view === 'list');
+    document.getElementById('ldViewGrid').classList.toggle('active', view === 'grid');
+    if (view === 'grid') {
+      document.getElementById('ldAlphaBar').classList.remove('visible');
+    }
+  }
+  document.getElementById('ldViewList').addEventListener('click', () => { ldSetView('list'); ldRenderList(); ldBuildAlphaBar(); });
+  document.getElementById('ldViewGrid').addEventListener('click', () => { ldSetView('grid'); ldRenderList(); });
+
+  // Sort menu
+  document.getElementById('ldSortBtn').addEventListener('click', function () {
+    const menu = document.getElementById('ldSortMenu');
+    const overlay = document.getElementById('listDetailOverlay');
+    const or = overlay.getBoundingClientRect();
+    const br = this.getBoundingClientRect();
+    menu.style.top = (br.bottom - or.top + 6) + 'px';
+    menu.style.right = '8px';
+    menu.style.left = 'auto';
+    const dim = document.getElementById('ldDim');
+    dim.classList.add('on');
+    menu.classList.add('visible');
+  });
+
+  document.getElementById('ldSortMenu').addEventListener('click', e => {
+    const btn = e.target.closest('[data-ldsort]'); if (!btn) return;
+    ldCurrentSort = btn.dataset.ldsort;
+    document.querySelectorAll('#ldSortMenu .qm-item').forEach(i => i.classList.toggle('current-status', i.dataset.ldsort === ldCurrentSort));
+    document.getElementById('ldSortMenu').classList.remove('visible');
+    document.getElementById('ldDim').classList.remove('on');
+    ldRenderList();
+    ldBuildAlphaBar();
+  });
+
+  function ldGetFiltered() {
+    const ownedIds = ldGetOwned(ldCurrentListId);
+    let list = [...ldBooks];
+    if (ldCurrentFilter === 'owned') list = list.filter(b => ownedIds.includes(String(b.id)));
+    else if (ldCurrentFilter === 'not-owned') list = list.filter(b => !ownedIds.includes(String(b.id)));
+    list.sort((a, b) => {
+      if (ldCurrentSort === 'title') return (a.title||'').localeCompare(b.title||'');
+      if (ldCurrentSort === 'author') {
+        const cmp = (a.author||'').localeCompare(b.author||'');
+        return cmp !== 0 ? cmp : (a.title||'').localeCompare(b.title||'');
+      }
+      return 0; // recent = insertion order (already ordered from DB)
+    });
+    return list;
+  }
 
   function ldRenderList() {
     const scroll = document.getElementById('ldListScroll');
-    const filtered = ldCurrentFilter === 'all' ? ldBooks : ldBooks.filter(b => b.status === ldCurrentFilter);
+    const filtered = ldGetFiltered();
+    const ownedIds = ldGetOwned(ldCurrentListId);
 
     if (!filtered.length) {
       scroll.innerHTML = `<div class="ld-empty">
         <div class="ld-empty-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
         <div class="ld-empty-label">Nothing here</div>
-        <div class="ld-empty-sub">No books in this filter yet.</div>
-      </div>`; return;
+        <div class="ld-empty-sub">Tap "Add book" to get started.</div>
+      </div>`;
+      return;
     }
 
+    if (ldCurrentView === 'grid') {
+      scroll.innerHTML = `<div class="ld-book-grid">${filtered.map((b, i) => {
+        const owned = ownedIds.includes(String(b.id));
+        const palIdx = (function(str){let s=String(str||'');let h=0;for(let c of s)h=(h*31+c.charCodeAt(0))>>>0;return h%10;})(b.id);
+        const p = loPal(palIdx);
+        const coverInner = b.cover_url
+          ? `<img src="${escapeAttr(b.cover_url)}" style="width:100%;height:100%;object-fit:cover"/>`
+          : `<div style="width:100%;height:100%;background:linear-gradient(160deg,${p[0]} 0%,${p[1]}55 100%);display:flex;align-items:center;justify-content:center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="${p[1]}" opacity="0.5" stroke="${p[1]}" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none"/></svg>
+            </div>`;
+        return `<div class="ld-book-grid-card" data-id="${b.id}" data-title="${escapeAttr(b.title||'')}" data-author="${escapeAttr(b.author||'')}" style="animation:bookIn 0.3s ease ${Math.min(i,12)*0.035}s both">
+          <div class="ld-book-grid-cover">
+            ${coverInner}
+            <div class="ld-grid-dot" style="background:${owned ? 'var(--green)' : 'var(--text-muted)'}"></div>
+          </div>
+          <div class="ld-book-grid-info">
+            <div class="ld-book-grid-title">${escapeHtml(b.title)}</div>
+            <div class="ld-book-grid-author">${escapeHtml(b.author||'')}</div>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+
+      scroll.querySelectorAll('.ld-book-grid-card').forEach(card => {
+        let didLong = false;
+        const id = card.dataset.id;
+        card.addEventListener('touchstart', () => {
+          didLong = false;
+          ldLongTimer = setTimeout(() => { didLong = true; ldOpenQM(id, card); }, 500);
+        }, { passive: true });
+        card.addEventListener('touchend', () => { clearTimeout(ldLongTimer); });
+        card.addEventListener('touchcancel', () => { clearTimeout(ldLongTimer); });
+        card.addEventListener('click', () => { if (!didLong) openDetailModal(id); });
+      });
+      return;
+    }
+
+    // List view
     scroll.innerHTML = filtered.map((b, i) => {
-      const pillCls = b.status === 'reading' ? 'ld-pill-reading' : b.status === 'read' ? 'ld-pill-read' : 'ld-pill-unread';
-      const pillLbl = b.status === 'reading' ? 'Reading' : b.status === 'read' ? 'Read' : 'Unread';
-      return `<div class="ld-book-row" data-id="${b.id}" style="animation-delay:${Math.min(i,10)*0.042}s">
+      const owned = ownedIds.includes(String(b.id));
+      const ownedBadge = `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:500;background:${owned ? 'rgba(90,138,106,0.14)' : 'rgba(122,112,104,0.1)'};color:${owned ? 'var(--green)' : 'var(--text-muted)'}">
+        <span style="width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block"></span>${owned ? 'Owned' : 'Not owned'}
+      </span>`;
+      return `<div class="ld-book-row" data-id="${b.id}" data-title="${escapeAttr(b.title||'')}" data-author="${escapeAttr(b.author||'')}" style="animation-delay:${Math.min(i,10)*0.042}s">
         <div class="ld-drag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
         <div class="ld-cover">${ldCoverHtml(b)}</div>
         <div class="ld-book-info">
           <div class="ld-book-title">${escapeHtml(b.title)}</div>
           <div class="ld-book-author">${escapeHtml(b.author || '')}</div>
-          <div class="ld-pill ${pillCls}"><span class="ld-pill-dot"></span>${pillLbl}</div>
+          ${ownedBadge}
         </div>
         <div class="ld-row-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg></div>
       </div>`;
@@ -3060,8 +3348,94 @@ function showToast(msg) {
       row.addEventListener('mouseleave', () => clearTimeout(ldLongTimer));
       row.addEventListener('click', () => { if (!didLong) openDetailModal(id); });
     });
+
+    if (typeof alphaBarRefresh === 'function') setTimeout(() => ldBuildAlphaBar(), 80);
   }
 
+  // ── A–Z for list detail ──
+  function ldBuildAlphaBar() {
+    if (ldCurrentView !== 'list') { document.getElementById('ldAlphaBar').classList.remove('visible'); return; }
+    if (ldCurrentSort === 'recent') { document.getElementById('ldAlphaBar').classList.remove('visible'); return; }
+
+    const ALL_LETTERS = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+    const cards = Array.from(document.getElementById('ldListScroll').querySelectorAll('.ld-book-row[data-title]'));
+    if (cards.length < 5) { document.getElementById('ldAlphaBar').classList.remove('visible'); return; }
+
+    const field = ldCurrentSort === 'author' ? 'data-author' : 'data-title';
+    const seen = new Set();
+    cards.forEach(c => {
+      const v = (c.getAttribute(field) || '').trim();
+      const ch = v[0] ? v[0].toUpperCase() : '#';
+      seen.add(/[A-Z]/.test(ch) ? ch : '#');
+    });
+
+    const track = document.getElementById('ldAlphaTrack');
+    track.innerHTML = '';
+    ALL_LETTERS.forEach(letter => {
+      const el = document.createElement('div');
+      el.className = 'alpha-letter' + (seen.has(letter) ? '' : ' dim');
+      el.textContent = letter;
+      el.dataset.letter = letter;
+      track.appendChild(el);
+    });
+
+    const bar = document.getElementById('ldAlphaBar');
+    const scroll = document.getElementById('ldListScroll');
+    const scrRect = scroll.getBoundingClientRect();
+    const overlayRect = document.getElementById('listDetailOverlay').getBoundingClientRect();
+    bar.style.top = (scrRect.top - overlayRect.top) + 'px';
+    bar.style.bottom = (overlayRect.bottom - scrRect.bottom) + 'px';
+    bar.classList.add('visible');
+
+    // Touch handlers
+    function letterFromY(clientY) {
+      const active = Array.from(track.querySelectorAll('.alpha-letter:not(.dim)'));
+      for (const el of active) {
+        const r = el.getBoundingClientRect();
+        if (clientY >= r.top && clientY <= r.bottom) return el.dataset.letter;
+      }
+      return null;
+    }
+    function activateLd(letter, clientY) {
+      track.querySelectorAll('.alpha-letter').forEach(el => el.classList.toggle('active', el.dataset.letter === letter));
+      const bubble = document.getElementById('ldAlphaBubble');
+      const bH = 52;
+      const clampedY = Math.max(60, Math.min(window.innerHeight - bH - 16, clientY - bH / 2));
+      bubble.style.top = clampedY + 'px';
+      bubble.textContent = letter;
+      bubble.classList.add('show');
+      // Scroll
+      const rowToScroll = Array.from(cards).find(c => {
+        const v = (c.getAttribute(field) || '').trim();
+        const ch = v[0] ? v[0].toUpperCase() : '#';
+        const l = /[A-Z]/.test(ch) ? ch : '#';
+        return l === letter;
+      });
+      if (rowToScroll) {
+        const top = scroll.scrollTop + rowToScroll.getBoundingClientRect().top - scrRect.top - 8;
+        scroll.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
+      if (navigator.vibrate) navigator.vibrate(8);
+    }
+
+    bar.addEventListener('touchstart', e => {
+      const l = letterFromY(e.touches[0].clientY); if (l) activateLd(l, e.touches[0].clientY);
+    }, { passive: true });
+    bar.addEventListener('touchmove', e => {
+      const l = letterFromY(e.touches[0].clientY); if (l) activateLd(l, e.touches[0].clientY);
+    }, { passive: true });
+    bar.addEventListener('touchend', () => setTimeout(() => { document.getElementById('ldAlphaBubble').classList.remove('show'); track.querySelectorAll('.alpha-letter').forEach(el => el.classList.remove('active')); }, 600));
+    bar.addEventListener('mousedown', e => {
+      e.preventDefault();
+      const l = letterFromY(e.clientY); if (l) activateLd(l, e.clientY);
+      const mm = ev => { const l2 = letterFromY(ev.clientY); if (l2) activateLd(l2, ev.clientY); };
+      const mu = () => { window.removeEventListener('mousemove', mm); window.removeEventListener('mouseup', mu); setTimeout(() => { document.getElementById('ldAlphaBubble').classList.remove('show'); track.querySelectorAll('.alpha-letter').forEach(el => el.classList.remove('active')); }, 400); };
+      window.addEventListener('mousemove', mm);
+      window.addEventListener('mouseup', mu);
+    });
+  }
+
+  // ── QM for list detail ──
   function ldOpenQM(id, row) {
     ldQMTargetId = id;
     const qm = document.getElementById('ldQM');
@@ -3069,58 +3443,42 @@ function showToast(msg) {
     const or = overlay.getBoundingClientRect();
     const rr = row.getBoundingClientRect();
     let top = rr.bottom - or.top + 2;
-    if (top + 110 > or.height - 16) top = (rr.top - or.top) - 116;
+    if (top + 130 > or.height - 16) top = (rr.top - or.top) - 136;
     qm.style.top = top + 'px'; qm.style.right = '18px'; qm.style.left = 'auto';
     qm.classList.add('visible');
     document.getElementById('ldDim').classList.add('on');
   }
-  window.ldCloseQM = function () { document.getElementById('ldQM').classList.remove('visible'); document.getElementById('ldDim').classList.remove('on'); ldQMTargetId = null; };
+  window.ldCloseQM = function () {
+    document.getElementById('ldQM').classList.remove('visible');
+    document.getElementById('ldDim').classList.remove('on');
+    // also close sort menu
+    document.getElementById('ldSortMenu').classList.remove('visible');
+    ldQMTargetId = null;
+  };
   window.ldQMAction = async function (action) {
     if (action === 'view') { ldCloseQM(); openDetailModal(ldQMTargetId); return; }
+    if (action === 'toggle-owned') {
+      const id = ldQMTargetId; ldCloseQM();
+      const now = ldToggleOwned(ldCurrentListId, id);
+      ldUpdateProgress();
+      ldRenderList();
+      showToast(now ? 'Marked as owned ✓' : 'Marked as not owned');
+      return;
+    }
     if (action === 'remove') {
       const id = ldQMTargetId; ldCloseQM();
       if (await ldRemoveBook(ldCurrentListId, id)) {
         ldBooks = ldBooks.filter(b => b.id !== id);
+        ldUpdateProgress();
         ldRenderList();
-        // update progress
-        const readCount = ldBooks.filter(b => b.status === 'read').length;
-        const total = ldBooks.length;
-        const pct = total ? Math.round(readCount / total * 100) : 0;
-        document.getElementById('ldProgressFill').style.width = pct + '%';
-        document.getElementById('ldProgressLabel').textContent = `${readCount} of ${total} read`;
-        document.getElementById('ldProgressPct').textContent   = `${pct}%`;
-        document.getElementById('ldHeroCount').textContent = `${total} ${total === 1 ? 'book' : 'books'}`;
+        ldBuildAlphaBar();
+        document.getElementById('ldHeroCount').textContent = `${ldBooks.length} ${ldBooks.length === 1 ? 'book' : 'books'}`;
         showToast('Removed from list');
       }
     }
   };
 
-  // Add book button — opens existing book search overlay
-  document.getElementById('ldAddBtn').addEventListener('click', () => {
-    openBookSearch();
-    // After user selects a book from search, wire it into the list.
-    // Override selectBsResult temporarily to also insert into list_books.
-    window._ldPendingListId = ldCurrentListId;
-  });
-
-  // Intercept selectBsResult to optionally add to a list
-  const _origSelectBsResult = window.selectBsResult;  // keep ref
-  // We patch confirmAdd instead — after a book is added, if _ldPendingListId is set, insert it.
-  const _origConfirmAdd = window.confirmAdd;
-  window.confirmAdd = async function () {
-    await _origConfirmAdd();
-    if (window._ldPendingListId && books[0]) {
-      const listId = window._ldPendingListId;
-      window._ldPendingListId = null;
-      await sb.from('list_books').insert({ list_id: listId, book_id: books[0].id });
-      // Refresh if detail overlay is still open
-      if (document.getElementById('listDetailOverlay').classList.contains('open')) {
-        await window.openListDetail(listId);
-      }
-    }
-  };
-
-  // More button — rename current list
+  // ── MORE BUTTON (rename) ──
   document.getElementById('ldMoreBtn').addEventListener('click', () => {
     const list = loLists.find(l => String(l.id) === String(ldCurrentListId)); if (!list) return;
     loSheetEditingId = list.id;
@@ -3129,14 +3487,220 @@ function showToast(msg) {
     document.getElementById('loListNameInput').value = list.name;
     document.getElementById('loSheetSaveBtn').textContent = 'Save changes';
     loRefreshEmojiRow();
-    // Open sheet inside listDetailOverlay so it layers correctly
-    const ld = document.getElementById('listDetailOverlay');
     const sheet = document.getElementById('loSheet');
-    const dim   = document.getElementById('loDim');
+    const dim = document.getElementById('loDim');
     sheet.classList.add('open');
     dim.classList.add('on');
     setTimeout(() => document.getElementById('loListNameInput').focus(), 320);
   });
+
+  // ── ADD BOOK SHEET ──
+  function ldOpenAddSheet() {
+    ldasCurrentTab = 'search';
+    ldasAddedIds = new Set();
+    ldSwitchAddTab('search');
+    document.getElementById('ldasSearchInput').value = '';
+    document.getElementById('ldasResults').innerHTML = '<div class="bs-state"><p style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px 0">Type to search books</p></div>';
+    document.getElementById('ldAddSheet').classList.add('open');
+    document.getElementById('ldAddSheetDim').classList.add('on');
+    setTimeout(() => document.getElementById('ldasSearchInput').focus(), 340);
+  }
+  window.ldCloseAddSheet = function () {
+    document.getElementById('ldAddSheet').classList.remove('open');
+    document.getElementById('ldAddSheetDim').classList.remove('on');
+    clearTimeout(ldasSearchTimer);
+    ldasCurrentTab = 'search';
+  };
+
+  function ldSwitchAddTab(tab) {
+    ldasCurrentTab = tab;
+    document.querySelectorAll('.ldas-tab').forEach(t => t.classList.toggle('active', t.dataset.ldastab === tab));
+    const searchWrap = document.getElementById('ldasSearchWrap');
+    const results = document.getElementById('ldasResults');
+    const footer = document.getElementById('ldAddSheet').querySelector('.ldas-footer');
+
+    if (tab === 'search') {
+      searchWrap.style.display = '';
+      footer.style.display = '';
+      document.getElementById('ldasManualBtn').style.display = '';
+      ldasRenderSearchResults([]);
+    } else if (tab === 'shelf') {
+      searchWrap.style.display = '';
+      footer.style.display = 'none';
+      document.getElementById('ldasSearchInput').placeholder = 'Filter my shelf…';
+      ldasRenderShelf(document.getElementById('ldasSearchInput').value);
+    } else if (tab === 'manual') {
+      searchWrap.style.display = 'none';
+      footer.style.display = 'none';
+      ldasRenderManual();
+    }
+  }
+
+  document.querySelectorAll('.ldas-tab').forEach(tab => {
+    tab.addEventListener('click', () => ldSwitchAddTab(tab.dataset.ldastab));
+  });
+
+  document.getElementById('ldasSearchInput').addEventListener('input', () => {
+    clearTimeout(ldasSearchTimer);
+    const q = document.getElementById('ldasSearchInput').value.trim();
+    if (ldasCurrentTab === 'shelf') { ldasRenderShelf(q); return; }
+    if (!q) {
+      document.getElementById('ldasResults').innerHTML = '<div class="bs-state"><p style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px 0">Type to search books</p></div>';
+      return;
+    }
+    document.getElementById('ldasResults').innerHTML = '<div class="bs-state"><div class="loading-spinner" style="margin:0 auto"></div></div>';
+    ldasSearchTimer = setTimeout(() => ldasFetchSearch(q), 500);
+  });
+
+  async function ldasFetchSearch(query) {
+    try {
+      const [gRes, olRes] = await Promise.allSettled([
+        fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=30&langRestrict=en`).then(r => r.json()),
+        fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=20&fields=title,author_name,cover_i`).then(r => r.json())
+      ]);
+      const gBooks = gRes.status === 'fulfilled'
+        ? (gRes.value.items || []).map(item => {
+            const v = item.volumeInfo || {};
+            let cover = v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || '';
+            if (cover) cover = cover.replace(/^http:/, 'https:').replace('zoom=1','zoom=2').replace('&edge=curl','');
+            return { title: v.title || '', author: (v.authors||[])[0] || '', cover, fromShelf: false };
+          }) : [];
+      const seen = new Set(gBooks.map(b => (b.title+b.author).toLowerCase().replace(/\s/g,'')));
+      const olBooks = olRes.status === 'fulfilled'
+        ? (olRes.value.docs || []).filter(d => d.title).map(d => ({
+            title: d.title, author: (d.author_name||[])[0] || '',
+            cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '',
+            fromShelf: false
+          })).filter(b => { const k = (b.title+b.author).toLowerCase().replace(/\s/g,''); if (seen.has(k)) return false; seen.add(k); return true; })
+        : [];
+      ldasRenderSearchResults([...gBooks, ...olBooks]);
+    } catch {
+      document.getElementById('ldasResults').innerHTML = '<div class="bs-state"><p style="color:var(--text-muted);font-size:13px">Search failed. Check your connection.</p></div>';
+    }
+  }
+
+  function ldasRenderSearchResults(items) {
+    const el = document.getElementById('ldasResults');
+    if (!items.length) {
+      el.innerHTML = '<div class="bs-state"><p style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px 0">No results. Try different keywords.</p></div>';
+      return;
+    }
+    const existingIds = new Set(ldBooks.map(b => b.id));
+    el.innerHTML = items.map((b, i) => {
+      const addedClass = ldasAddedIds.has(i) ? ' added' : '';
+      const addedIcon = ldasAddedIds.has(i) ? '✓' : '+';
+      return `<div class="ldas-result" data-ldas-i="${i}">
+        <div class="ldas-result-cover">${b.cover ? `<img src="${escapeAttr(b.cover)}" onerror="this.parentElement.innerHTML=''">` : ''}</div>
+        <div class="ldas-result-info">
+          <div class="ldas-result-title">${escapeHtml(b.title || 'Unknown')}</div>
+          <div class="ldas-result-author">${escapeHtml(b.author || 'Unknown author')}</div>
+        </div>
+        <button class="ldas-result-add${addedClass}" data-ldas-add="${i}">${addedIcon}</button>
+      </div>`;
+    }).join('');
+    el._ldItems = items;
+
+    el.querySelectorAll('[data-ldas-add]').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const i = +btn.dataset.ldasAdd;
+        const item = el._ldItems[i];
+        if (!item) return;
+        btn.disabled = true; btn.textContent = '…';
+        // Add book to main books list via dbAdd
+        const newBook = await dbAdd({ title: item.title, author: item.author, status: 'unread', cover_url: item.cover || null, pages_read: 0, total_pages: 0 });
+        if (!newBook) { btn.disabled = false; btn.textContent = '+'; return; }
+        books.unshift(newBook);
+        // Link to list
+        const { error } = await sb.from('list_books').insert({ list_id: ldCurrentListId, book_id: newBook.id });
+        if (error) { showToast('Could not add to list'); btn.disabled = false; btn.textContent = '+'; return; }
+        ldBooks.unshift(newBook);
+        ldasAddedIds.add(i);
+        btn.classList.add('added'); btn.textContent = '✓';
+        btn.disabled = false;
+        ldUpdateProgress();
+        document.getElementById('ldHeroCount').textContent = `${ldBooks.length} ${ldBooks.length === 1 ? 'book' : 'books'}`;
+        renderGrid();
+        showToast('Added ✓');
+      });
+    });
+  }
+
+  function ldasRenderShelf(q) {
+    const el = document.getElementById('ldasResults');
+    let filtered = [...books];
+    const existingInList = new Set(ldBooks.map(b => String(b.id)));
+    if (q) filtered = filtered.filter(b => (b.title||'').toLowerCase().includes(q.toLowerCase()) || (b.author||'').toLowerCase().includes(q.toLowerCase()));
+    if (!filtered.length) {
+      el.innerHTML = '<div class="bs-state"><p style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px 0">Nothing found on your shelf.</p></div>';
+      return;
+    }
+    el.innerHTML = filtered.map((b, i) => {
+      const inList = existingInList.has(String(b.id));
+      return `<div class="ldas-result" data-ldas-shelf="${b.id}">
+        <div class="ldas-result-cover">${b.cover_url ? `<img src="${escapeAttr(b.cover_url)}">` : ''}</div>
+        <div class="ldas-result-info">
+          <div class="ldas-result-title">${escapeHtml(b.title)}</div>
+          <div class="ldas-result-author">${escapeHtml(b.author||'')}</div>
+          <div class="ldas-result-meta" style="color:${b.status==='reading'?'var(--accent)':b.status==='read'?'var(--green)':'var(--text-muted)'}">${b.status}</div>
+        </div>
+        <button class="ldas-result-add${inList ? ' added' : ''}" data-ldas-shelf-add="${b.id}" ${inList ? 'disabled' : ''}>${inList ? '✓' : '+'}</button>
+      </div>`;
+    }).join('');
+
+    el.querySelectorAll('[data-ldas-shelf-add]').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const bookId = btn.dataset.ldasShelfAdd;
+        if (existingInList.has(String(bookId))) { showToast('Already in this list'); return; }
+        btn.disabled = true; btn.textContent = '…';
+        const { error } = await sb.from('list_books').insert({ list_id: ldCurrentListId, book_id: bookId });
+        if (error) { showToast('Could not add to list'); btn.disabled = false; btn.textContent = '+'; return; }
+        const book = books.find(b => String(b.id) === String(bookId));
+        if (book) { ldBooks.unshift(book); existingInList.add(String(bookId)); }
+        btn.classList.add('added'); btn.textContent = '✓';
+        ldUpdateProgress();
+        document.getElementById('ldHeroCount').textContent = `${ldBooks.length} ${ldBooks.length === 1 ? 'book' : 'books'}`;
+        showToast('Added ✓');
+      });
+    });
+  }
+
+  function ldasRenderManual() {
+    const el = document.getElementById('ldasResults');
+    el.innerHTML = `<div style="padding:16px 0">
+      <p class="field-label" style="margin-bottom:8px">Book Title</p>
+      <input type="text" class="text-input" id="ldasManTitle" placeholder="e.g. The Midnight Library" style="margin-bottom:14px" />
+      <p class="field-label" style="margin-bottom:8px">Author</p>
+      <input type="text" class="text-input" id="ldasManAuthor" placeholder="e.g. Matt Haig" style="margin-bottom:14px" />
+      <button class="modal-btn" id="ldasManSave">Add to list</button>
+    </div>`;
+    document.getElementById('ldasManSave').addEventListener('click', async () => {
+      const title = (document.getElementById('ldasManTitle').value || '').trim();
+      if (!title) { document.getElementById('ldasManTitle').style.borderColor = 'var(--accent)'; return; }
+      const author = (document.getElementById('ldasManAuthor').value || '').trim();
+      const btn = document.getElementById('ldasManSave');
+      btn.disabled = true; btn.textContent = 'Adding…';
+      const newBook = await dbAdd({ title, author, status: 'unread', cover_url: null, pages_read: 0, total_pages: 0 });
+      if (!newBook) { btn.disabled = false; btn.textContent = 'Add to list'; return; }
+      books.unshift(newBook);
+      const { error } = await sb.from('list_books').insert({ list_id: ldCurrentListId, book_id: newBook.id });
+      if (error) { showToast('Could not add to list'); btn.disabled = false; btn.textContent = 'Add to list'; return; }
+      ldBooks.unshift(newBook);
+      ldUpdateProgress();
+      document.getElementById('ldHeroCount').textContent = `${ldBooks.length} ${ldBooks.length === 1 ? 'book' : 'books'}`;
+      renderGrid();
+      ldRenderList();
+      ldCloseAddSheet();
+      showToast('Book added ✓');
+    });
+  }
+
+  document.getElementById('ldasManualBtn').addEventListener('click', () => ldSwitchAddTab('manual'));
+  document.getElementById('ldAddSheetDim').addEventListener('click', ldCloseAddSheet);
+
+  // ── ADD BOOK BUTTON ──
+  document.getElementById('ldAddBtn').addEventListener('click', ldOpenAddSheet);
 
 })();
 // ── END MY LISTS ────────────────────────────────────────────────────────────
