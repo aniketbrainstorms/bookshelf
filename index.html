@@ -3074,9 +3074,12 @@ function showToast(msg) {
     const qm = document.getElementById('loQM');
     const overlay = document.getElementById('listsOverlay');
     const or = overlay.getBoundingClientRect();
-    const qmW = 180;
+    const qmW = 260;
+    const qmH = 160;
+    const cr = card.getBoundingClientRect();
     const left = (or.width - qmW) / 2;
-    const top = (or.height - 140) / 2;
+    let top = cr.bottom - or.top + 10;
+    if (top + qmH > or.height - 24) top = (cr.top - or.top) - qmH - 10;
     qm.style.width = qmW + 'px';
     qm.style.top = top + 'px'; qm.style.left = left + 'px';
     qm.classList.add('visible');
