@@ -1687,6 +1687,7 @@ function showToast(msg) {
   };
   window.loQMRename = function () {
     const list = loLists.find(l => String(l.id) === String(loQMTargetId)); loCloseQM();
+    document.getElementById('loDim').classList.remove('on');
     if (!list) return;
     loSheetEditingId = list.id; loSelectedEmoji = list.emoji || LO_EMOJIS[0];
     document.getElementById('loSheetTitle').textContent = 'Rename list';
