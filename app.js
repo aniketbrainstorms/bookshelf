@@ -133,6 +133,45 @@ async function signOut() {
   await sb.auth.signOut();
 }
 
+// ── DESKTOP PROFILE POPUP ──
+function toggleDesktopProfilePopup(e) {
+  e.stopPropagation();
+  const popup = document.getElementById('desktopProfilePopup');
+  const trigger = document.getElementById('desktopProfileTrigger');
+  if (!popup) return;
+  const isOpen = popup.classList.contains('open');
+  if (isOpen) {
+    closeDesktopProfilePopup();
+  } else {
+    popup.classList.add('open');
+    trigger.classList.add('popup-open');
+    // Close on outside click
+    setTimeout(() => {
+      document.addEventListener('click', _dppOutsideClose, { once: true });
+    }, 0);
+  }
+}
+function closeDesktopProfilePopup() {
+  const popup = document.getElementById('desktopProfilePopup');
+  const trigger = document.getElementById('desktopProfileTrigger');
+  if (popup) popup.classList.remove('open');
+  if (trigger) trigger.classList.remove('popup-open');
+}
+function _dppOutsideClose(e) {
+  if (!e.target.closest('#desktopProfileTrigger')) {
+    closeDesktopProfilePopup();
+  }
+}
+function openShareShelfFromPopup() {
+  closeDesktopProfilePopup();
+  openProfileModal();
+  // Scroll to share section after modal opens
+  setTimeout(() => {
+    const shareEl = document.getElementById('shareSlugInput');
+    if (shareEl) shareEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 400);
+}
+
 // ── DB ──
 async function loadBooks() {
   renderSkeleton();
@@ -409,6 +448,14 @@ function renderGrid() {
     grid.innerHTML = `<div class="empty-state"><span class="empty-icon">📭</span>
       <p>${q ? `No results for "<strong>${q}</strong>"` : 'Nothing here yet.'}<br>${!q ? `Tap <strong style="color:var(--accent)">+</strong> to search and add a book.` : ''}</p></div>`;
     return;
+    // Update sidebar counts
+  const sbc = document.getElementById('sidebarShelfCount');
+  if (sbc) sbc.textContent = visible.length || '';
+  const slc = document.getElementById('sidebarListsCount');
+  if (slc) {
+    const cnt = (window._getLoLists ? window._getLoLists() : []).length;
+    if (slc) slc.textContent = cnt || '';
+  }
   }
   if (currentFilter === 'reading') {
     grid.classList.add('reading-mode');
