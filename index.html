@@ -77,7 +77,6 @@
 
   <!-- APP SCREEN -->
   <div class="app-screen" id="appScreen" style="display:none">
-  <div class="desktop-layout">
     <div class="header">
       <div class="header-top">
         <div class="header-logo">
@@ -85,24 +84,8 @@
                alt="Tsundoku" style="height:30px"
                onerror="this.outerHTML='<span style=\'font-size:24px;font-weight:700;color:var(--text)\'>Tsundoku</span>'">
         </div>
-<div class="header-right" id="desktopProfileTrigger" onclick="toggleDesktopProfilePopup(event)">
-          <button class="profile-avatar" id="profileAvatarBtn" style="pointer-events:none">?</button>
-          <!-- Desktop profile popup -->
-          <div class="desktop-profile-popup" id="desktopProfilePopup">
-            <button class="dpp-item" onclick="openProfileModal(); closeDesktopProfilePopup()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-              Profile
-            </button>
-            <button class="dpp-item" onclick="openShareShelfFromPopup()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              Share my shelf
-            </button>
-            <div class="dpp-sep"></div>
-            <button class="dpp-item dpp-logout" onclick="signOut()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Log out
-            </button>
-          </div>
+        <div class="header-right">
+          <button class="profile-avatar" id="profileAvatarBtn" onclick="openProfileModal()">?</button>
         </div>
       </div>
 
@@ -129,23 +112,8 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
         </button>
       </div>
-
-      <!-- Desktop sidebar: ORGANIZE section (hidden on mobile via CSS) -->
-      <div class="sidebar-organize-section" id="sidebarOrganizeSection">
-        <button class="sidebar-nav-btn" id="sidebarMyShelfBtn" onclick="openShelfView()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          My Shelf
-          <span class="sidebar-nav-count" id="sidebarShelfCount"></span>
-        </button>
-        <button class="sidebar-nav-btn" id="sidebarMyListsBtn" onclick="openListsOverlay()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          My Lists
-          <span class="sidebar-nav-count" id="sidebarListsCount"></span>
-        </button>
-      </div>
     </div>
-    <div class="desktop-main">
-    <div class="divider" id="mainDivider"></div>
+    <div class="divider"></div>
     <div class="hint-bar" id="hintBar">Tap to view · Hold to quick-edit</div>
     <div class="grid-container" id="mainGridContainer">
       <div class="book-grid" id="bookGrid"></div>
@@ -155,8 +123,6 @@
       </div>
       <div class="alpha-bubble" id="mainAlphaBubble"></div>
     </div>
-    </div><!-- /.desktop-main -->
-  </div><!-- /.desktop-layout -->
   </div>
 
   <!-- PUBLIC SHELF SCREEN -->
