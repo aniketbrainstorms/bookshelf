@@ -924,7 +924,60 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   .toolbar { display: contents; }
   .sort-btn { display: none; } /* hidden from sidebar; shown in main area */
 
-  /* Profile row pinned to sidebar bottom */
+  /* ── ORGANIZE section ── */
+  .sidebar-organize-section {
+    padding: 0 8px;
+    margin-top: 6px;
+  }
+  .sidebar-organize-section::before {
+    content: 'ORGANIZE';
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    padding: 16px 4px 8px;
+  }
+  .sidebar-nav-btn {
+    width: 100%;
+    border-radius: 9px;
+    border: none;
+    text-align: left;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    font-size: 13px;
+    gap: 10px;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .sidebar-nav-btn:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .sidebar-nav-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .sidebar-nav-btn svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+  .sidebar-nav-btn.active svg { opacity: 1; }
+  .sidebar-nav-count {
+    margin-left: auto;
+    font-size: 11px;
+    opacity: 0.75;
+    font-weight: 500;
+  }
+
+  /* Profile row pinned to sidebar bottom — now a popup trigger */
   .header-right {
     display: flex !important;
     align-items: center;
@@ -933,7 +986,12 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     margin-top: auto;
     border-top: 1px solid var(--border);
     cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+    border-radius: 0 0 0 0;
   }
+  .header-right:hover { background: var(--surface2); }
+  .header-right.popup-open { background: var(--surface2); }
   .header-right::after {
     content: 'Profile';
     font-family: 'DM Sans', sans-serif;
@@ -942,11 +1000,57 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
     color: var(--text-dim);
     flex: 1;
   }
+  .header-right.popup-open::after { color: var(--accent); }
   .profile-avatar {
     width: 30px;
     height: 30px;
     font-size: 11px;
   }
+
+  /* ── PROFILE POPUP (desktop sidebar) ── */
+  .desktop-profile-popup {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 12px;
+    right: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.55);
+    z-index: 40;
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+    transform-origin: bottom left;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.4,0.64,1);
+  }
+  .desktop-profile-popup.open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: all;
+  }
+  .dpp-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-dim);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.12s, color 0.12s;
+  }
+  .dpp-item:hover { background: var(--surface); color: var(--text); }
+  .dpp-item.dpp-logout { color: #c06060; }
+  .dpp-item.dpp-logout:hover { background: rgba(192,96,96,0.1); color: #c06060; }
+  .dpp-sep { height: 1px; background: var(--border); margin: 4px 0; }
 
   /* ── MAIN CONTENT AREA ── */
   .desktop-main {
