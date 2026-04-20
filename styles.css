@@ -805,3 +805,263 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .ldas-result-add { width:28px; height:28px; border-radius:50%; background:var(--accent); border:none; color:#fff; font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; line-height:1; padding:0; }
 .ldas-result-add.added { background:var(--green); font-size:13px; }
 .ldas-footer { padding:12px 20px max(calc(var(--safe-bottom)+16px),20px); border-top:1px solid var(--border); flex-shrink:0; }
+
+/* ══════════════════════════════════════════════
+   DESKTOP LAYOUT  ≥ 1024px
+   Mobile layout is untouched — everything below
+   is scoped inside this media query.
+══════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+
+  /* Root layout: sidebar + main panel */
+  .app-screen {
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR (repurposed .header) ── */
+  .header {
+    width: 240px;
+    min-width: 240px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 0 24px !important;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .header::-webkit-scrollbar { display: none; }
+
+  /* Logo at top of sidebar */
+  .header-top {
+    padding: 0 20px;
+    margin-bottom: 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .header-logo img { height: 28px; }
+
+  /* Hide the profile avatar button in header — profile moves to sidebar bottom */
+  .header-right { display: none; }
+
+  /* Search row sits inside sidebar below logo */
+  .search-row {
+    padding: 0 16px;
+    margin-bottom: 24px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .add-btn-header {
+    /* Becomes a full-width "+ Add Book" button in sidebar */
+    width: 100%;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.01em;
+    gap: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Render a label next to the + in the button */
+  .add-btn-header::after {
+    content: 'Add Book';
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .add-btn-header.open { transform: none; }
+
+  /* Nav sections — injected via CSS counters/labels */
+  .filter-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: unset;
+    width: 100%;
+    overflow: visible;
+    padding: 0 10px;
+  }
+
+  /* Section label above Library tabs */
+  .filter-tabs::before {
+    content: 'LIBRARY';
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    padding: 0 10px 8px;
+    display: block;
+  }
+
+  .tab-btn {
+    width: 100%;
+    border-radius: 10px;
+    border: none;
+    text-align: left;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    font-size: 13px;
+    gap: 8px;
+    background: transparent;
+    color: var(--text-dim);
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+  }
+  .tab-btn:hover:not(.active) {
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .tab-count {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    border-radius: 100px;
+    padding: 1px 7px;
+    font-size: 11px;
+  }
+  .tab-btn:not(.active) .tab-count {
+    background: var(--surface2);
+  }
+
+  /* Toolbar: sort btn goes inside main area, tabs are in sidebar */
+  .toolbar {
+    display: contents; /* dissolve the toolbar wrapper */
+  }
+  .sort-btn {
+    /* Reposition sort btn — it will render in the sidebar flow below tabs */
+    display: none; /* hidden in sidebar; we show it in main area header */
+  }
+
+  /* Divider below header is hidden on desktop */
+  .divider { display: none; }
+  .hint-bar { display: none; }
+
+  /* ── MAIN CONTENT AREA ── */
+  .grid-container {
+    flex: 1;
+    height: 100%;
+    padding: 24px 40px 24px 32px;
+    position: relative;
+  }
+
+  /* Wider book grid on desktop */
+  .book-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+  }
+  .book-grid.reading-mode {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  /* A–Z bar respects sidebar offset */
+  .alpha-bar {
+    right: 8px;
+  }
+
+  /* ── DESKTOP SORT BUTTON — floated inside main area ── */
+  /* We show the sort btn as a fixed overlay inside grid-container */
+  #sortToggleBtn {
+    display: flex;
+    position: absolute;
+    top: 24px;
+    right: 48px;
+    z-index: 5;
+    width: 34px;
+    height: 34px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  /* ── PROFILE SECTION at sidebar bottom ── */
+  /* We inject a visual separator and style the profile area */
+  /* The profile avatar is hidden in header-right above;
+     on desktop we show a bottom section using the modal trigger differently.
+     We re-show the profile avatar inside the sidebar bottom via a pseudo approach:
+     We use .header::after as a spacer to push profile to bottom */
+  .header::after {
+    content: '';
+    flex: 1;
+  }
+
+  /* Re-show profile avatar at sidebar bottom — using the existing button */
+  .header .header-right { display: none; } /* keep hidden — profile trigger is desktop-sidebar-profile */
+
+  /* ── OVERLAYS: full-screen on desktop, not offset by sidebar ── */
+  .book-search-overlay,
+  .shelf-overlay,
+  #listsOverlay,
+  .modal-overlay,
+  #listDetailOverlay {
+    position: fixed;
+    inset: 0;
+  }
+
+  /* Public shelf screen stays full viewport */
+  .public-shelf-screen {
+    position: fixed;
+    inset: 0;
+  }
+
+  /* Book search overlay: center panel on desktop */
+  .book-search-overlay {
+    left: 240px; /* offset past sidebar */
+    background: var(--bg);
+  }
+
+  /* Modal sheets: slightly wider on desktop */
+  .modal-sheet {
+    max-width: 480px;
+    width: 90%;
+  }
+
+  /* ── SIDEBAR PROFILE WIDGET ── */
+  /* We re-show header-right at the very bottom of sidebar */
+  /* Trick: make header-right a flex child of header but push to bottom */
+  .header .header-right {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+  }
+
+  /* Style the profile avatar as a full row in sidebar */
+  .profile-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+  /* Add a label next to avatar */
+  .header .header-right::after {
+    content: 'Profile';
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    flex: 1;
+  }
+
+  /* Sort menu z-index fix for desktop */
+  #sortMenu { z-index: 10; }
+
+  /* Toast stays above sidebar */
+  .toast { left: calc(240px + 50%); }
+}
+
+/* ── DESKTOP LANDSCAPE orientation overrides ── */
+@media (min-width: 1024px) and (orientation: landscape) {
+  .book-grid { grid-template-columns: repeat(6, 1fr); gap: 14px; }
+}
