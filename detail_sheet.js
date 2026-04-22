@@ -99,6 +99,7 @@ function dsClose() {
 function dsOnTouchStart(e) {
   if (DS.animating) return;
   if (!DS.isOpen) return;
+  if (!e.target.closest('#detailSheet')) return;
   // In FULL state, only allow drag from handle area
   if (DS.isExpanded) {
     const handle = document.getElementById('dsHandleWrap');
@@ -237,10 +238,11 @@ function dsOnScroll() {
 function dsInitDragEvents() {
   const sheet = document.getElementById('detailSheet');
   if (!sheet) return;
-  sheet.addEventListener('touchstart', dsOnTouchStart, { passive: false });
-  sheet.addEventListener('touchmove', dsOnTouchMove, { passive: false });
-  sheet.addEventListener('touchend', dsOnTouchEnd, { passive: true });
-  sheet.addEventListener('touchcancel', dsOnTouchEnd, { passive: true });
+  const overlay = document.getElementById('detailModal');
+  overlay.addEventListener('touchstart', dsOnTouchStart, { passive: false });
+  overlay.addEventListener('touchmove', dsOnTouchMove, { passive: false });
+  overlay.addEventListener('touchend', dsOnTouchEnd, { passive: true });
+  overlay.addEventListener('touchcancel', dsOnTouchEnd, { passive: true });
   sheet.addEventListener('mousedown', dsOnMouseDown);
   const scroll = document.getElementById('dsScroll');
   if (scroll) scroll.addEventListener('scroll', dsOnScroll, { passive: true });
