@@ -343,17 +343,28 @@ function toggleDetailEdit() {
 }
 
 // ── Summary fetching via Google Books ──
+const _summaryCache = {};
+const _summaryInFlight = {};
+
 async function fetchBookSummary(title, author) {
+  const cacheKey = `${title}__${author || ''}`.toLowerCase();
+  if (_summaryCache[cacheKey] !== undefined) return _summaryCache[cacheKey];
+  if (_summaryInFlight[cacheKey]) return _summaryInFlight[cacheKey];
   try {
     const q = encodeURIComponent(`${title} ${author || ''}`.trim());
-    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&langRestrict=en`);
-    if (!res.ok) return '';
+    _summaryInFlight[cacheKey] = fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&langRestrict=en`)
+      .then(async res => {
+        delete _summaryInFlight[cacheKey];
+        if (!res.ok) { _summaryCache[cacheKey] = ''; return ''; }
     const data = await res.json();
-    for (const item of (data.items || [])) {
-      const desc = item.volumeInfo?.description;
-      if (desc && desc.length > 40) return desc;
-    }
-    return '';
+        for (const item of (data.items || [])) {
+          const desc = item.volumeInfo?.description;
+          if (desc && desc.length > 40) { _summaryCache[cacheKey] = desc; return desc; }
+        }
+        _summaryCache[cacheKey] = '';
+        return '';
+      });
+    return _summaryInFlight[cacheKey];
   } catch { return ''; }
 }
 
