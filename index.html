@@ -421,6 +421,12 @@
   <div class="modal-overlay" id="progressModal" onclick="handleOverlayClick(event,'progressModal')">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
+      <div class="detail-back-row">
+        <button class="detail-back-btn" onclick="closeModal('progressModal')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back
+        </button>
+      </div>
       <h2 class="modal-title">Reading Progress</h2>
       <p class="modal-subtitle" id="progressModalSubtitle">How far are you in?</p>
       <div class="progress-inputs-row">
