@@ -512,7 +512,7 @@ function startPress(e, id, card) {
 function endPress(e, id, card) {
   if (!isPressing) return; isPressing = false; clearTimeout(longPressTimer);
   card.classList.remove('pressing', 'long-pressed');
-  if (!didLongPress && !isTouch()) {
+  if (!didLongPress) {
     if (card.classList.contains('reading-card')) openProgressModal(id);
     else openDetailModal(id);
   }
