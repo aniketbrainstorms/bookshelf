@@ -498,15 +498,17 @@ function closeModal(id) {
 
 // ── Overlay click handler override ──
 function handleDetailOverlayClick(e) {
-  if (e.target === document.getElementById('detailModal')) {
-    closeModal('detailModal');
-    return;
-  }
   const dropdown = document.getElementById('statusDropdown');
   if (dropdown.classList.contains('open') && !dropdown.contains(e.target) && e.target !== document.getElementById('statusChevronBtn')) {
     closeStatusDropdown();
   }
 }
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.getElementById('detailModal');
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal('detailModal');
+  });
+});
 
 // ── Init on DOM ready ──
 document.addEventListener('DOMContentLoaded', () => {
