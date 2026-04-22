@@ -76,7 +76,7 @@ function dsOpen() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       dsSnapTo(false, true);
-      setTimeout(() => { DS.isOpen = true; }, 600);
+      setTimeout(() => { DS.isOpen = true; }, 400);
     });
   });
 }
