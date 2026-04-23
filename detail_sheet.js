@@ -500,9 +500,9 @@ function dsRenderTagline(status) {
 // (replaces the original function defined earlier in app.js)
 function openDetailModal(id) {
   try {
-  const book = books.find(b => b.id === id);
+  const book = books.find(b => String(b.id) === String(id));
   if (!book) return;
-  editingId = id;
+  editingId = book.id;
   editCoverFile = null;
   editStatus = book.status;
 
