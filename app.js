@@ -779,7 +779,15 @@ async function confirmEdit() {
   const title = document.getElementById('editTitle').value.trim();
   if (!title) { document.getElementById('editTitle').style.borderColor = 'var(--accent)'; return; }
   const btn = document.getElementById('saveEditBtn'); btn.disabled = true; btn.textContent = 'Saving…';
-  const updates = { title, author: document.getElementById('editAuthor').value.trim() || '', status: editStatus };
+  const updates = {
+    title,
+    author: document.getElementById('editAuthor').value.trim() || '',
+    status: editStatus,
+    year: document.getElementById('editYear').value.trim() || null,
+    publisher: document.getElementById('editPublisher').value.trim() || null,
+    genre: document.getElementById('editGenre').value.trim() || null,
+    page_count: parseInt(document.getElementById('editPageCount').value) || null,
+  };
   if (editCoverFile) { const url = await uploadCover(editCoverFile, editingId); if (url) updates.cover_url = url; }
   else if (editCoverUrl) { updates.cover_url = editCoverUrl; }
   const ok = await dbUpdate(editingId, updates);
