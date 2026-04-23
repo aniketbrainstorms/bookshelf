@@ -412,6 +412,15 @@
           <input type="text" class="text-input" id="editGenre" placeholder="e.g. Magical Realism" />
           <p class="field-label">Page Count</p>
           <input type="number" class="text-input" id="editPageCount" placeholder="e.g. 505" />
+          <p class="field-label" id="editRatingLabel" style="display:none">Your Rating</p>
+          <div class="star-rating-input" id="starRatingInput" style="display:none">
+            <button class="star-btn" data-star="1">★</button>
+            <button class="star-btn" data-star="2">★</button>
+            <button class="star-btn" data-star="3">★</button>
+            <button class="star-btn" data-star="4">★</button>
+            <button class="star-btn" data-star="5">★</button>
+            <button class="star-clear-btn" onclick="setUserRating(0)">✕</button>
+          </div>
           <p class="field-label">Cover Photo</p>
           <label class="cover-upload" id="editCoverUpload">
             <input type="file" accept="image/*" onchange="handleCoverUpload(event,'edit')" />
