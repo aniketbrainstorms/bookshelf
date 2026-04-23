@@ -68,18 +68,16 @@ let _dsOpenTime = 0;
 function dsOpen() {
   const overlay = document.getElementById('detailModal');
   const sheet = document.getElementById('detailSheet');
+  if (!overlay || !sheet) return;
   const sheetH = window.innerHeight * 0.92;
   DS.isOpen = false;
   DS.isExpanded = false;
   DS.isDragging = false;
   _dsOpenTime = Date.now();
-  // Reset to off-screen with no transition before overlay becomes visible
   sheet.style.transition = 'none';
   sheet.style.transform = `translateY(${sheetH}px)`;
   DS.currentTranslate = sheetH;
   overlay.classList.add('visible');
-  // Two rAFs: first lets the browser paint the off-screen position,
-  // second fires after that paint so the transition animates from it
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       dsSnapTo(false, true);
@@ -499,6 +497,7 @@ function dsRenderTagline(status) {
 // ── OVERRIDE openDetailModal ── 
 // (replaces the original function defined earlier in app.js)
 function openDetailModal(id) {
+  try {
   const book = books.find(b => b.id === id);
   if (!book) return;
   editingId = id;
@@ -561,8 +560,6 @@ function openDetailModal(id) {
     if (editingId !== id) return;
     dsBuildSummary(meta.description);
     dsRenderSummary();
-    // rating is user-set, not from API
-    // Fill gaps from API only if DB fields are empty
     const apiUpdates = {};
     if (!book.year && meta.year)           { apiUpdates.year = meta.year; book.year = meta.year; }
     if (!book.publisher && meta.publisher) { apiUpdates.publisher = meta.publisher; book.publisher = meta.publisher; }
@@ -582,6 +579,7 @@ function openDetailModal(id) {
       await dbUpdate(id, apiUpdates);
     }
   });
+  } catch(e) { console.error('openDetailModal error:', e); }
 }
 
 // ── OVERRIDE closeModal for detailModal ──
