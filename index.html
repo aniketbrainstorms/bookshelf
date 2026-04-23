@@ -355,10 +355,21 @@
               </div>
             </div>
             <div class="ds-genre" id="detailGenre"></div>
+            <div class="ds-meta-grid" id="detailMetaGrid" style="display:none">
+              <div class="ds-meta-col">
+                <div class="ds-meta-label">Genre</div>
+                <div class="ds-meta-val" id="detailMetaGenre">—</div>
+              </div>
+              <div class="ds-meta-col">
+                <div class="ds-meta-label">Pages</div>
+                <div class="ds-meta-val" id="detailMetaPages">—</div>
+              </div>
+            </div>
             <div class="ds-rating" id="detailRating"></div>
           </div>
         </div>
 
+        <!-- Context-aware CTA buttons -->
         <!-- Context-aware CTA buttons -->
         <div class="ds-cta-area">
           <button class="ds-primary-btn btn-accent" id="dsPrimaryBtn" onclick="doPrimaryAction()">
@@ -367,6 +378,7 @@
           <button class="ds-secondary-btn" id="dsSecondaryBtn" onclick="doSecondaryAction()">
             <!-- Content set by JS -->
           </button>
+          <div class="ds-tagline" id="detailTagline"></div>
         </div>
       </div>
 
