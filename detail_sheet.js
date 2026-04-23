@@ -347,7 +347,11 @@ function toggleDetailEdit() {
   form.style.display = DS.editVisible ? 'block' : 'none';
   divider.style.display = DS.editVisible ? 'block' : 'none';
   btn.classList.toggle('active', DS.editVisible);
-  if (DS.editVisible && !DS.isExpanded) dsSnapTo(true);
+  if (DS.editVisible) {
+    const book = books.find(b => b.id === editingId);
+    dsInitStarInput(book || {});
+    if (!DS.isExpanded) dsSnapTo(true);
+  }
 }
 
 // ── Summary fetching via Google Books ──
