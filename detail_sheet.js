@@ -497,8 +497,7 @@ function openDetailModal(id) {
     const parts = [book.year, book.publisher].filter(Boolean);
     yearPub.textContent = parts.join(' • ');
   }
-  const ratingEl = document.getElementById('detailRating');
-  if (ratingEl) ratingEl.innerHTML = '';
+  dsRenderRating(book);
 
   // Edit form new fields
   document.getElementById('editYear').value = book.year || '';
@@ -537,7 +536,7 @@ function openDetailModal(id) {
     if (editingId !== id) return;
     dsBuildSummary(meta.description);
     dsRenderSummary();
-    dsRenderRating(meta.rating);
+    // rating is user-set, not from API
     // Fill gaps from API only if DB fields are empty
     const apiUpdates = {};
     if (!book.year && meta.year)           { apiUpdates.year = meta.year; book.year = meta.year; }
