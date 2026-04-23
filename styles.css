@@ -186,7 +186,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .book-card.pressing { transform: scale(0.92); }
 .book-card.long-pressed { transform: scale(0.88); box-shadow: 0 0 0 2.5px var(--accent); border-radius: 10px; }
 @keyframes bookIn { from { opacity: 0; transform: scale(0.88) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-.book-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.book-card img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; background: var(--surface2); }
 .status-dot { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.5); }
 .status-dot.reading { background: var(--accent); }
 .status-dot.read { background: var(--green); }
@@ -445,7 +445,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   position: relative; background: var(--surface2);
   animation: bookIn 0.32s ease both;
 }
-.pub-book-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pub-book-card img { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--surface2); }
 .pub-book-card .status-dot { display: none; }
 
 /* QUICK MENU */
@@ -720,7 +720,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .ld-book-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding-bottom:8px; }
 .ld-book-grid-card { display:flex; flex-direction:column; gap:0; cursor:pointer; }
 .ld-book-grid-cover { aspect-ratio:2/3; border-radius:8px; overflow:hidden; background:var(--surface2); position:relative; }
-.ld-book-grid-cover img { width:100%; height:100%; object-fit:cover; }
+.ld-book-grid-cover img { width:100%; height:100%; object-fit:contain; background: var(--surface2); }
 .ld-book-grid-info { display:none; }
 .ld-book-grid-title { font-size:10px; font-weight:600; color:var(--text); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
 .ld-book-grid-author { font-size:9px; color:var(--text-muted); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; margin-top:1px; }
