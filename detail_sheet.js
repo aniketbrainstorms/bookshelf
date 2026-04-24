@@ -104,6 +104,7 @@ function dsClose() {
   if (expandBtn) expandBtn.classList.remove('open');
   setTimeout(() => {
     overlay.classList.remove('visible');
+    sheetEl.classList.remove('summary-expanded');
     DS.isOpen = false;
     DS.isExpanded = false;
     DS.editVisible = false;
@@ -334,6 +335,7 @@ async function doSecondaryAction() {
 function toggleDetailSummary() {
   DS.summaryExpanded = !DS.summaryExpanded;
   const section = document.getElementById('dsSummarySection');
+  const sheet = document.getElementById('detailSheet');
   const preview = document.getElementById('dsSummaryPreview');
   const expandBtn = document.getElementById('dsSummaryExpandBtn');
   if (!section || !preview) return;
@@ -342,9 +344,11 @@ function toggleDetailSummary() {
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
     preview.scrollTop = 0;
     section.classList.add('expanded');
+    if (sheet) sheet.classList.add('summary-expanded');
     if (expandBtn) expandBtn.classList.add('open');
   } else {
     section.classList.remove('expanded');
+    if (sheet) sheet.classList.remove('summary-expanded');
     if (expandBtn) expandBtn.classList.remove('open');
   }
 }
@@ -420,11 +424,13 @@ function dsBuildSummary(text) {
 function dsRenderSummary() {
   const preview = document.getElementById('dsSummaryPreview');
   const section = document.getElementById('dsSummarySection');
+  const sheet = document.getElementById('detailSheet');
   const expandBtn = document.getElementById('dsSummaryExpandBtn');
   if (!preview) return;
   const text = DS.summaryFull || DS.summaryShort || 'No summary available.';
   preview.textContent = DS.summaryExpanded ? text : '';
   if (section) section.classList.toggle('expanded', DS.summaryExpanded);
+  if (sheet) sheet.classList.toggle('summary-expanded', DS.summaryExpanded);
   if (expandBtn) expandBtn.classList.toggle('open', DS.summaryExpanded);
 }
 
@@ -477,9 +483,10 @@ function dsRenderMetaGrid(book) {
   }
   if (genreEl) genreEl.textContent = book.genre || '';
   if (metaGrid) {
-    const pages = book.page_count ? `${book.page_count} pages` : '';
-    const genre = book.genre || '';
-    if (pages || genre) {
+    const pageCount = book.page_count || book.total_pages || '';
+    const pages = pageCount ? `${pageCount} pages` : 'Add pages in edit';
+    const genre = book.genre || 'Add genre in edit';
+    if (true) {
       metaGrid.style.display = 'grid';
       document.getElementById('detailMetaGenre').textContent = genre || '—';
       document.getElementById('detailMetaPages').textContent = pages || '—';
