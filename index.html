@@ -345,31 +345,31 @@
             <div class="ds-year-pub" id="detailYearPub"></div>
             <div class="ds-status-row">
               <div class="status-badge" id="detailBadge"></div>
-              <button class="status-chevron-btn" id="statusChevronBtn" onclick="toggleStatusDropdown(event)">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div class="status-dropdown" id="statusDropdown">
-                <button class="sd-item" data-sd="reading" onclick="setEditStatusFromDropdown('reading')"><span class="sd-dot" style="background:var(--accent)"></span>Reading</button>
-                <button class="sd-item" data-sd="read" onclick="setEditStatusFromDropdown('read')"><span class="sd-dot" style="background:var(--green)"></span>Read</button>
-                <button class="sd-item" data-sd="unread" onclick="setEditStatusFromDropdown('unread')"><span class="sd-dot" style="background:var(--text-muted)"></span>Unread</button>
-              </div>
-            </div>
-            <div class="ds-genre" id="detailGenre"></div>
-            <div class="ds-meta-grid" id="detailMetaGrid" style="display:none">
-              <div class="ds-meta-col">
-                <div class="ds-meta-label">Genre</div>
-                <div class="ds-meta-val" id="detailMetaGenre">—</div>
-              </div>
-              <div class="ds-meta-col">
-                <div class="ds-meta-label">Pages</div>
-                <div class="ds-meta-val" id="detailMetaPages">—</div>
-              </div>
             </div>
             <div class="ds-rating" id="detailRating"></div>
           </div>
         </div>
 
-        <!-- Context-aware CTA buttons -->
+        <!-- Genre + Pages below cover -->
+        <div class="ds-meta-grid" id="detailMetaGrid" style="display:none">
+          <div class="ds-meta-col">
+            <div class="ds-meta-label">Genre</div>
+            <div class="ds-meta-val" id="detailMetaGenre">—</div>
+          </div>
+          <div class="ds-meta-col">
+            <div class="ds-meta-label">Pages</div>
+            <div class="ds-meta-val" id="detailMetaPages">—</div>
+          </div>
+        </div>
+
+        <!-- Summary header row — fixed above buttons -->
+        <div class="ds-section-header" id="dsSummaryHeader" onclick="toggleDetailSummary()">
+          <span class="ds-section-label">Summary</span>
+          <button class="ds-expand-btn" id="dsSummaryExpandBtn" tabindex="-1">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+
         <!-- Context-aware CTA buttons -->
         <div class="ds-cta-area">
           <button class="ds-primary-btn btn-accent" id="dsPrimaryBtn" onclick="doPrimaryAction()">
@@ -378,21 +378,14 @@
           <button class="ds-secondary-btn" id="dsSecondaryBtn" onclick="doSecondaryAction()">
             <!-- Content set by JS -->
           </button>
-          <div class="ds-tagline" id="detailTagline"></div>
         </div>
       </div>
 
       <!-- ── SCROLLABLE BODY ── -->
       <div class="ds-scroll" id="dsScroll">
 
-<!-- Summary section -->
+        <!-- Summary text — scrolls with content -->
         <div class="ds-section" id="dsSummarySection">
-          <div class="ds-section-header" onclick="toggleDetailSummary()">
-            <span class="ds-section-label">Summary</span>
-            <button class="ds-expand-btn" id="dsSummaryExpandBtn" tabindex="-1">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-          </div>
           <div class="ds-summary-text ds-summary-preview" id="dsSummaryPreview"></div>
           <button class="ds-read-more" id="dsSummaryReadMore" onclick="toggleDetailSummary()" style="display:none">Show less</button>
         </div>
