@@ -823,8 +823,9 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   position: relative;
   z-index: 2;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, transform 0.28s cubic-bezier(0.32,0.72,0,1);
 }
+.detail-sheet.summary-expanded .ds-top { transform: translateY(-132px); }
 .ds-top.scrolled { border-bottom-color: var(--border); }
 
 /* Back + Edit row */
@@ -938,7 +939,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   left: 0;
   right: 0;
   bottom: var(--ds-current-translate, 0px);
-  z-index: 4;
+  z-index: 5;
   padding: 12px 20px max(calc(var(--safe-bottom) + 14px), 18px);
   background: linear-gradient(to top, var(--surface) 82%, rgba(33,29,26,0));
 }
@@ -1085,6 +1086,11 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* Expandable summary card */
 #dsSummarySection.summary-section {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: calc(var(--ds-current-translate, 0px) + 136px);
+  z-index: 4;
   height: 60px;
   margin-bottom: 16px;
   background: var(--surface2);
