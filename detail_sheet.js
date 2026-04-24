@@ -42,6 +42,7 @@ function dsSetTranslate(y, animate) {
   } else {
     sheet.style.transition = 'none';
   }
+  sheet.style.setProperty('--ds-current-translate', `${y}px`);
   sheet.style.transform = `translateY(${y}px)`;
 }
 
@@ -77,6 +78,7 @@ function dsOpen() {
   _dsOpenTime = Date.now();
   sheet.style.transition = 'none';
   sheet.style.transform = `translateY(${sheetH}px)`;
+  sheet.style.setProperty('--ds-current-translate', `${sheetH}px`);
   DS.currentTranslate = sheetH;
   overlay.classList.add('visible');
   // On desktop (≥768px) open directly to full state — no half snap
@@ -334,10 +336,11 @@ function toggleDetailSummary() {
   const section = document.getElementById('dsSummarySection');
   const preview = document.getElementById('dsSummaryPreview');
   const expandBtn = document.getElementById('dsSummaryExpandBtn');
+  if (!section || !preview) return;
 
   if (DS.summaryExpanded) {
-    // Show full text before expanding so height animates to real content
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
+    preview.scrollTop = 0;
     section.classList.add('expanded');
     if (expandBtn) expandBtn.classList.add('open');
   } else {
@@ -419,11 +422,10 @@ function dsRenderSummary() {
   const section = document.getElementById('dsSummarySection');
   const expandBtn = document.getElementById('dsSummaryExpandBtn');
   if (!preview) return;
-  // Always reset to collapsed — text is loaded but hidden until tapped
-  preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
-  if (section) section.classList.remove('expanded');
-  if (expandBtn) expandBtn.classList.remove('open');
-  DS.summaryExpanded = false;
+  const text = DS.summaryFull || DS.summaryShort || 'No summary available.';
+  preview.textContent = DS.summaryExpanded ? text : '';
+  if (section) section.classList.toggle('expanded', DS.summaryExpanded);
+  if (expandBtn) expandBtn.classList.toggle('open', DS.summaryExpanded);
 }
 
 let _userRating = 0;
@@ -544,9 +546,8 @@ function openDetailModal(id) {
 
   // Summary — set placeholder, fetch async
   dsBuildSummary('');
+  DS.summaryShort = 'Loading...';
   dsRenderSummary();
-  const preview = document.getElementById('dsSummaryPreview');
-  if (preview) preview.textContent = 'Loading…';
 
   // Open sheet
   dsOpen();
