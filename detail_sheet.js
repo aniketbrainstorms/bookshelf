@@ -439,14 +439,17 @@ function setUserRating(val) {
 function dsRenderRating(book) {
   const el = document.getElementById('detailRating');
   if (!el) return;
-  // Only show rating if book is 'read' and has a rating
-  if (book.status !== 'read' || !book.rating) { el.innerHTML = ''; return; }
-  const full = Math.floor(book.rating);
+  const rating = book.rating || 0;
+  const full = Math.floor(rating);
   let stars = '';
   for (let i = 1; i <= 5; i++) {
     stars += `<span class="ds-star${i <= full ? '' : ' empty'}">★</span>`;
   }
-  el.innerHTML = `<span class="ds-rating-label">Your rating</span><span class="ds-rating-score">${book.rating}/5</span>${stars}`;
+  if (rating > 0) {
+    el.innerHTML = `<span class="ds-rating-label">Your rating</span><span class="ds-rating-score">${rating}/5</span>${stars}`;
+  } else {
+    el.innerHTML = `<span class="ds-rating-label">Rate</span>${stars}`;
+  }
 }
 
 function dsInitStarInput(book) {
@@ -486,16 +489,7 @@ function dsRenderMetaGrid(book) {
 }
 
 function dsRenderTagline(status) {
-  const el = document.getElementById('detailTagline');
-  if (!el) return;
-  const map = {
-    reading: { text: "You're in the middle of the journey.\nNext step: Finish it.", color: 'var(--accent)' },
-    read:    { text: "You've finished it.\nRevisit or start again.", color: 'var(--green)' },
-    unread:  { text: "Haven't started yet.\nBegin the journey.", color: 'var(--text-muted)' },
-  };
-  const t = map[status] || map.unread;
-  el.style.color = t.color;
-  el.textContent = t.text;
+  // tagline removed from UI
 }
 
 // ── OVERRIDE openDetailModal ── 
@@ -533,7 +527,6 @@ function openDetailModal(id) {
   document.getElementById('editGenre').value = book.genre || '';
   document.getElementById('editPageCount').value = book.page_count || '';
   updateDetailBadge(book.status);
-  closeStatusDropdown();
   dsRenderCTA(book.status);
 
   // Edit form fields
@@ -591,19 +584,12 @@ const _origCloseModal = closeModal;
 window.closeModal = function closeModal(id) {
   if (id === 'detailModal') {
     dsClose();
-    closeStatusDropdown();
     return;
   }
   _origCloseModal(id);
 };
 
-// ── Overlay click handler override ──
-function handleDetailOverlayClick(e) {
-  const dropdown = document.getElementById('statusDropdown');
-  if (dropdown.classList.contains('open') && !dropdown.contains(e.target) && e.target !== document.getElementById('statusChevronBtn')) {
-    closeStatusDropdown();
-  }
-}
+// ── Overlay click handler override — dropdown removed, handler cleared ──
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('detailModal');
   overlay.addEventListener('click', e => {
