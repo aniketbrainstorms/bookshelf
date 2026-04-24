@@ -5,7 +5,7 @@
 
 // ── Sheet state ──
 const DS = {
-  HALF_RATIO: 0.50,   // 50% of viewport = half state
+  HALF_RATIO: 0.46,   // 46% of sheet height from top = half state (~54% visible)
   FULL_RATIO: 0.08,   // 8% from top = full state (92% visible)
   SNAP_VELOCITY: 0.4, // px/ms threshold for velocity snapping
   isOpen: false,
@@ -79,9 +79,11 @@ function dsOpen() {
   sheet.style.transform = `translateY(${sheetH}px)`;
   DS.currentTranslate = sheetH;
   overlay.classList.add('visible');
+  // On desktop (≥768px) open directly to full state — no half snap
+  const isDesktop = window.innerWidth >= 768;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      dsSnapTo(false, true);
+      dsSnapTo(isDesktop ? true : false, true);
       setTimeout(() => { DS.isOpen = true; }, 420);
     });
   });
