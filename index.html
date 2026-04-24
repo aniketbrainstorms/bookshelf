@@ -363,31 +363,23 @@
         </div>
 
         <!-- Summary header row — fixed above buttons -->
-        <div class="ds-section-header" id="dsSummaryHeader" onclick="toggleDetailSummary()">
-          <span class="ds-section-label">Summary</span>
-          <button class="ds-expand-btn" id="dsSummaryExpandBtn" tabindex="-1">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-        </div>
-
-        <!-- Context-aware CTA buttons -->
-        <div class="ds-cta-area">
-          <button class="ds-primary-btn btn-accent" id="dsPrimaryBtn" onclick="doPrimaryAction()">
-            <!-- Content set by JS -->
-          </button>
-          <button class="ds-secondary-btn" id="dsSecondaryBtn" onclick="doSecondaryAction()">
-            <!-- Content set by JS -->
-          </button>
-        </div>
+        
       </div>
 
       <!-- ── SCROLLABLE BODY ── -->
-      <div class="ds-scroll" id="dsScroll">
+      <div class="ds-scroll sheet-content" id="dsScroll">
 
         <!-- Summary text — scrolls with content -->
-        <div class="ds-section" id="dsSummarySection">
-          <div class="ds-summary-text ds-summary-preview" id="dsSummaryPreview"></div>
-          <button class="ds-read-more" id="dsSummaryReadMore" onclick="toggleDetailSummary()" style="display:none">Show less</button>
+        <div class="summary-section" id="dsSummarySection">
+          <button class="summary-header" id="dsSummaryHeader" type="button" onclick="toggleDetailSummary()">
+            <span class="summary-label">Summary</span>
+            <span class="summary-chevron" id="dsSummaryExpandBtn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div class="summary-content" id="dsSummaryContent">
+            <div class="summary-scroll" id="dsSummaryPreview"></div>
+          </div>
         </div>
 
         <!-- Edit form (hidden by default, shown when Edit toggled) -->
@@ -427,6 +419,16 @@
 
         <!-- Bottom padding for safe area -->
         <div style="height:max(calc(var(--safe-bottom) + 16px),24px)"></div>
+      </div>
+
+      <!-- Context-aware CTA buttons -->
+      <div class="ds-cta-area sheet-footer">
+        <button class="ds-primary-btn btn-accent" id="dsPrimaryBtn" onclick="doPrimaryAction()">
+          <!-- Content set by JS -->
+        </button>
+        <button class="ds-secondary-btn" id="dsSecondaryBtn" onclick="doSecondaryAction()">
+          <!-- Content set by JS -->
+        </button>
       </div>
 
       <!-- Scroll-up hint (shown in HALF state) -->
