@@ -71,15 +71,13 @@ function dsOpen() {
   DS.isDragging = false;
   _dsOpenTime = Date.now();
   sheet.style.transition = 'none';
-  // Start offscreen
   const offscreen = window.innerHeight;
   sheet.style.transform = `translateY(${offscreen}px)`;
   DS.currentTranslate = offscreen;
   overlay.classList.add('visible');
-  const isDesktop = window.innerWidth >= 768;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      dsSnapTo(true, true); // Always open full
+      dsSnapTo(false, true); // Always open half
       setTimeout(() => { DS.isOpen = true; }, 420);
     });
   });
@@ -332,8 +330,12 @@ function toggleDetailSummary() {
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
     preview.scrollTop = 0;
     section.classList.add('expanded');
+    // Snap to full sheet when summary opens
+    dsSnapTo(true, true);
   } else {
     section.classList.remove('expanded');
+    // Snap back to half when summary closes
+    dsSnapTo(false, true);
   }
 }
 
