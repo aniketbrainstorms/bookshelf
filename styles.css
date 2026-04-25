@@ -953,15 +953,14 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 /* ── SUMMARY — sits above CTA, expands upward ── */
 .summary-section {
   flex-shrink: 0;
-  margin: 0 20px 10px;
+  margin: 0 20px 0;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
-  /* Use grid trick for smooth height animation — no JS height needed */
   display: grid;
   grid-template-rows: 44px 0fr;
-  transition: grid-template-rows 0.3s cubic-bezier(0.32,0.72,0,1),
+  transition: grid-template-rows 0.32s cubic-bezier(0.32,0.72,0,1),
               border-color 0.2s,
               box-shadow 0.2s;
 }
@@ -1015,7 +1014,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 }
 .summary-scroll {
   padding: 2px 14px 16px;
-  max-height: 240px;
+  max-height: 220px;
   overflow-y: auto;
   scrollbar-width: none;
   font-size: 13.5px;
@@ -1027,6 +1026,13 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 }
 .summary-scroll::-webkit-scrollbar { display: none; }
 .summary-section.expanded .summary-scroll { opacity: 1; }
+
+/* Gap between summary and CTA */
+.ds-summary-gap {
+  flex-shrink: 0;
+  height: 10px;
+  background: var(--surface);
+}
 
 /* ── FIXED CTA AREA ── */
 .ds-cta-area {
