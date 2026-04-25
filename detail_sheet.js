@@ -50,16 +50,12 @@ function dsSnapTo(expanded, animate = true) {
   const targetY = expanded ? dsGetFullY() : dsGetHalfY();
   dsSetTranslate(targetY, animate);
   DS.isExpanded = expanded;
-  // Toggle overlay class for blur intensity
   const overlay = document.getElementById('detailModal');
   overlay.classList.toggle('ds-expanded', expanded);
-  // Unlock / lock scroll
   const scroll = document.getElementById('dsScroll');
   scroll.classList.toggle('unlocked', expanded);
-  // Show/hide scroll hint
   const hint = document.getElementById('dsScrollHint');
-  hint.classList.toggle('hidden', expanded);
-  // Sticky header border
+  if (hint) hint.classList.toggle('hidden', expanded);
   if (!expanded) {
     document.getElementById('dsTop').classList.remove('scrolled');
   }
@@ -97,14 +93,10 @@ function dsClose() {
   dsSetTranslate(sheetH, true);
   const overlay = document.getElementById('detailModal');
   overlay.classList.remove('ds-expanded');
-  // Collapse summary immediately on close
   const section = document.getElementById('dsSummarySection');
-  const expandBtn = document.getElementById('dsSummaryExpandBtn');
   if (section) section.classList.remove('expanded');
-  if (expandBtn) expandBtn.classList.remove('open');
   setTimeout(() => {
     overlay.classList.remove('visible');
-    sheetEl.classList.remove('summary-expanded');
     DS.isOpen = false;
     DS.isExpanded = false;
     DS.editVisible = false;
@@ -335,21 +327,17 @@ async function doSecondaryAction() {
 function toggleDetailSummary() {
   DS.summaryExpanded = !DS.summaryExpanded;
   const section = document.getElementById('dsSummarySection');
-  const sheet = document.getElementById('detailSheet');
   const preview = document.getElementById('dsSummaryPreview');
-  const expandBtn = document.getElementById('dsSummaryExpandBtn');
   if (!section || !preview) return;
 
   if (DS.summaryExpanded) {
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
     preview.scrollTop = 0;
     section.classList.add('expanded');
-    if (sheet) sheet.classList.add('summary-expanded');
-    if (expandBtn) expandBtn.classList.add('open');
+    // Snap to full so summary has room
+    if (!DS.isExpanded) dsSnapTo(true);
   } else {
     section.classList.remove('expanded');
-    if (sheet) sheet.classList.remove('summary-expanded');
-    if (expandBtn) expandBtn.classList.remove('open');
   }
 }
 
@@ -424,14 +412,10 @@ function dsBuildSummary(text) {
 function dsRenderSummary() {
   const preview = document.getElementById('dsSummaryPreview');
   const section = document.getElementById('dsSummarySection');
-  const sheet = document.getElementById('detailSheet');
-  const expandBtn = document.getElementById('dsSummaryExpandBtn');
   if (!preview) return;
   const text = DS.summaryFull || DS.summaryShort || 'No summary available.';
   preview.textContent = DS.summaryExpanded ? text : '';
   if (section) section.classList.toggle('expanded', DS.summaryExpanded);
-  if (sheet) sheet.classList.toggle('summary-expanded', DS.summaryExpanded);
-  if (expandBtn) expandBtn.classList.toggle('open', DS.summaryExpanded);
 }
 
 let _userRating = 0;
