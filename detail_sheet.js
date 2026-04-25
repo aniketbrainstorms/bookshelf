@@ -55,7 +55,7 @@ function dsSnapTo(expanded, animate = true) {
   const scroll = document.getElementById('dsScroll');
   scroll.classList.toggle('unlocked', expanded);
   const hint = document.getElementById('dsScrollHint');
-  if (hint) hint.classList.toggle('hidden', expanded);
+  if (hint) hint.classList.add('hidden'); // always hide hint
   if (!expanded) {
     document.getElementById('dsTop').classList.remove('scrolled');
   }
@@ -66,22 +66,20 @@ function dsOpen() {
   const overlay = document.getElementById('detailModal');
   const sheet = document.getElementById('detailSheet');
   if (!overlay || !sheet) return;
-  const sheetEl = document.getElementById('detailSheet');
-  const sheetH = sheetEl ? sheetEl.offsetHeight : window.innerHeight * 0.92;
   DS.isOpen = false;
   DS.isExpanded = false;
   DS.isDragging = false;
   _dsOpenTime = Date.now();
   sheet.style.transition = 'none';
-  sheet.style.transform = `translateY(${sheetH}px)`;
-  sheet.style.setProperty('--ds-current-translate', `${sheetH}px`);
-  DS.currentTranslate = sheetH;
+  // Start offscreen
+  const offscreen = window.innerHeight;
+  sheet.style.transform = `translateY(${offscreen}px)`;
+  DS.currentTranslate = offscreen;
   overlay.classList.add('visible');
-  // On desktop (≥768px) open directly to full state — no half snap
   const isDesktop = window.innerWidth >= 768;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      dsSnapTo(isDesktop ? true : false, true);
+      dsSnapTo(true, true); // Always open full
       setTimeout(() => { DS.isOpen = true; }, 420);
     });
   });
@@ -334,8 +332,6 @@ function toggleDetailSummary() {
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
     preview.scrollTop = 0;
     section.classList.add('expanded');
-    // Snap to full so summary has room
-    if (!DS.isExpanded) dsSnapTo(true);
   } else {
     section.classList.remove('expanded');
   }
@@ -353,7 +349,11 @@ function toggleDetailEdit() {
   if (DS.editVisible) {
     const book = books.find(b => b.id === editingId);
     dsInitStarInput(book || {});
-    if (!DS.isExpanded) dsSnapTo(true);
+    const scroll = document.getElementById('dsScroll');
+    if (scroll) { scroll.classList.add('unlocked'); setTimeout(() => scroll.scrollTo({ top: 0, behavior: 'smooth' }), 50); }
+  } else {
+    const scroll = document.getElementById('dsScroll');
+    if (scroll) scroll.scrollTo({ top: 0, behavior: 'instant' });
   }
 }
 
