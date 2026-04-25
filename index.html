@@ -310,21 +310,19 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════
-       DETAIL BOTTOM SHEET (Apple Maps / Spotify style)
-       ════════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════════
+       DETAIL BOTTOM SHEET
+       ════════════════════════════════════════ -->
   <div class="modal-overlay" id="detailModal">
     <div class="detail-sheet" id="detailSheet">
 
-      <!-- Drag handle (touch target for dragging) -->
+      <!-- Drag handle -->
       <div class="ds-handle-wrap" id="dsHandleWrap">
         <div class="ds-handle"></div>
       </div>
 
-      <!-- ── STICKY TOP SECTION ── -->
+      <!-- ── STICKY TOP ── -->
       <div class="ds-top" id="dsTop">
-
-        <!-- Back row + Edit toggle -->
         <div class="ds-back-row">
           <button class="detail-back-btn" onclick="closeModal('detailModal')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -335,8 +333,6 @@
             Edit
           </button>
         </div>
-
-        <!-- Book info -->
         <div class="ds-book-row">
           <div class="ds-cover" id="detailCoverEl"></div>
           <div class="ds-info">
@@ -349,8 +345,6 @@
             <div class="ds-rating" id="detailRating"></div>
           </div>
         </div>
-
-        <!-- Genre + Pages below cover -->
         <div class="ds-meta-grid" id="detailMetaGrid">
           <div class="ds-meta-col">
             <div class="ds-meta-label">Genre</div>
@@ -361,17 +355,10 @@
             <div class="ds-meta-val" id="detailMetaPages">—</div>
           </div>
         </div>
-
-        <!-- Summary header row — fixed above buttons -->
-        
       </div>
 
       <!-- ── SCROLLABLE BODY ── -->
       <div class="ds-scroll sheet-content" id="dsScroll">
-
-        <!-- Summary text — scrolls with content -->
-
-        <!-- Edit form (hidden by default, shown when Edit toggled) -->
         <div class="ds-edit-divider" id="dsEditDivider" style="display:none"></div>
         <div class="ds-edit-form" id="dsEditForm" style="display:none">
           <p class="field-label">Title</p>
@@ -405,12 +392,10 @@
           <button class="modal-btn" id="saveEditBtn" onclick="confirmEdit()">Save Changes</button>
           <button class="modal-btn secondary" onclick="deleteBook()">Remove from Shelf</button>
         </div>
-
-        <!-- Bottom padding for safe area -->
-        <div style="height:max(calc(var(--safe-bottom) + 16px),24px)"></div>
+        <div style="height:8px"></div>
       </div>
 
-      <!-- Summary text: fixed above buttons, expands upward -->
+      <!-- ── SUMMARY — expands upward, above CTA ── -->
       <div class="summary-section" id="dsSummarySection">
         <button class="summary-header" id="dsSummaryHeader" type="button" onclick="toggleDetailSummary()">
           <span class="summary-label">Summary</span>
@@ -418,26 +403,20 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
         </button>
-        <div class="summary-content" id="dsSummaryContent">
+        <div class="summary-content">
           <div class="summary-scroll" id="dsSummaryPreview"></div>
         </div>
       </div>
-      
-      <!-- Context-aware CTA buttons -->
+
+      <!-- ── FIXED CTA ── -->
       <div class="ds-cta-area sheet-footer">
-        <button class="ds-primary-btn btn-accent" id="dsPrimaryBtn" onclick="doPrimaryAction()">
-          <!-- Content set by JS -->
-        </button>
-        <button class="ds-secondary-btn" id="dsSecondaryBtn" onclick="doSecondaryAction()">
-          <!-- Content set by JS -->
-        </button>
+        <button class="ds-primary-btn btn-accent" id="dsPrimaryBtn" onclick="doPrimaryAction()"></button>
+        <button class="ds-secondary-btn" id="dsSecondaryBtn" onclick="doSecondaryAction()"></button>
       </div>
 
-      <!-- Scroll-up hint (shown in HALF state) -->
+      <!-- Scroll hint (half-state) -->
       <div class="ds-scroll-hint" id="dsScrollHint">
-        <div class="ds-scroll-hint-dots">
-          <span></span><span></span><span></span>
-        </div>
+        <div class="ds-scroll-hint-dots"><span></span><span></span><span></span></div>
       </div>
 
     </div>
