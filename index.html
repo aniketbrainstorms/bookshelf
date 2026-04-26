@@ -397,20 +397,20 @@
 
       <!-- ── SCROLLABLE BODY ── -->
       <div class="ds-scroll sheet-content" id="dsScroll">
-         <div style="height:8px"></div>
-      </div>
-
-<!-- ── SUMMARY — fixed between scroll body and CTA, expands upward ── -->
-      <div class="summary-section" id="dsSummarySection">
-        <button class="summary-header" id="dsSummaryHeader" type="button" onclick="toggleDetailSummary()">
-          <span class="summary-label">Summary</span>
-          <span class="summary-chevron" id="dsSummaryExpandBtn">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </span>
-        </button>
-        <div class="summary-content">
-          <div class="summary-scroll" id="dsSummaryPreview"></div>
+        <div style="height:8px"></div>
+        <!-- ── SUMMARY — inside scroll, expands naturally ── -->
+        <div class="summary-section" id="dsSummarySection">
+          <button class="summary-header" id="dsSummaryHeader" type="button" onclick="toggleDetailSummary()">
+            <span class="summary-label">Summary</span>
+            <span class="summary-chevron" id="dsSummaryExpandBtn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div class="summary-content">
+            <div class="summary-scroll" id="dsSummaryPreview"></div>
+          </div>
         </div>
+        <div style="height:8px"></div>
       </div>
       <div class="ds-summary-gap"></div>
 
