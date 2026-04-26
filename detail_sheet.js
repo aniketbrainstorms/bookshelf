@@ -85,7 +85,7 @@ function dsOpen() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       setTimeout(() => {
-        dsSnapTo(true, true); // Always open fully expanded
+            dsSnapTo(false, true); // Open in half state
         setTimeout(() => { DS.isOpen = true; }, 420);
       }, 32); // give layout time to settle
     });
@@ -178,15 +178,12 @@ function dsOnTouchEnd(e) {
     return;
   }
 
-  // Velocity snap
-  if (DS.velocity < -DS.SNAP_VELOCITY) {
-    dsSnapTo(true);
-  } else if (DS.velocity > DS.SNAP_VELOCITY) {
-    dsSnapTo(false);
-  } else {
-    // Position-based snap
-    dsSnapTo(DS.currentTranslate < midpoint);
+  // Velocity snap — close on downward flick, else return to half
+  if (DS.velocity > DS.SNAP_VELOCITY) {
+    dsClose();
+    return;
   }
+  dsSnapTo(false); // Sheet always rests at half; summary tap expands to full
 }
 
 // Mouse equivalents for desktop
@@ -340,11 +337,10 @@ function toggleDetailSummary() {
     section.classList.add('expanded');
     // Slide sheet UP to make room — book info scrolls off top
     dsSnapTo(true, true);
-  } else {
+    } else {
     section.classList.remove('expanded');
-    // Stay fully expanded — do NOT snap to half
+    dsSnapTo(false, true); // Snap back to half when summary collapses
   }
-}
 
 // ── Edit sheet (standalone overlay) ──
 function openEditSheet() {
