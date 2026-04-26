@@ -338,8 +338,11 @@ function toggleDetailSummary() {
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
     preview.scrollTop = 0;
     section.classList.add('expanded');
+    // Slide sheet UP to make room — book info scrolls off top
+    dsSnapTo(true, true);
   } else {
     section.classList.remove('expanded');
+    // Stay fully expanded — do NOT snap to half
   }
 }
 
