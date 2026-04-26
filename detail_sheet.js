@@ -25,9 +25,17 @@ const DS = {
 };
 
 function dsGetHalfY() {
-  const sheetH = window.innerHeight * 0.92;
-  // Show bottom 430px of sheet (book row + meta + summary + CTA)
-  return Math.max(0, sheetH - 560);
+  const sheet = document.getElementById('detailSheet');
+  const cta = document.getElementById('dsCTAArea');
+  if (!sheet || !cta) {
+    const sheetH = window.innerHeight * 0.92;
+    return Math.max(0, sheetH - 560);
+  }
+  const sheetRect = sheet.getBoundingClientRect();
+  const ctaRect = cta.getBoundingClientRect();
+  const ctaBottomFromSheetTop = ctaRect.bottom - sheetRect.top;
+  const sheetH = sheet.offsetHeight;
+  return Math.max(0, sheetH - ctaBottomFromSheetTop - 8);
 }
 function dsGetFullY() {
   return 0;
