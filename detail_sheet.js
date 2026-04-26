@@ -493,8 +493,8 @@ function dsInitStarInput(book) {
   if (input) input.style.display = show ? 'flex' : 'none';
   // Sync segmented control to current status
   document.querySelectorAll('#editStatusSeg .ef-seg-btn, #editStatusSeg .es-seg-btn').forEach(btn => {
-    btn.classList.toggle('ef-seg-active', btn.dataset.seg === status);
-    btn.classList.toggle('es-seg-active', btn.dataset.seg === status);
+    btn.classList.toggle('ef-seg-active', btn.dataset.seg === editStatus);
+    btn.classList.toggle('es-seg-active', btn.dataset.seg === editStatus);
   });
   setUserRating(_userRating);
   document.querySelectorAll('.es-star-btn, .ef-star-btn, .star-btn').forEach(btn => {
