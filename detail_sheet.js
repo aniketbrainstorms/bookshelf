@@ -463,7 +463,7 @@ function setUserRating(val) {
   _userRating = val;
   const ratingVal = document.getElementById('editRatingVal');
   if (ratingVal) ratingVal.textContent = val > 0 ? `${val}.0 / 5` : '— / 5';
-  document.querySelectorAll('.ef-star-btn, .star-btn').forEach(btn => {
+  document.querySelectorAll('.es-star-btn, .ef-star-btn, .star-btn').forEach(btn => {
     btn.classList.toggle('active', +btn.dataset.star <= val);
   });
 }
@@ -492,11 +492,12 @@ function dsInitStarInput(book) {
   if (ratingSection) ratingSection.style.display = show ? 'block' : 'none';
   if (input) input.style.display = show ? 'flex' : 'none';
   // Sync segmented control to current status
-  document.querySelectorAll('#editStatusSeg .ef-seg-btn').forEach(btn => {
-    btn.classList.toggle('ef-seg-active', btn.dataset.seg === editStatus);
+  document.querySelectorAll('#editStatusSeg .ef-seg-btn, #editStatusSeg .es-seg-btn').forEach(btn => {
+    btn.classList.toggle('ef-seg-active', btn.dataset.seg === status);
+    btn.classList.toggle('es-seg-active', btn.dataset.seg === status);
   });
   setUserRating(_userRating);
-  document.querySelectorAll('.ef-star-btn, .star-btn').forEach(btn => {
+  document.querySelectorAll('.es-star-btn, .ef-star-btn, .star-btn').forEach(btn => {
     btn.onclick = () => setUserRating(+btn.dataset.star);
   });
 }
