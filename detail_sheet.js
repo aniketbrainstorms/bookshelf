@@ -27,9 +27,7 @@ const DS = {
 function dsGetHalfY() {
   const sheetH = window.innerHeight * 0.92;
   const vh = window.innerHeight;
-  // Use percentage of viewport to ensure CTA is always visible across screen sizes
-  // Show enough of the sheet: handle + nav + book row + meta + summary header + CTA
-  const visible = Math.min(600, vh * 0.72);
+  const visible = Math.min(600, vh * 0.78);
   return Math.max(0, sheetH - visible);
 }
 function dsGetFullY() {
