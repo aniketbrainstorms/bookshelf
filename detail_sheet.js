@@ -338,12 +338,8 @@ function toggleDetailSummary() {
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
     preview.scrollTop = 0;
     section.classList.add('expanded');
-    // Expand the sheet upward to make room — do NOT close or scroll
-    dsSnapTo(true, true);
   } else {
     section.classList.remove('expanded');
-    // Collapse back to half
-    dsSnapTo(false, true);
   }
 }
 
