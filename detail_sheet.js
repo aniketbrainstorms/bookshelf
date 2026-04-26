@@ -84,13 +84,16 @@ function dsOpen() {
   sheet.style.transform = `translateY(${offscreen}px)`;
   DS.currentTranslate = offscreen;
   overlay.classList.add('visible');
-  // Wait for sheet to render so offsetHeight is accurate for dsGetHalfY
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       setTimeout(() => {
-            dsSnapTo(false, true); // Always open at half state
+        try {
+          dsSnapTo(false, true);
+        } catch(e) {
+          console.error('dsSnapTo error:', e);
+        }
         setTimeout(() => { DS.isOpen = true; }, 420);
-      }, 32); // give layout time to settle
+      }, 32);
     });
   });
 }
