@@ -84,6 +84,7 @@ function dsOpen() {
   sheet.style.transform = `translateY(${offscreen}px)`;
   DS.currentTranslate = offscreen;
   overlay.classList.add('visible');
+  overlay.style.pointerEvents = 'none';
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -92,7 +93,10 @@ function dsOpen() {
         } catch(e) {
           console.error('dsSnapTo error:', e);
         }
-        setTimeout(() => { DS.isOpen = true; }, 420);
+        setTimeout(() => {
+          DS.isOpen = true;
+          overlay.style.pointerEvents = '';
+        }, 420);
       }, 32);
     });
   });
@@ -104,10 +108,12 @@ function dsClose() {
   dsSetTranslate(sheetH, true);
   const overlay = document.getElementById('detailModal');
   overlay.classList.remove('ds-expanded');
+  overlay.style.pointerEvents = 'none';
   const section = document.getElementById('dsSummarySection');
   if (section) section.classList.remove('expanded');
   setTimeout(() => {
     overlay.classList.remove('visible');
+    overlay.style.pointerEvents = '';
     DS.isOpen = false;
     DS.isExpanded = false;
     DS.summaryExpanded = false;
@@ -622,7 +628,7 @@ window.closeModal = function closeModal(id) {
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('detailModal');
   overlay.addEventListener('click', e => {
-    if (e.target === overlay && DS.isOpen && (Date.now() - _dsOpenTime > 500)) closeModal('detailModal');
+    if (e.target === overlay && DS.isOpen && (Date.now() - _dsOpenTime > 600)) closeModal('detailModal');
   });
 });
 
