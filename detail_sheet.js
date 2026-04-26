@@ -25,17 +25,12 @@ const DS = {
 };
 
 function dsGetHalfY() {
-  const sheet = document.getElementById('detailSheet');
-  const cta = document.getElementById('dsCTAArea');
-  if (!sheet || !cta) {
-    const sheetH = window.innerHeight * 0.92;
-    return Math.max(0, sheetH - 560);
-  }
-  const sheetRect = sheet.getBoundingClientRect();
-  const ctaRect = cta.getBoundingClientRect();
-  const ctaBottomFromSheetTop = ctaRect.bottom - sheetRect.top;
-  const sheetH = sheet.offsetHeight;
-  return Math.max(0, sheetH - ctaBottomFromSheetTop - 8);
+  const sheetH = window.innerHeight * 0.92;
+  const vh = window.innerHeight;
+  // Use percentage of viewport to ensure CTA is always visible across screen sizes
+  // Show enough of the sheet: handle + nav + book row + meta + summary header + CTA
+  const visible = Math.min(600, vh * 0.72);
+  return Math.max(0, sheetH - visible);
 }
 function dsGetFullY() {
   return 0;
