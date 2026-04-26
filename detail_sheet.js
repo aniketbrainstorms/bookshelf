@@ -649,3 +649,25 @@ document.addEventListener('DOMContentLoaded', () => {
 if (document.readyState !== 'loading') {
   dsInitDragEvents();
 }
+
+// ── Public: refresh detail sheet from current editingId ──
+window.dsRefreshDetailSheet = function() {
+  const book = books.find(b => b.id === editingId);
+  if (!book) return;
+
+  const titleEl = document.getElementById('detailTitleEl');
+  const authorEl = document.getElementById('detailAuthorEl');
+  const coverEl  = document.getElementById('detailCoverEl');
+  const yearPubEl = document.getElementById('detailYearPub');
+
+  if (titleEl)  titleEl.textContent  = book.title;
+  if (authorEl) authorEl.textContent = book.author || '';
+  if (coverEl)  coverEl.innerHTML    = coverHtml(book, 14);
+  if (yearPubEl) yearPubEl.textContent = [book.year, book.publisher].filter(Boolean).join(' · ');
+
+  dsRenderMetaGrid(book);
+  dsRenderRating(book);
+  updateDetailBadge(book.status);
+  dsRenderCTA(book.status);
+  editStatus = book.status;
+};
