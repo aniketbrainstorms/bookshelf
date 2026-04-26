@@ -775,9 +775,14 @@ function handleDetailOverlayClick(e) {
     closeStatusDropdown();
 }
 async function confirmEdit() {
-  const title = document.getElementById('editTitle').value.trim();
-  if (!title) { document.getElementById('editTitle').style.borderColor = 'var(--accent)'; return; }
-  const btn = document.getElementById('saveEditBtn'); btn.disabled = true; btn.textContent = 'Saving…';
+  const titleInput = document.getElementById('editTitle');
+  const title = titleInput.value.trim();
+  if (!title) { titleInput.style.borderColor = 'var(--accent)'; return; }
+
+  const saveBtn = document.getElementById('saveEditBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
   const updates = {
     title,
     author: document.getElementById('editAuthor').value.trim() || '',
@@ -788,26 +793,46 @@ async function confirmEdit() {
     page_count: parseInt(document.getElementById('editPageCount').value) || null,
     rating: editStatus === 'read' ? (_userRating || null) : null,
   };
-  if (editCoverFile) { const url = await uploadCover(editCoverFile, editingId); if (url) updates.cover_url = url; }
-  else if (editCoverUrl) { updates.cover_url = editCoverUrl; }
+
+  if (editCoverFile) {
+    const url = await uploadCover(editCoverFile, editingId);
+    if (url) updates.cover_url = url;
+  } else if (editCoverUrl) {
+    updates.cover_url = editCoverUrl;
+  }
+
   const ok = await dbUpdate(editingId, updates);
-  btn.disabled = false; btn.textContent = 'Save Changes';
-  if (!ok) return;
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Save';
+
+  if (!ok) { showToast('Could not save — try again'); return; }
+
+  // Update local book object
   const book = books.find(b => b.id === editingId);
   if (book) Object.assign(book, updates);
-  // Refresh detail sheet live without closing it
+
+  // ── Refresh detail sheet live, keep it open ──
   if (book) {
-    document.getElementById('detailTitleEl').textContent = book.title;
-    document.getElementById('detailAuthorEl').textContent = book.author || '';
-    document.getElementById('detailCoverEl').innerHTML = coverHtml(book, 14);
-    const yearPub = document.getElementById('detailYearPub');
-    if (yearPub) yearPub.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
+    const titleEl = document.getElementById('detailTitleEl');
+    const authorEl = document.getElementById('detailAuthorEl');
+    const coverEl = document.getElementById('detailCoverEl');
+    const yearPubEl = document.getElementById('detailYearPub');
+
+    if (titleEl) titleEl.textContent = book.title;
+    if (authorEl) authorEl.textContent = book.author || '';
+    if (coverEl) coverEl.innerHTML = coverHtml(book, 14);
+    if (yearPubEl) yearPubEl.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
+
     if (typeof dsRenderMetaGrid === 'function') dsRenderMetaGrid(book);
     if (typeof dsRenderRating === 'function') dsRenderRating(book);
     if (typeof updateDetailBadge === 'function') updateDetailBadge(book.status);
     if (typeof dsRenderCTA === 'function') dsRenderCTA(book.status);
   }
+
+  // Close edit sheet, leave detail sheet open
   if (typeof closeEditSheet === 'function') closeEditSheet();
+
+  // Refresh grid in background
   renderGrid();
   showToast('Changes saved ✓');
 }
