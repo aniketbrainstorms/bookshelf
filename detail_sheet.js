@@ -85,7 +85,7 @@ function dsOpen() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       setTimeout(() => {
-        dsSnapTo(false, true); // Always open half
+        dsSnapTo(true, true); // Always open fully expanded
         setTimeout(() => { DS.isOpen = true; }, 420);
       }, 32); // give layout time to settle
     });
