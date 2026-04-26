@@ -791,8 +791,25 @@ async function confirmEdit() {
   if (editCoverFile) { const url = await uploadCover(editCoverFile, editingId); if (url) updates.cover_url = url; }
   else if (editCoverUrl) { updates.cover_url = editCoverUrl; }
   const ok = await dbUpdate(editingId, updates);
-  if (ok) { const book = books.find(b => b.id === editingId); if (book) Object.assign(book, updates); closeModal('detailModal'); renderGrid(); showToast('Changes saved ✓'); }
   btn.disabled = false; btn.textContent = 'Save Changes';
+  if (!ok) return;
+  const book = books.find(b => b.id === editingId);
+  if (book) Object.assign(book, updates);
+  // ── Refresh detail sheet live — no close ──
+  if (book) {
+    document.getElementById('detailTitleEl').textContent = book.title;
+    document.getElementById('detailAuthorEl').textContent = book.author || '';
+    document.getElementById('detailCoverEl').innerHTML = coverHtml(book, 14);
+    dsRenderMetaGrid(book);
+    dsRenderRating(book);
+    updateDetailBadge(book.status);
+    dsRenderCTA(book.status);
+    const yearPub = document.getElementById('detailYearPub');
+    if (yearPub) yearPub.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
+  }
+  closeEditSheet();
+  renderGrid();
+  showToast('Changes saved ✓');
 }
 async function removeOrHideBook(id) {
   const lists = window._getLoLists ? window._getLoLists() : [];
