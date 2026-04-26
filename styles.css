@@ -941,6 +941,10 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   scrollbar-width: none;
   padding: 0 20px;
   min-height: 0;
+  max-height: 140px;
+}
+#detailModal.ds-expanded .ds-scroll {
+  max-height: none;
 }
 .ds-scroll::-webkit-scrollbar { display: none; }
 .sheet-content { padding-bottom: 16px; }
@@ -1266,7 +1270,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 /* Gap between summary and CTA */
 .ds-summary-gap {
   flex-shrink: 0;
-  height: 10px;
+  height: 6px;
   background: var(--surface);
 }
 
