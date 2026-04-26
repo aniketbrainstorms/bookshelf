@@ -935,8 +935,8 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── SCROLLABLE BODY ── */
 .ds-scroll {
-  flex: 0;
-  overflow-y: hidden;
+  flex: 1;
+  overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
   padding: 0 20px;
