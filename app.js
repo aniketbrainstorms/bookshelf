@@ -812,23 +812,8 @@ async function confirmEdit() {
   const book = books.find(b => b.id === editingId);
   if (book) Object.assign(book, updates);
 
-  // ── Refresh detail sheet live, keep it open ──
-  if (book) {
-    const titleEl = document.getElementById('detailTitleEl');
-    const authorEl = document.getElementById('detailAuthorEl');
-    const coverEl = document.getElementById('detailCoverEl');
-    const yearPubEl = document.getElementById('detailYearPub');
-
-    if (titleEl) titleEl.textContent = book.title;
-    if (authorEl) authorEl.textContent = book.author || '';
-    if (coverEl) coverEl.innerHTML = coverHtml(book, 14);
-    if (yearPubEl) yearPubEl.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
-
-    if (typeof dsRenderMetaGrid === 'function') dsRenderMetaGrid(book);
-    if (typeof dsRenderRating === 'function') dsRenderRating(book);
-    if (typeof updateDetailBadge === 'function') updateDetailBadge(book.status);
-    if (typeof dsRenderCTA === 'function') dsRenderCTA(book.status);
-  }
+  // Refresh detail sheet live
+  if (typeof window.dsRefreshDetailSheet === 'function') window.dsRefreshDetailSheet();
 
   // Close edit sheet, leave detail sheet open
   if (typeof closeEditSheet === 'function') closeEditSheet();
