@@ -178,13 +178,15 @@ function dsOnTouchEnd(e) {
     return;
   }
 
-  // Velocity snap — close on downward flick, else return to half
-  if (DS.velocity > DS.SNAP_VELOCITY) {
-    dsClose();
-    return;
+  // Velocity snap
+  if (DS.velocity < -DS.SNAP_VELOCITY) {
+    dsSnapTo(true);
+  } else if (DS.velocity > DS.SNAP_VELOCITY) {
+    dsSnapTo(false);
+  } else {
+    // Position-based snap
+    dsSnapTo(DS.currentTranslate < midpoint);
   }
-  dsSnapTo(false); // Sheet always rests at half; summary tap expands to full
-}
 
 // Mouse equivalents for desktop
 function dsOnMouseDown(e) {
