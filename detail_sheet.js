@@ -25,10 +25,9 @@ const DS = {
 };
 
 function dsGetHalfY() {
-  // Use viewport height directly — sheet is 92vh tall
   const sheetH = window.innerHeight * 0.92;
-  // Translate by 28% of sheet = show 72% = CTA + summary always visible
-  return sheetH * 0.28;
+  // Show bottom 430px of sheet (book row + meta + summary + CTA)
+  return Math.max(0, sheetH - 430);
 }
 function dsGetFullY() {
   return 0;
