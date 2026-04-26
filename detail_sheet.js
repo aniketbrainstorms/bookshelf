@@ -366,6 +366,7 @@ function toggleDetailSummary() {
 function openEditSheet() {
   const book = books.find(b => b.id === editingId);
   if (!book) return;
+  editStatus = book.status;
   dsInitStarInput(book);
   // Populate fields
   document.getElementById('editTitle').value = book.title;
