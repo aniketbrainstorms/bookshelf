@@ -935,16 +935,16 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── SCROLLABLE BODY ── */
 .ds-scroll {
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow-y: hidden;
   scrollbar-width: none;
   padding: 0 20px;
-  min-height: 0;
-  max-height: 120px;
   flex-shrink: 0;
+  height: 8px;
 }
 #detailModal.ds-expanded .ds-scroll {
-  max-height: 180px;
+  overflow-y: auto;
+  height: auto;
+  max-height: 160px;
 }
 .ds-scroll::-webkit-scrollbar { display: none; }
 .sheet-content { padding-bottom: 16px; }
@@ -1192,7 +1192,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 /* ── SUMMARY — sits above CTA, expands upward ── */
 .summary-section {
   flex-shrink: 0;
-  margin: 0 20px 8px;
+  margin: auto 20px 8px;
   background: linear-gradient(135deg, rgba(44,40,35,0.9) 0%, rgba(37,33,28,0.95) 100%);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 16px;
@@ -1282,11 +1282,6 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   background: linear-gradient(to top, var(--surface) 75%, rgba(34,31,27,0.92) 100%);
   border-top: 1px solid rgba(255,255,255,0.05);
   z-index: 3;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  position: sticky;
-  bottom: 0;
-  margin-top: auto;
 }
 
 .sheet-footer { all: unset; display: contents; }
