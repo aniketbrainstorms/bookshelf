@@ -795,19 +795,19 @@ async function confirmEdit() {
   if (!ok) return;
   const book = books.find(b => b.id === editingId);
   if (book) Object.assign(book, updates);
-  // ── Refresh detail sheet live — no close ──
+  // Refresh detail sheet live without closing it
   if (book) {
     document.getElementById('detailTitleEl').textContent = book.title;
     document.getElementById('detailAuthorEl').textContent = book.author || '';
     document.getElementById('detailCoverEl').innerHTML = coverHtml(book, 14);
-    dsRenderMetaGrid(book);
-    dsRenderRating(book);
-    updateDetailBadge(book.status);
-    dsRenderCTA(book.status);
     const yearPub = document.getElementById('detailYearPub');
     if (yearPub) yearPub.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
+    if (typeof dsRenderMetaGrid === 'function') dsRenderMetaGrid(book);
+    if (typeof dsRenderRating === 'function') dsRenderRating(book);
+    if (typeof updateDetailBadge === 'function') updateDetailBadge(book.status);
+    if (typeof dsRenderCTA === 'function') dsRenderCTA(book.status);
   }
-  closeEditSheet();
+  if (typeof closeEditSheet === 'function') closeEditSheet();
   renderGrid();
   showToast('Changes saved ✓');
 }
