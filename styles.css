@@ -937,14 +937,15 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .ds-scroll {
   overflow-y: hidden;
   scrollbar-width: none;
-  padding: 0 20px;
+  padding: 0;
   flex-shrink: 0;
-  height: 8px;
+  height: 0;
 }
 #detailModal.ds-expanded .ds-scroll {
   overflow-y: auto;
   height: auto;
   max-height: 160px;
+  padding: 0 20px;
 }
 .ds-scroll::-webkit-scrollbar { display: none; }
 .sheet-content { padding-bottom: 16px; }
@@ -1190,9 +1191,13 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 }
 
 /* ── SUMMARY — sits above CTA, expands upward ── */
+.ds-flex-spacer {
+  flex: 1;
+  min-height: 0;
+}
 .summary-section {
   flex-shrink: 0;
-  margin: auto 20px 8px;
+  margin: 0 20px 8px;
   background: linear-gradient(135deg, rgba(44,40,35,0.9) 0%, rgba(37,33,28,0.95) 100%);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 16px;
