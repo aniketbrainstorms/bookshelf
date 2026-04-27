@@ -647,11 +647,18 @@ window.dsRefreshDetailSheet = function() {
   if (titleEl)  titleEl.textContent  = book.title;
   if (authorEl) authorEl.textContent = book.author || '';
   if (coverEl)  coverEl.innerHTML    = coverHtml(book, 14);
-  if (yearPubEl) yearPubEl.textContent = [book.year, book.publisher].filter(Boolean).join(' · ');
+  if (yearPubEl) yearPubEl.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
 
   dsRenderMetaGrid(book);
   dsRenderRating(book);
   updateDetailBadge(book.status);
   dsRenderCTA(book.status);
   editStatus = book.status;
+  // Sync edit form fields to reflect saved values
+  document.getElementById('editTitle').value = book.title;
+  document.getElementById('editAuthor').value = book.author || '';
+  document.getElementById('editYear').value = book.year || '';
+  document.getElementById('editPublisher').value = book.publisher || '';
+  document.getElementById('editGenre').value = book.genre || '';
+  document.getElementById('editPageCount').value = book.page_count || '';
 };
