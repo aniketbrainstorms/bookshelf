@@ -446,8 +446,10 @@ function dsRenderSummary() {
   const preview = document.getElementById('dsSummaryPreview');
   const section = document.getElementById('dsSummarySection');
   if (!preview) return;
-  const text = DS.summaryFull || DS.summaryShort || 'No summary available.';
-  preview.textContent = DS.summaryExpanded ? text : '';
+  const text = DS.summaryExpanded
+    ? (DS.summaryFull || DS.summaryShort || 'No summary available.')
+    : (DS.summaryShort || DS.summaryFull || '');
+  preview.textContent = text;
   if (section) section.classList.toggle('expanded', DS.summaryExpanded);
 }
 
@@ -504,18 +506,13 @@ function dsRenderMetaGrid(book) {
     const parts = [book.year, book.publisher].filter(Boolean);
     yearPub.textContent = parts.join(' • ');
   }
-  if (genreEl) genreEl.textContent = book.genre || '';
-  if (metaGrid) {
-    const pageCount = book.page_count || book.total_pages || '';
-    const pages = pageCount ? `${pageCount} pages` : 'Add pages in edit';
-    const genre = book.genre || 'Add genre in edit';
-    if (true) {
-      metaGrid.style.display = 'grid';
-      document.getElementById('detailMetaGenre').textContent = genre || '—';
-      document.getElementById('detailMetaPages').textContent = pages || '—';
-    } else {
-      metaGrid.style.display = 'none';
-    }
+if (metaGrid) {
+    const pageCount = book.page_count || '';
+    const pages = pageCount ? `${pageCount} pages` : '—';
+    const genre = book.genre || '—';
+    metaGrid.style.display = 'grid';
+    document.getElementById('detailMetaGenre').textContent = genre;
+    document.getElementById('detailMetaPages').textContent = pages;
   }
 }
 
