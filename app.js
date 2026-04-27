@@ -1125,6 +1125,16 @@ async function confirmAdd() {
     if (finalUrl) { await dbUpdate(newBook.id, { cover_url: finalUrl }); newBook.cover_url = finalUrl; }
     books.unshift(newBook);
     closeModal('addModal'); renderGrid(); showToast('Book added ✓');
+    // Backfill meta silently after add
+    fetchBookMeta(newBook.title, newBook.author).then(async meta => {
+      if (!meta) return;
+      const fill = {};
+      if (!newBook.genre && meta.genre)         { fill.genre = meta.genre; newBook.genre = meta.genre; }
+      if (!newBook.page_count && meta.pageCount){ fill.page_count = parseInt(meta.pageCount); newBook.page_count = parseInt(meta.pageCount); }
+      if (!newBook.year && meta.year)           { fill.year = meta.year; newBook.year = meta.year; }
+      if (!newBook.publisher && meta.publisher) { fill.publisher = meta.publisher; newBook.publisher = meta.publisher; }
+      if (Object.keys(fill).length) await dbUpdate(newBook.id, fill);
+    });
   }
   btn.disabled = false; btn.textContent = 'Add to Shelf';
 }
