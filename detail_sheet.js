@@ -574,15 +574,18 @@ function openDetailModal(id) {
 // Reset edit toggle state
   document.getElementById('dsEditToggle').classList.remove('active');
 
+  // Render meta immediately from DB values (no flash)
+  dsRenderMetaGrid(book);
   // Summary — set placeholder, fetch async
   dsBuildSummary('');
-  DS.summaryShort = 'Loading...';
+  DS.summaryShort = '';
   dsRenderSummary();
 
   // Open sheet
   dsOpen();
 
   // Fetch meta in background
+  // Fetch meta in background — only fill fields not already in DB
   fetchBookMeta(book.title, book.author).then(async meta => {
     if (editingId !== id) return;
     dsBuildSummary(meta.description);
