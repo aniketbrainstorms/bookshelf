@@ -335,6 +335,33 @@
         <span class="ef-field-label">Author</span>
         <input type="text" class="ef-input" id="addAuthor" placeholder="e.g. Matt Haig" />
       </div>
+      <div class="ef-field">
+        <span class="ef-field-label">ISBN <span style="color:var(--text-muted);font-weight:400;font-size:10px;text-transform:none;letter-spacing:0">— paste to auto-fill</span></span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" class="ef-input" id="addIsbn" placeholder="e.g. 9780525559474" style="flex:1" />
+          <button type="button" onclick="fetchAddIsbn()" style="padding:0 16px;height:48px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Fetch</button>
+        </div>
+      </div>
+      <div class="ef-field-row">
+        <div class="ef-field-half">
+          <span class="ef-field-label">Year</span>
+          <input type="text" class="ef-input" id="addYear" placeholder="e.g. 2020" />
+        </div>
+        <div class="ef-field-half">
+          <span class="ef-field-label">Publisher</span>
+          <input type="text" class="ef-input" id="addPublisher" placeholder="e.g. Penguin" />
+        </div>
+      </div>
+      <div class="ef-field-row">
+        <div class="ef-field-half">
+          <span class="ef-field-label">Genre</span>
+          <input type="text" class="ef-input" id="addGenre" placeholder="e.g. Fiction" />
+        </div>
+        <div class="ef-field-half">
+          <span class="ef-field-label">Pages</span>
+          <input type="number" class="ef-input" id="addPageCount" placeholder="e.g. 304" />
+        </div>
+      </div>
 
       <!-- STATUS -->
       <p class="ef-section-label">Status</p>
@@ -472,6 +499,13 @@
 
         <!-- DETAILS SECTION -->
         <div class="es-section-label">Details</div>
+        <div class="es-field-full">
+          <span class="es-field-label">ISBN <span style="color:var(--text-muted);font-weight:400;font-size:10px;text-transform:none;letter-spacing:0">— paste to auto-fill all fields</span></span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" class="es-input" id="editIsbn" placeholder="e.g. 9780525559474" style="flex:1" />
+            <button type="button" onclick="fetchEditIsbn()" style="padding:0 16px;height:48px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Fetch</button>
+          </div>
+        </div>
         <div class="es-field-full">
           <span class="es-field-label">Title</span>
           <input type="text" class="es-input" id="editTitle" placeholder="Book title" />
