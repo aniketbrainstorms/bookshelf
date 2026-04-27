@@ -807,26 +807,18 @@ async function confirmEdit() {
 
   const ok = await dbUpdate(editingId, updates);
   saveBtn.disabled = false;
-  saveBtn.textContent = 'Save';
+  saveBtn.textContent = 'Save Changes';
 
   if (!ok) { showToast('Could not save — try again'); return; }
 
-  // Update local book object
-  const book = books.find(b => b.id === editingId);
+  const book = books.find(b => String(b.id) === String(editingId));
   if (book) {
     Object.assign(book, updates);
-    // Ensure rating is explicitly synced — Object.assign won't set it if updates.rating is null
-    // and the key already exists, but we need it to overwrite regardless
     book.rating = updates.rating;
   }
 
-  // Close edit sheet first so detail sheet is visible
+  // Close edit sheet, then refresh detail sheet
   if (typeof closeEditSheet === 'function') closeEditSheet();
-
-  // Close edit sheet first so detail sheet is visible
-  if (typeof closeEditSheet === 'function') closeEditSheet();
-
-  // Refresh detail sheet live
   if (typeof window.dsRefreshDetailSheet === 'function') window.dsRefreshDetailSheet();
 
   // Refresh grid in background
