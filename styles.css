@@ -1184,6 +1184,14 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .ds-flex-spacer {
   display: none;
 }
+
+.ds-bottom-cluster {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
 .summary-section {
   flex-shrink: 0;
   margin: 0 20px 8px;
@@ -1194,13 +1202,13 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   display: flex;
   flex-direction: column;
   max-height: 46px;
-  transition: max-height 0.38s cubic-bezier(0.32,0.72,0,1),
-              border-color 0.25s cubic-bezier(0.32,0.72,0,1),
-              box-shadow 0.25s cubic-bezier(0.32,0.72,0,1);
+  transition: max-height 0.42s cubic-bezier(0.32,0.72,0,1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
   box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 16px rgba(0,0,0,0.2);
 }
 .summary-section.expanded {
-  max-height: 320px;
+  max-height: 260px;
   border-color: rgba(201,113,74,0.25);
   box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 6px 28px rgba(0,0,0,0.35);
 }
