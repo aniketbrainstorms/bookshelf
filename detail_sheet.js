@@ -286,13 +286,13 @@ function dsRenderCTA(status) {
     primary.className = 'ds-primary-btn btn-accent';
     primary.innerHTML = `${icons.check} Mark as Read`;
     secondary.innerHTML = `${icons.undo} Move to Unread`;
-  } else if (status === 'read') {
+} else if (status === 'read') {
     primary.className = 'ds-primary-btn btn-green';
     primary.innerHTML = `${icons.history} Move to Reading`;
     secondary.innerHTML = `${icons.archive} Mark as Unread`;
   } else { // unread
     primary.className = 'ds-primary-btn btn-accent';
-    primary.innerHTML = `${icons.book} Start Reading`;
+    primary.innerHTML = `${icons.book} Move to Reading`;
     secondary.innerHTML = `${icons.check} Mark as Read`;
   }
 }
