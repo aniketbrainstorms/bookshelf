@@ -934,19 +934,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .ds-meta-val { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.3; }
 
 /* ── SCROLLABLE BODY ── */
-.ds-scroll {
-  overflow-y: hidden;
-  scrollbar-width: none;
-  padding: 0;
-  flex-shrink: 0;
-  height: 0;
-}
-#detailModal.ds-expanded .ds-scroll {
-  overflow-y: auto;
-  height: auto;
-  max-height: 160px;
-  padding: 0 20px;
-}
+.ds-scroll { display: none; }
 .ds-scroll::-webkit-scrollbar { display: none; }
 .sheet-content { padding-bottom: 16px; }
 
@@ -1194,6 +1182,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .ds-flex-spacer {
   flex: 1;
   min-height: 0;
+  min-width: 0;
 }
 .summary-section {
   flex-shrink: 0;
@@ -1202,15 +1191,16 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 16px;
   overflow: hidden;
-  display: grid;
-  grid-template-rows: 46px 0fr;
-  transition: grid-template-rows 0.38s cubic-bezier(0.32,0.72,0,1),
+  display: flex;
+  flex-direction: column;
+  max-height: 46px;
+  transition: max-height 0.38s cubic-bezier(0.32,0.72,0,1),
               border-color 0.25s cubic-bezier(0.32,0.72,0,1),
               box-shadow 0.25s cubic-bezier(0.32,0.72,0,1);
   box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 16px rgba(0,0,0,0.2);
 }
 .summary-section.expanded {
-  grid-template-rows: 46px 1fr;
+  max-height: 320px;
   border-color: rgba(201,113,74,0.25);
   box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 6px 28px rgba(0,0,0,0.35);
 }
@@ -1254,12 +1244,13 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* Inner wrapper — collapses to 0 when grid row is 0fr */
 .summary-content {
+  flex: 1;
   overflow: hidden;
   min-height: 0;
 }
 .summary-scroll {
   padding: 2px 14px 16px;
-  max-height: 220px;
+  height: 100%;
   overflow-y: auto;
   scrollbar-width: none;
   font-size: 13.5px;
@@ -1282,9 +1273,9 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  padding: 10px 20px max(calc(var(--safe-bottom) + 16px), 22px);
-  background: linear-gradient(to top, var(--surface) 75%, rgba(34,31,27,0.92) 100%);
+  gap: 8px;
+  padding: 12px 20px max(calc(var(--safe-bottom) + 20px), 28px);
+  background: var(--surface);
   border-top: 1px solid rgba(255,255,255,0.05);
   z-index: 3;
 }
