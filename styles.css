@@ -1217,7 +1217,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 }
 
 .summary-header {
-  height: 46px;
+  height: 44px;
   padding: 0 14px;
   display: flex;
   align-items: center;
@@ -1262,8 +1262,8 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   padding: 2px 16px 14px;
   max-height: 194px;
   overflow-y: auto;
-  scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   font-size: 13px;
   line-height: 1.72;
   color: var(--text-dim);
