@@ -126,6 +126,7 @@ function dsOnTouchStart(e) {
   if (!DS.isOpen && Date.now() - _dsOpenTime < 600) return;
   if (document.getElementById('progressModal').classList.contains('visible')) return;
   if (!e.target.closest('#detailSheet')) return;
+  if (e.target.closest('#dsSummarySection') && !e.target.closest('#dsSummaryHeader')) return;
   // Block drag-up to full — only summary tap can expand
   // In FULL state, only allow drag from handle area
   if (DS.isExpanded) {
@@ -183,12 +184,6 @@ function dsOnTouchEnd(e) {
   if (DS.currentTranslate > halfY + 60 || DS.velocity > 0.8) {
     dsClose();
     return;
-  }
-  // Snap back and collapse summary if it was expanded
-  if (DS.summaryExpanded) {
-    DS.summaryExpanded = false;
-    const section = document.getElementById('dsSummarySection');
-    if (section) section.classList.remove('expanded');
   }
   dsSnapTo(false);
 }
