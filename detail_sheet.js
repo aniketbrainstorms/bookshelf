@@ -160,18 +160,10 @@ function dsOnTouchMove(e) {
   // Clamp: can't go above full position, slight resistance below half
   const fullY = dsGetFullY();
   const halfY = dsGetHalfY();
-  if (newTranslate < fullY) {
-    // Rubber band above full
-    newTranslate = fullY - Math.pow(fullY - newTranslate, 0.6);
+  if (newTranslate < 0) {
+    newTranslate = 0 - Math.pow(0 - newTranslate, 0.6);
   }
-  // Resist dragging above half state — only summary controls full
-  if (newTranslate < halfY) {
-    newTranslate = halfY - Math.pow(halfY - newTranslate, 0.55);
-  }
-  const maxY = halfY + 80;
-  if (newTranslate > maxY) {
-    newTranslate = maxY + (newTranslate - maxY) * 0.3;
-  }
+  // No resistance dragging down, let it close smoothly
   dsSetTranslate(newTranslate, false);
   // Prevent page scroll only if no other modal is on top
   if (delta !== 0 && !document.getElementById('progressModal').classList.contains('visible')) e.preventDefault();
@@ -191,8 +183,12 @@ function dsOnTouchEnd(e) {
     dsClose();
     return;
   }
-
-  // Dragging always snaps back to half (summary tap is only way to go full)
+  // Snap back and collapse summary if it was expanded
+  if (DS.summaryExpanded) {
+    DS.summaryExpanded = false;
+    const section = document.getElementById('dsSummarySection');
+    if (section) section.classList.remove('expanded');
+  }
   dsSnapTo(false);
 }
 
@@ -343,8 +339,10 @@ function toggleDetailSummary() {
     preview.textContent = DS.summaryFull || DS.summaryShort || 'No summary available.';
     preview.scrollTop = 0;
     section.classList.add('expanded');
+    dsSnapTo(true);
   } else {
     section.classList.remove('expanded');
+    dsSnapTo(false);
   }
 }
 
@@ -466,15 +464,28 @@ function dsRenderRating(book) {
   const el = document.getElementById('detailRating');
   if (!el) return;
   const rating = (book.rating != null) ? book.rating : 0;
-  const full = Math.floor(rating);
+  _userRating = rating;
+  const starPath = 'M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7z';
   let stars = '';
   for (let i = 1; i <= 5; i++) {
-    stars += `<span class="ds-star${i <= full ? '' : ' empty'}">★</span>`;
+    stars += `<svg class="ds-star-svg${i <= rating ? ' on' : ''}" data-star="${i}" viewBox="0 0 16 16" onclick="dsRateFromDetail(${i})"><path d="${starPath}"/></svg>`;
   }
-  if (rating > 0) {
-    el.innerHTML = `<span class="ds-rating-label">Your rating</span><span class="ds-rating-score">${rating}/5</span>${stars}`;
-  } else {
-    el.innerHTML = `<span class="ds-rating-label">Rate</span>${stars}`;
+  el.innerHTML = `<span class="ds-rating-label">Rate</span>${stars}`;
+}
+
+async function dsRateFromDetail(n) {
+  const newRating = (_userRating === n) ? 0 : n; // tap same star to clear
+  _userRating = newRating;
+
+  document.querySelectorAll('.ds-star-svg').forEach(svg => {
+    svg.classList.toggle('on', +svg.dataset.star <= newRating);
+  });
+  setUserRating(newRating); // sync to edit sheet
+
+  const book = books.find(b => b.id === editingId);
+  if (book) {
+    book.rating = newRating || null;
+    await dbUpdate(editingId, { rating: newRating || null });
   }
 }
 
