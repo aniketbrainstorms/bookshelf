@@ -569,7 +569,16 @@ function dsInitStarInput(book) {
     btn.onclick = () => setUserRating(+btn.dataset.star);
   });
 }
-
+function cleanGenre(raw) {
+  if (!raw || raw === '—') return raw || '—';
+  return raw
+    .split(/[,\/]/)
+    .map(s => s.replace(/^(form|genre|subject|type)\s*:\s*/i, '').trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(', ');
+}
 function dsRenderMetaGrid(book) {
   const yearPub = document.getElementById('detailYearPub');
   const metaGrid = document.getElementById('detailMetaGrid');
@@ -583,7 +592,7 @@ function dsRenderMetaGrid(book) {
     metaGrid.style.display = 'grid';
     const genreEl = document.getElementById('detailMetaGenre');
     const pagesEl = document.getElementById('detailMetaPages');
-    if (genreEl) genreEl.textContent = genre;
+    if (genreEl) genreEl.textContent = cleanGenre(genre);
     if (pagesEl) pagesEl.textContent = pages;
   }
 }
