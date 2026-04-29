@@ -393,9 +393,14 @@ async function fetchBookMeta(title, author) {
 
   // ── Google Books fetch ──
   async function fetchGoogle() {
+    const lastQuotaHit = window._gbQuotaHitAt || 0;
+    if (Date.now() - lastQuotaHit < 120_000) return null;
     const q = encodeURIComponent(`${title} ${author || ''}`.trim());
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=5&langRestrict=en`);
-    if (!res.ok) return null; // null = failed (including 429), don't cache
+    if (!res.ok) {
+      if (res.status === 429) window._gbQuotaHitAt = Date.now();
+      return null;
+    }
     const data = await res.json();
     const items = data.items || [];
     const meta = { description: '', year: '', publisher: '', genre: '', pageCount: '' };
@@ -426,7 +431,11 @@ async function fetchBookMeta(title, author) {
     for (const doc of docs) {
       if (!meta.year      && doc.first_publish_year) meta.year      = String(doc.first_publish_year);
       if (!meta.publisher && doc.publisher?.length)  meta.publisher = doc.publisher[0];
-      if (!meta.genre     && doc.subject?.length)    meta.genre     = doc.subject.slice(0, 2).join(', ');
+      if (!meta.genre     && doc.subject?.length) {
+        const clean = doc.subject.filter(s => !s.includes(':'));
+        const source = clean.length ? clean : doc.subject;
+        meta.genre = source.slice(0, 2).join(', ');
+      }
       if (!meta.pageCount && doc.number_of_pages_median) meta.pageCount = String(doc.number_of_pages_median);
       if (meta.year && meta.publisher && meta.genre && meta.pageCount) break;
     }
