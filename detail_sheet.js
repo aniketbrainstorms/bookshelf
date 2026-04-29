@@ -573,7 +573,7 @@ function cleanGenre(raw) {
   if (!raw || raw === '—') return raw || '—';
   return raw
     .split(/[,\/]/)
-    .map(s => s.replace(/^(form|genre|subject|type)\s*:\s*/i, '').trim())
+    .map(s => s.replace(/^[a-z]+\s*:\s*/i, '').trim())
     .filter(Boolean)
     .slice(0, 2)
     .map(s => s.charAt(0).toUpperCase() + s.slice(1))
