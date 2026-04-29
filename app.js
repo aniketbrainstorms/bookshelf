@@ -1030,7 +1030,16 @@ async function fetchBookSearch(query) {
       const v = item.volumeInfo || {};
       let cover = v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || '';
       if (cover) cover = cover.replace(/^http:/, 'https:').replace('zoom=1','zoom=2').replace('&edge=curl','');
-      return { title: v.title || '', author: (v.authors||[])[0] || '', cover, source: 'google' };
+      return {
+        title: v.title || '',
+        author: (v.authors||[])[0] || '',
+        cover,
+        source: 'google',
+        year: v.publishedDate ? v.publishedDate.slice(0, 4) : '',
+        publisher: v.publisher || '',
+        genre: (v.categories||[])[0] || '',
+        pageCount: v.pageCount ? String(v.pageCount) : '',
+      };
     });
   }
 
@@ -1090,17 +1099,26 @@ function renderBsResults(items) {
   el.querySelectorAll('.bs-result').forEach(row => {
     row.addEventListener('click', () => {
       const book = el._bsResults[+row.dataset.bsIndex];
-      if (book) selectBsResult(book.title, book.author, book.cover);
+      if (book) selectBsResult(book.title, book.author, book.cover, book);
     });
   });
 }
 
-function selectBsResult(title, author, coverUrl) {
+function selectBsResult(title, author, coverUrl, meta) {
   closeBookSearch();
   addCoverFile = null; addCoverUrl = coverUrl || null;
   document.getElementById('addTitle').value = title || '';
   document.getElementById('addAuthor').value = author || '';
   document.getElementById('addCoverUrlInput').value = coverUrl || '';
+  // Pre-fill metadata fields from search result
+  const addYear = document.getElementById('addYear');
+  const addPublisher = document.getElementById('addPublisher');
+  const addGenre = document.getElementById('addGenre');
+  const addPageCount = document.getElementById('addPageCount');
+  if (addYear && meta?.year) addYear.value = meta.year;
+  if (addPublisher && meta?.publisher) addPublisher.value = meta.publisher;
+  if (addGenre && meta?.genre) addGenre.value = meta.genre;
+  if (addPageCount && meta?.pageCount) addPageCount.value = meta.pageCount;
   if (coverUrl) {
     const thumb = document.getElementById('addCoverThumb');
     if (thumb) thumb.innerHTML = `<img src="${escapeAttr(coverUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" onerror="this.remove()"/>`;
