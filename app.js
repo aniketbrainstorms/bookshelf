@@ -181,7 +181,7 @@ async function handleAuth() {
 }
 async function signOut() {
   closeModal('profileModal');
-  await sb.auth.signOut();
+  try { await sb.auth.signOut(); } catch (e) {}
 }
 
 // ── DB ──
