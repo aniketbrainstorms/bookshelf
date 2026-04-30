@@ -657,13 +657,31 @@ function openDetailModal(id) {
 
   // Only hit the API if summary is missing OR any metadata field is absent
   const hasAllMeta = book.year && book.publisher && book.genre && book.page_count;
-  const hasCachedSummary = _metaCache[`${book.title}__${book.author || ''}`.toLowerCase()];
+  const cacheKey = `${book.title}__${book.author || ''}`.toLowerCase();
+  const hasCachedSummary = _metaCache[cacheKey];
 
-  if (hasAllMeta && hasCachedSummary) {
-    // Everything already known — render from cache immediately, no network call
-    const cached = hasCachedSummary;
-    dsBuildSummary(cached.description || '');
+  // If the book already has a stored description, render it immediately
+  if (book.description) {
+    dsBuildSummary(book.description);
     dsRenderSummary();
+    // Seed the in-memory cache so the API is never called again this session
+    if (!hasCachedSummary) {
+      _metaCache[cacheKey] = {
+        description: book.description,
+        year: book.year || '',
+        publisher: book.publisher || '',
+        genre: book.genre || '',
+        pageCount: book.page_count ? String(book.page_count) : '',
+      };
+    }
+  }
+
+  if (hasAllMeta && (book.description || hasCachedSummary)) {
+    // Everything already known — render from stored data, no network call
+    if (!book.description && hasCachedSummary) {
+      dsBuildSummary(hasCachedSummary.description || '');
+      dsRenderSummary();
+    }
   } else {
     fetchBookMeta(book.title, book.author).then(async meta => {
       if (editingId !== id) return;
@@ -675,6 +693,11 @@ function openDetailModal(id) {
       if (!book.publisher   || book.publisher === '')   { if (meta.publisher) { apiUpdates.publisher  = meta.publisher;               book.publisher  = meta.publisher; } }
       if (!book.genre       || book.genre === '')       { if (meta.genre)     { apiUpdates.genre      = meta.genre;                   book.genre      = meta.genre; } }
       if (!book.page_count  || book.page_count === 0)  { if (meta.pageCount) { apiUpdates.page_count = parseInt(meta.pageCount) || 0; book.page_count = parseInt(meta.pageCount) || 0; } }
+      // Backfill description to DB so future opens are free
+      if (meta.description && !book.description) {
+        apiUpdates.description = meta.description;
+        book.description = meta.description;
+      }
       dsRenderMetaGrid(book);
       const yearPub = document.getElementById('detailYearPub');
       if (yearPub) yearPub.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
