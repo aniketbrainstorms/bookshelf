@@ -111,20 +111,20 @@ async function fetchAuthorProfile(authorName) {
             profile.intro = cleaned.slice(0, 600).trim();
           }
         }
-
-        if (!profile.intro || profile.intro.length < 40) {
-          try {
-            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(profile.name)}`);
-            if (wikiRes.ok) {
-              const wikiData = await wikiRes.json();
-              const extract = wikiData.extract || '';
-              if (extract.length > 40) profile.intro = extract.slice(0, 600).trim();
-            }
-          } catch {}
-        }
       }
     }
   } catch {}
+
+  if (!profile.intro || profile.intro.length < 40) {
+    try {
+      const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(authorName)}`);
+      if (wikiRes.ok) {
+        const wikiData = await wikiRes.json();
+        const extract = wikiData.extract || '';
+        if (extract.length > 40) profile.intro = extract.slice(0, 600).trim();
+      }
+    } catch {}
+  }
 
   _authorCache[cacheKey] = profile;
   return profile;
