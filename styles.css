@@ -1644,7 +1644,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   padding: 24px 0 20px;
 }
 .author-photo-wrap {
-  width: 100%; height: auto; aspect-ratio: 0.66; 
+  width: 80px; height: 160px; border-radius: 14px;
   overflow: hidden; flex-shrink: 0;
   background: var(--surface2); border: 1px solid rgba(255,255,255,0.07);
   box-shadow: 0 8px 28px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.06) inset;
