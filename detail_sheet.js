@@ -723,6 +723,28 @@ function openDetailModal(id) {
   const hasGoodDescription = storedDescriptionIsEnglish || !!(hasCachedSummary?.description);
   if (hasAllMeta && hasGoodDescription) {
     // Nothing to fetch
+  } else if (hasAllMeta && !hasGoodDescription) {
+    // Have meta but no usable description — fetch from APIs which have better English descriptions
+    fetchBookMeta(book.title, book.author).then(async meta => {
+      if (editingId !== id) return;
+      if (!meta) meta = {};
+      let desc = meta.description || '';
+      if (desc && !isEnglishText(desc)) {
+        const translated = await translateToEnglish(desc);
+        desc = isEnglishText(translated) ? translated : '';
+      }
+      if (!desc && book.description) {
+        const translated = await translateToEnglish(book.description);
+        desc = isEnglishText(translated) ? translated : '';
+      }
+      if (desc) {
+        dsBuildSummary(desc);
+        dsRenderSummary();
+        book.description = desc;
+        _metaCache[cacheKey] = { ...(_metaCache[cacheKey] || {}), description: desc };
+        await dbUpdate(id, { description: desc });
+      }
+    });
   } else {
     fetchBookMeta(book.title, book.author).then(async meta => {
       if (editingId !== id) return;
