@@ -381,6 +381,16 @@ function closeEditSheet() {
 }
 
 // ── Summary fetching via Google Books ──
+function isEnglishText(str) {
+  if (!str) return false;
+  const sample = str.slice(0, 200);
+  const nonLatin = (sample.match(/[^\x00-\x7F\u00C0-\u024F\u2000-\u206F\u2018-\u2019\u201C-\u201D\s\d.,!?;:()\-'"]/g) || []).length;
+  if (nonLatin / sample.length > 0.05) return false;
+  const englishWords = /\b(the|a|an|is|was|are|were|has|have|had|it|he|she|they|this|that|of|in|to|and|with|for|on|at|by|from|her|his|their|be|been|being|not|but|or|as|into|through|about|after|before|when|who|which|one|two|three|can|will|would|could|she|he|you|we|all|more|new|just|only|over|up|out|so|than|then|there|these|those)\b/gi;
+  const matches = (str.slice(0, 300).match(englishWords) || []).length;
+  return matches >= 5;
+}
+
 const _metaCache = {};
 const _metaInFlight = {};
 
@@ -407,7 +417,8 @@ async function fetchBookMeta(title, author) {
     for (const item of items) {
       const v = item.volumeInfo || {};
       const lang = v.language || '';
-      if (!meta.description && v.description && v.description.length >= 40 && (lang === 'en' || lang === '')) meta.description = v.description;
+      const isEnglishDesc = (lang === 'en') || (lang === '' && isEnglishText(v.description || ''));
+      if (!meta.description && v.description && v.description.length >= 40 && isEnglishDesc) meta.description = v.description;
       if (!meta.year        && v.publishedDate) meta.year      = v.publishedDate.slice(0, 4);
       if (!meta.publisher   && v.publisher)     meta.publisher = v.publisher;
       if (!meta.genre       && v.categories?.length) meta.genre = v.categories.join(', ');
@@ -449,8 +460,7 @@ async function fetchBookMeta(title, author) {
           const work = await workRes.json();
           const desc = work.description;
           const raw = typeof desc === 'string' ? desc : (desc?.value || '');
-          const isEnglish = /^[\x00-\x7F\u2000-\u206F\u2018-\u2019\u201C-\u201D\s]+$/.test(raw.slice(0, 80));
-          if (raw.length >= 40 && isEnglish) meta.description = raw;
+          if (raw.length >= 40 && isEnglishText(raw)) meta.description = raw;
         }
       } catch { /* description stays empty */ }
     }
@@ -466,7 +476,7 @@ async function fetchBookMeta(title, author) {
       const ol = olResult.status === 'fulfilled' && olResult.value ? olResult.value : {};
 
       const merged = {
-        description: (g.description && /^[\x00-\x7F\u2000-\u206F\u2018-\u2019\u201C-\u201D\s]+$/.test(g.description.slice(0, 80)) ? g.description : '') || ol.description || g.description || '',
+        description: (g.description && isEnglishText(g.description) ? g.description : '') || (ol.description && isEnglishText(ol.description) ? ol.description : '') || '',
         year:        g.year        || ol.year        || '',
         publisher:   g.publisher   || ol.publisher   || '',
         genre:       g.genre       || ol.genre       || '',
