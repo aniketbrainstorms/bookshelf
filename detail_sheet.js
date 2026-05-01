@@ -711,6 +711,14 @@ function openDetailModal(id) {
         apiUpdates.description = meta.description;
         book.description = meta.description;
       }
+      // Update in-memory cache with fresh English data so same-session reopens are free
+      _metaCache[cacheKey] = {
+        description: book.description || '',
+        year: book.year || '',
+        publisher: book.publisher || '',
+        genre: book.genre || '',
+        pageCount: book.page_count ? String(book.page_count) : '',
+      };
       dsRenderMetaGrid(book);
       const yearPub = document.getElementById('detailYearPub');
       if (yearPub) yearPub.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
