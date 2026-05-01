@@ -704,6 +704,19 @@ function openDetailModal(id) {
   } else if (hasCachedSummary?.description) {
     dsBuildSummary(hasCachedSummary.description);
     dsRenderSummary();
+  } else if (book.description && !storedDescriptionIsEnglish) {
+    // Stored description exists but is non-English — translate it now
+    translateToEnglish(book.description).then(translated => {
+      if (editingId !== id) return;
+      const usable = isEnglishText(translated) ? translated : '';
+      if (usable) {
+        dsBuildSummary(usable);
+        dsRenderSummary();
+        _metaCache[cacheKey] = { ...(_metaCache[cacheKey] || {}), description: usable };
+        book.description = usable;
+        dbUpdate(id, { description: usable });
+      }
+    });
   }
 
   // Skip network if everything is already known AND description is good
