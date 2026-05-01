@@ -98,33 +98,9 @@ async function fetchAuthorProfile(authorName) {
       if (doc?.key) {
         profile.name = fallback.name || doc.name || profile.name;
         profile.image = profile.image || `https://covers.openlibrary.org/a/olid/${doc.key}-L.jpg`;
-
-        const [authorRes] = await Promise.allSettled([
-          fetch(`https://openlibrary.org/authors/${doc.key}.json`)
-        ]);
-
-        if (authorRes.status === 'fulfilled' && authorRes.value.ok) {
-          const authorData = await authorRes.value.json();
-          const bio = typeof authorData.bio === 'string' ? authorData.bio : authorData.bio?.value;
-          if (bio && bio.length > 40) {
-            const cleaned = bio.replace(/\s+/g, ' ').trim();
-            profile.intro = cleaned.slice(0, 600).trim();
-          }
-        }
       }
     }
   } catch {}
-
-  if (!profile.intro || profile.intro.length < 40) {
-    try {
-      const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(authorName)}`);
-      if (wikiRes.ok) {
-        const wikiData = await wikiRes.json();
-        const extract = wikiData.extract || '';
-        if (extract.length > 40) profile.intro = extract.slice(0, 600).trim();
-      }
-    } catch {}
-  }
 
   _authorCache[cacheKey] = profile;
   return profile;
