@@ -503,7 +503,11 @@ async function fetchBookMeta(title, author) {
 
       // Only cache if we got something useful — allows retry if both failed
       const hasData = Object.values(merged).some(v => v !== '');
-      if (hasData) _metaCache[cacheKey] = merged;
+      if (hasData) {
+        const cacheEntry = { ...merged };
+        if (!cacheEntry.description) delete cacheEntry.description;
+        _metaCache[cacheKey] = cacheEntry;
+      }
       delete _metaInFlight[cacheKey];
       return merged;
     } catch {
@@ -513,6 +517,47 @@ async function fetchBookMeta(title, author) {
   })();
 
   return _metaInFlight[cacheKey];
+}
+
+async function resolveEnglishDescription(book) {
+  const cacheKey = `${book.title}__${book.author || ''}`.toLowerCase();
+
+  // 1. Stored description already English
+  if (book.description && isEnglishText(book.description)) return book.description;
+
+  // 2. Session cache has English description
+  if (_metaCache[cacheKey]?.description && isEnglishText(_metaCache[cacheKey].description)) {
+    return _metaCache[cacheKey].description;
+  }
+
+  // 3. Fetch from APIs
+  let desc = '';
+  try {
+    const meta = await fetchBookMeta(book.title, book.author);
+    desc = meta?.description || '';
+  } catch { /* fall through */ }
+
+  // 4. Translate if needed
+  if (desc && !isEnglishText(desc)) {
+    const translated = await translateToEnglish(desc);
+    desc = isEnglishText(translated) ? translated : '';
+  }
+
+  // 5. Fallback: translate the stored non-English description
+  if (!desc && book.description && !isEnglishText(book.description)) {
+    const translated = await translateToEnglish(book.description);
+    desc = isEnglishText(translated) ? translated : '';
+  }
+
+  // 6. Persist on success only — never cache or save empty
+  if (desc) {
+    book.description = desc;
+    if (_metaCache[cacheKey]) _metaCache[cacheKey].description = desc;
+    else _metaCache[cacheKey] = { description: desc };
+    await dbUpdate(book.id, { description: desc });
+  }
+
+  return desc;
 }
 
 function dsBuildSummary(text) {
@@ -678,6 +723,7 @@ function openDetailModal(id) {
   // Render meta immediately from DB values (no flash)
   dsRenderMetaGrid(book);
   // Summary — set placeholder, fetch async
+  // Summary — set placeholder, fetch async
   dsBuildSummary('');
   DS.summaryShort = '';
   dsRenderSummary();
@@ -685,94 +731,47 @@ function openDetailModal(id) {
   // Open sheet
   dsOpen();
 
-  // Only hit the API if summary is missing OR any metadata field is absent
   const cacheKey = `${book.title}__${book.author || ''}`.toLowerCase();
-  const hasCachedSummary = _metaCache[cacheKey];
-  const storedDescriptionIsEnglish = !!(book.description && isEnglishText(book.description));
-  const hasAllMeta = book.year && book.publisher && book.genre && book.page_count;
 
+  // Render description immediately if already available
+  const storedDescriptionIsEnglish = !!(book.description && isEnglishText(book.description));
   if (storedDescriptionIsEnglish) {
     dsBuildSummary(book.description);
     dsRenderSummary();
-    _metaCache[cacheKey] = _metaCache[cacheKey] || {
-      description: book.description,
-      year: book.year || '',
-      publisher: book.publisher || '',
-      genre: book.genre || '',
-      pageCount: book.page_count ? String(book.page_count) : '',
-    };
-  } else if (hasCachedSummary?.description) {
-    dsBuildSummary(hasCachedSummary.description);
+  } else if (_metaCache[cacheKey]?.description) {
+    dsBuildSummary(_metaCache[cacheKey].description);
     dsRenderSummary();
-  } else if (book.description && !storedDescriptionIsEnglish) {
-    // Stored description exists but is non-English — translate it now
-    translateToEnglish(book.description).then(translated => {
-      if (editingId !== id) return;
-      const usable = isEnglishText(translated) ? translated : '';
-      if (usable) {
-        dsBuildSummary(usable);
-        dsRenderSummary();
-        _metaCache[cacheKey] = { ...(_metaCache[cacheKey] || {}), description: usable };
-        book.description = usable;
-        dbUpdate(id, { description: usable });
-      }
-    });
   }
 
-  // Skip network if everything is already known AND description is good
-  const hasGoodDescription = storedDescriptionIsEnglish || !!(hasCachedSummary?.description);
-  if (hasAllMeta && hasGoodDescription) {
-    // Nothing to fetch
-  } else if (hasAllMeta && !hasGoodDescription) {
-    // Have meta but no usable description — fetch from APIs which have better English descriptions
-    fetchBookMeta(book.title, book.author).then(async meta => {
-      if (editingId !== id) return;
-      if (!meta) meta = {};
-      let desc = meta.description || '';
-      if (desc && !isEnglishText(desc)) {
-        const translated = await translateToEnglish(desc);
-        desc = isEnglishText(translated) ? translated : '';
-      }
-      if (!desc && book.description) {
-        const translated = await translateToEnglish(book.description);
-        desc = isEnglishText(translated) ? translated : '';
-      }
-      if (desc) {
-        dsBuildSummary(desc);
-        dsRenderSummary();
-        book.description = desc;
-        _metaCache[cacheKey] = { ...(_metaCache[cacheKey] || {}), description: desc };
-        await dbUpdate(id, { description: desc });
-      }
-    });
-  } else {
-    fetchBookMeta(book.title, book.author).then(async meta => {
-      if (editingId !== id) return;
-      if (!meta) meta = {};
-      dsBuildSummary(meta.description);
+  // Resolve description via dedicated pipeline (handles fetch, translate, persist)
+  resolveEnglishDescription(book).then(desc => {
+    if (editingId !== id) return;
+    if (desc && desc !== (DS.summaryFull || '')) {
+      dsBuildSummary(desc);
       dsRenderSummary();
+    }
+  });
+
+  // Fetch missing meta fields (year/publisher/genre/pages) — independent of description
+  const hasAllMeta = book.year && book.publisher && book.genre && book.page_count;
+  if (!hasAllMeta) {
+    fetchBookMeta(book.title, book.author).then(async meta => {
+      if (editingId !== id) return;
+      if (!meta) meta = {};
       const apiUpdates = {};
-      if (!book.year        || book.year === '')        { if (meta.year)      { apiUpdates.year       = meta.year;                    book.year       = meta.year; } }
-      if (!book.publisher   || book.publisher === '')   { if (meta.publisher) { apiUpdates.publisher  = meta.publisher;               book.publisher  = meta.publisher; } }
-      if (!book.genre       || book.genre === '')       { if (meta.genre)     { apiUpdates.genre      = meta.genre;                   book.genre      = meta.genre; } }
-      if (!book.page_count  || book.page_count === 0)  { if (meta.pageCount) { apiUpdates.page_count = parseInt(meta.pageCount) || 0; book.page_count = parseInt(meta.pageCount) || 0; } }
-      // Backfill description to DB so future opens are free
-      if (meta.description && !isEnglishText(meta.description)) {
-        const translated = await translateToEnglish(meta.description);
-        meta.description = isEnglishText(translated) ? translated : '';
+      if (!book.year       || book.year === '')       { if (meta.year)      { apiUpdates.year       = meta.year;                    book.year       = meta.year; } }
+      if (!book.publisher  || book.publisher === '')  { if (meta.publisher) { apiUpdates.publisher  = meta.publisher;               book.publisher  = meta.publisher; } }
+      if (!book.genre      || book.genre === '')      { if (meta.genre)     { apiUpdates.genre      = meta.genre;                   book.genre      = meta.genre; } }
+      if (!book.page_count || book.page_count === 0) { if (meta.pageCount) { apiUpdates.page_count = parseInt(meta.pageCount) || 0; book.page_count = parseInt(meta.pageCount) || 0; } }
+      // Update cache with meta fields only — description is owned by resolveEnglishDescription
+      if (_metaCache[cacheKey]) {
+        Object.assign(_metaCache[cacheKey], {
+          year: book.year || '',
+          publisher: book.publisher || '',
+          genre: book.genre || '',
+          pageCount: book.page_count ? String(book.page_count) : '',
+        });
       }
-      if (meta.description && isEnglishText(meta.description) && (!book.description || !isEnglishText(book.description))) {
-        apiUpdates.description = meta.description;
-        book.description = meta.description;
-      }
-      // Update in-memory cache with fresh English data so same-session reopens are free
-      _metaCache[cacheKey] = {
-        description: book.description || '',
-        year: book.year || '',
-        publisher: book.publisher || '',
-        genre: book.genre || '',
-        pageCount: book.page_count ? String(book.page_count) : '',
-      };
       dsRenderMetaGrid(book);
       const yearPub = document.getElementById('detailYearPub');
       if (yearPub) yearPub.textContent = [book.year, book.publisher].filter(Boolean).join(' • ');
