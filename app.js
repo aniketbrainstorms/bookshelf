@@ -186,10 +186,20 @@ async function signOut() {
 
 // ── DB ──
 async function loadBooks() {
-  renderSkeleton();
+  const cacheKey = 'tsundoku_books_' + currentUser.id;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      books = JSON.parse(cached);
+      renderGrid();
+    } else {
+      renderSkeleton();
+    }
+  } catch { renderSkeleton(); }
   const { data, error } = await sb.from('books').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
   if (error) { showToast('Failed to load books'); return; }
   books = data || [];
+  try { localStorage.setItem(cacheKey, JSON.stringify(books)); } catch {}
   renderGrid();
 }
 async function dbAdd(book) {
