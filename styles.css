@@ -1605,7 +1605,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── AUTHOR PAGE OVERLAY ── */
 .author-overlay {
-  position: absolute; inset: 0; background: var(--bg);
+  position: absolute; inset: 0; background: #17150f;
   z-index: 14; display: flex; flex-direction: column;
   overflow: hidden;
   transform: translateX(100%);
@@ -1640,14 +1640,14 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* Hero */
 .author-hero {
-  display: flex; gap: 16px; align-items: flex-start;
-  padding: 20px 0 18px;
+  display: flex; gap: 18px; align-items: flex-start;
+  padding: 24px 0 20px;
 }
 .author-photo-wrap {
-  width: 72px; height: 72px; border-radius: 50%;
+  width: 80px; height: 80px; border-radius: 14px;
   overflow: hidden; flex-shrink: 0;
-  background: var(--surface2); border: 1.5px solid var(--border);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  background: var(--surface2); border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.06) inset;
 }
 .author-photo-wrap img {
   width: 100%; height: 100%; object-fit: cover; display: block;
@@ -1664,20 +1664,22 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   color: var(--accent); font-weight: 700; margin-bottom: 4px; opacity: 0.8;
 }
 .author-name {
-  font-size: 22px; font-weight: 700; color: var(--text);
-  letter-spacing: -0.4px; line-height: 1.15; margin-bottom: 6px;
+  font-size: 26px; font-weight: 700; color: var(--text);
+  letter-spacing: -0.8px; line-height: 1.1; margin-bottom: 6px;
 }
 .author-intro {
-  font-size: 12.5px; color: var(--text-muted); line-height: 1.6;
+  font-size: 13px; color: var(--text-muted); line-height: 1.65;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-  overflow: hidden; margin-bottom: 10px;
+  overflow: hidden; margin-bottom: 12px;
 }
 .author-lib-pill {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 11px; border-radius: 100px;
-  border: 1.5px solid rgba(201,113,74,0.35);
-  background: rgba(201,113,74,0.08);
-  font-size: 12px; font-weight: 500; color: var(--accent);
+  padding: 7px 14px; border-radius: 100px;
+  border: none;
+  background: rgba(201,113,74,0.16);
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
 }
 .author-lib-pill::before {
   content: '';
@@ -1706,7 +1708,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   margin-bottom: 10px;
 }
 .author-books-title {
-  font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.2px;
+  font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.4px;
 }
 .author-book-count {
   font-size: 12px; color: var(--text-muted); font-weight: 400;
@@ -1717,7 +1719,18 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   display: flex; gap: 6px; margin-bottom: 14px;
   overflow-x: auto; scrollbar-width: none;
 }
-.author-filter-row::-webkit-scrollbar { display: none; }
+.author-filter-row::-webkit-scrollbar { display: none; }  
+  .author-filter-chip {
+  padding: 6px 16px; border-radius: 100px;
+  border: 1.5px solid var(--border); background: transparent;
+  color: var(--text-muted); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.32,0.72,0,1);
+}
+.author-filter-chip.active {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
 
 /* State message */
 .author-state {
@@ -1728,12 +1741,22 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 /* Book rows */
 .author-book-row {
   display: flex; align-items: center; gap: 12px;
-  padding: 11px 0; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: opacity 0.15s;
-  animation: bookIn 0.32s ease both;
+  padding: 12px 0; border-bottom: 1px solid rgba(58,53,48,0.6);
+  cursor: pointer;
+  transition: opacity 0.18s cubic-bezier(0.32,0.72,0,1), background 0.18s;
+  animation: bookIn 0.32s cubic-bezier(0.32,0.72,0,1) both;
+  position: relative;
 }
 .author-book-row:last-child { border-bottom: none; }
-.author-book-row:active { opacity: 0.65; }
+.author-book-row:active { opacity: 0.6; }
+.author-book-row::after {
+  content: '';
+  position: absolute; right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 6px; height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg width='6' height='10' viewBox='0 0 6 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4-4 4' stroke='%233a3530' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: contain;
+}
 .author-book-cover {
   width: 38px; height: 56px; border-radius: 5px;
   overflow: hidden; background: var(--surface2); flex-shrink: 0;
@@ -1762,8 +1785,9 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   overflow: hidden;
 }
 .author-status-pill {
-  flex-shrink: 0; padding: 3px 9px; border-radius: 100px;
-  font-size: 11px; font-weight: 500;
+  flex-shrink: 0; padding: 4px 10px; border-radius: 8px;
+  font-size: 11px; font-weight: 500; margin-right: 16px;
+  letter-spacing: 0.01em;
 }
 .author-status-pill.reading { background: rgba(201,113,74,0.15); color: var(--accent); }
 .author-status-pill.read    { background: rgba(90,138,106,0.15);  color: var(--green); }
