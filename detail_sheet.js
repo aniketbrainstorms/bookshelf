@@ -673,10 +673,11 @@ function openDetailModal(id) {
   const hasCachedSummary = _metaCache[cacheKey];
 
   // If the book already has a stored description, render it immediately
-  if (book.description) {
+  const storedDescriptionIsEnglish = book.description ? isEnglishText(book.description) : true;
+
+  if (book.description && storedDescriptionIsEnglish) {
     dsBuildSummary(book.description);
     dsRenderSummary();
-    // Seed the in-memory cache so the API is never called again this session
     if (!hasCachedSummary) {
       _metaCache[cacheKey] = {
         description: book.description,
@@ -688,7 +689,7 @@ function openDetailModal(id) {
     }
   }
 
-  if (hasAllMeta && (book.description || hasCachedSummary)) {
+  if (hasAllMeta && (storedDescriptionIsEnglish && book.description || hasCachedSummary)) {
     // Everything already known — render from stored data, no network call
     if (!book.description && hasCachedSummary) {
       dsBuildSummary(hasCachedSummary.description || '');
@@ -706,7 +707,7 @@ function openDetailModal(id) {
       if (!book.genre       || book.genre === '')       { if (meta.genre)     { apiUpdates.genre      = meta.genre;                   book.genre      = meta.genre; } }
       if (!book.page_count  || book.page_count === 0)  { if (meta.pageCount) { apiUpdates.page_count = parseInt(meta.pageCount) || 0; book.page_count = parseInt(meta.pageCount) || 0; } }
       // Backfill description to DB so future opens are free
-      if (meta.description && !book.description) {
+      if (meta.description && (!book.description || !isEnglishText(book.description))) {
         apiUpdates.description = meta.description;
         book.description = meta.description;
       }
