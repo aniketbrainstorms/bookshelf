@@ -406,7 +406,7 @@
           <div class="ds-cover" id="detailCoverEl"></div>
           <div class="ds-info">
             <div class="ds-title" id="detailTitleEl"></div>
-            <div class="ds-author" id="detailAuthorEl"></div>
+            <div class="ds-author ds-author-tap" id="detailAuthorEl" onclick="openAuthorPageFromDetail()"></div>
             <div class="ds-year-pub" id="detailYearPub"></div>
             <div class="ds-status-row">
               <div class="status-badge" id="detailBadge"></div>
@@ -891,7 +891,67 @@
   </div>
 </div>
 
+<!-- AUTHOR PAGE OVERLAY -->
+<div class="author-overlay" id="authorOverlay">
+
+  <!-- Sticky header -->
+  <div class="author-header">
+    <button class="shelf-back-btn" onclick="closeAuthorPage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </button>
+    <span class="author-header-label">Author</span>
+    <div style="width:60px"></div>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="author-scroll" id="authorScroll">
+
+    <!-- Hero -->
+    <div class="author-hero">
+      <div class="author-photo-wrap" id="authorPhotoWrap">
+        <div class="author-photo-fallback">?</div>
+      </div>
+      <div class="author-hero-info">
+        <div class="author-eyebrow">Author</div>
+        <div class="author-name" id="authorName"></div>
+        <p class="author-intro" id="authorIntro"></p>
+        <div class="author-lib-pill" id="authorLibraryCount"></div>
+      </div>
+    </div>
+
+    <!-- Quote card -->
+    <div class="author-quote-card" id="authorQuoteCard" style="display:none">
+      <p class="author-quote-text" id="authorQuoteText"></p>
+      <p class="author-quote-byline" id="authorQuoteByline"></p>
+    </div>
+
+    <!-- Books section -->
+    <div class="author-books-header">
+      <span class="author-books-title" id="authorBooksTitle">Books</span>
+      <span class="author-book-count" id="authorBookCount"></span>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="author-filter-row">
+      <button class="tab-btn active" data-author-filter="all" onclick="setAuthorFilter('all')">All</button>
+      <button class="tab-btn" data-author-filter="reading" onclick="setAuthorFilter('reading')">Reading</button>
+      <button class="tab-btn" data-author-filter="read" onclick="setAuthorFilter('read')">Read</button>
+      <button class="tab-btn" data-author-filter="unread" onclick="setAuthorFilter('unread')">Unread</button>
+    </div>
+
+    <!-- State message -->
+    <p class="author-state" id="authorState"></p>
+
+    <!-- Book rows -->
+    <div class="author-timeline" id="authorTimeline"></div>
+
+    <div style="height:32px"></div>
+  </div>
+</div>
+
 <script src="app.js"></script>
 <script src="detail_sheet.js"></script>
+<script src="author_modal.js"></script>
 </body>
 </html>
