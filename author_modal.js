@@ -198,7 +198,6 @@ function hydrateAuthorHeader(profile, rows) {
   document.getElementById('authorBooksTitle').textContent = `Books by ${profile.name}`;
   const countText = rows.length === 1 ? `1 book in your library from this author` : `${rows.length} books in your library from this author`;
   document.getElementById('authorLibraryCount').textContent = countText;
-  document.getElementById('authorBookCount').textContent = rows.length === 1 ? '1 book' : `${rows.length} books`;
   const quoteCard = document.getElementById('authorQuoteCard');
   const quoteText = document.getElementById('authorQuoteText');
   const quoteByline = document.getElementById('authorQuoteByline');
