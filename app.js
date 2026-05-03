@@ -2631,8 +2631,6 @@ function closeListBookDetail() {
   const input = document.getElementById('searchInput');
   if (!bar || !input) return;
 
-  let isActive = false;
-
   function reposition() {
     if (!window.visualViewport) return;
     const vv = window.visualViewport;
@@ -2640,67 +2638,23 @@ function closeListBookDetail() {
     const safeBottom = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')
     ) || 0;
-
-    if (keyboardHeight > 50) {
-      // Pin the bar just above the keyboard, accounting for viewport scroll offset
-      const gap = Math.max(safeBottom + 10, 16);
-      bar.style.position = 'fixed';
-      bar.style.bottom = (keyboardHeight + gap) + 'px';
-      // On iOS the visualViewport can shift vertically — compensate
-      bar.style.top = 'auto';
-    } else {
-      reset();
-    }
+    const gap = Math.max(safeBottom + 10, 16);
+    bar.style.bottom = keyboardHeight > 50 ? (keyboardHeight + gap) + 'px' : '';
   }
 
-  function reset() {
-    bar.style.position = '';
-    bar.style.bottom = '';
-    bar.style.top = '';
-  }
+  function reset() { bar.style.bottom = ''; }
 
-  function onVVResize() {
-    if (isActive) reposition();
-  }
-
-function onFocus() {
-    isActive = true;
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', onVVResize);
-      window.visualViewport.addEventListener('scroll', onVVResize);
-      reposition();
-    }
-  }
-
-  function onBlur() {
-    isActive = false;
-    if (window.visualViewport) {
-      window.visualViewport.removeEventListener('resize', onVVResize);
-      window.visualViewport.removeEventListener('scroll', onVVResize);
-    }
-    setTimeout(reset, 80);
-  }
-
-  // Keep the entire app screen anchored to the visual viewport on iOS
   if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      const appScreen = document.getElementById('appScreen');
-      if (!appScreen) return;
-      const vv = window.visualViewport;
-      const offsetTop = vv.offsetTop || 0;
-      if (vv.height < window.innerHeight * 0.75) {
-        // Keyboard is up — clamp app to visual viewport
-        appScreen.style.position = 'fixed';
-        appScreen.style.top = offsetTop + 'px';
-        appScreen.style.height = vv.height + 'px';
-      } else {
-        appScreen.style.position = '';
-        appScreen.style.top = '';
-        appScreen.style.height = '';
-      }
-    });
+    window.visualViewport.addEventListener('resize', reposition);
+    window.visualViewport.addEventListener('scroll', reposition);
   }
 
-  input.addEventListener('focus', onFocus);
-  input.addEventListener('blur', onBlur);
+  // Prevent iOS from scrolling the page when the keyboard opens
+  input.addEventListener('focus', () => {
+    // Blur then re-focus after a tick so iOS doesn't auto-scroll to the input
+    const scrollY = window.scrollY;
+    setTimeout(() => { window.scrollTo(0, scrollY); }, 0);
+  });
+
+  input.addEventListener('blur', () => setTimeout(reset, 80));
 })();
