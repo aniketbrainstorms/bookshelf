@@ -2632,16 +2632,24 @@ function closeListBookDetail() {
   if (!bar || !input || !window.visualViewport) return;
 
   const vv = window.visualViewport;
+  let keyboardUp = false;
 
   function update() {
     const kbHeight = window.innerHeight - vv.offsetTop - vv.height;
-    const safeBottom = parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')
-    ) || 0;
-    bar.style.bottom = kbHeight > 50
-      ? (kbHeight + Math.max(safeBottom + 10, 16)) + 'px'
-      : '';
+    if (kbHeight > 50) {
+      keyboardUp = true;
+      // Lift bar by exactly keyboard height — no layout shift, pure transform
+      bar.style.transform = `translateY(-${kbHeight}px)`;
+    } else if (keyboardUp) {
+      keyboardUp = false;
+      bar.style.transform = '';
+    }
   }
 
   vv.addEventListener('resize', update);
+
+  // Prevent iOS from scrolling the page on input focus — cancel immediately
+  window.addEventListener('scroll', () => {
+    if (keyboardUp) window.scrollTo(0, 0);
+  }, { passive: true });
 })();
