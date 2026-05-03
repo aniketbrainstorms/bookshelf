@@ -2631,32 +2631,28 @@ function closeListBookDetail() {
   const input = document.getElementById('searchInput');
   if (!bar || !input) return;
 
-  const grid = document.getElementById('mainGridContainer');
-  let lockedScrollTop = 0;
-
   function reposition() {
     if (!window.visualViewport) return;
     const vv = window.visualViewport;
-    const keyboardHeight = window.innerHeight - vv.height - vv.offsetTop;
+    // keyboard height = layout viewport bottom minus visual viewport bottom
+    const keyboardHeight = window.innerHeight - (vv.offsetTop + vv.height);
+    const safeBottom = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--safe-bottom')
+    ) || 0;
+    const gap = Math.max(safeBottom + 18, 24);
     if (keyboardHeight > 50) {
-      bar.style.transform = `translateY(-${keyboardHeight}px)`;
-      // Keep grid frozen at its pre-focus scroll position
-      if (grid) grid.scrollTop = lockedScrollTop;
+      bar.style.bottom = (keyboardHeight + gap) + 'px';
     } else {
-      bar.style.transform = '';
+      bar.style.bottom = '';
     }
   }
 
   function reset() {
-    bar.style.transform = '';
+    bar.style.bottom = '';
   }
 
   input.addEventListener('focus', () => {
-    // Snapshot scroll position before keyboard animation begins
-    if (grid) lockedScrollTop = grid.scrollTop;
-    // Prevent body/app scroll on iOS
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', reposition);
       reposition();
@@ -2664,11 +2660,9 @@ function closeListBookDetail() {
   });
 
   input.addEventListener('blur', () => {
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
     if (window.visualViewport) {
       window.visualViewport.removeEventListener('resize', reposition);
     }
-    setTimeout(reset, 50);
+    setTimeout(reset, 100);
   });
 })();
