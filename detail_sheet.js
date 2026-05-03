@@ -248,11 +248,10 @@ function dsOnScroll() {
 function dsInitDragEvents() {
   const sheet = document.getElementById('detailSheet');
   if (!sheet) return;
-  const overlay = document.getElementById('detailModal');
-  overlay.addEventListener('touchstart', dsOnTouchStart, { passive: false });
-  overlay.addEventListener('touchmove', dsOnTouchMove, { passive: false });
-  overlay.addEventListener('touchend', dsOnTouchEnd, { passive: true });
-  overlay.addEventListener('touchcancel', dsOnTouchEnd, { passive: true });
+  sheet.addEventListener('touchstart', dsOnTouchStart, { passive: false });
+  sheet.addEventListener('touchmove', dsOnTouchMove, { passive: false });
+  sheet.addEventListener('touchend', dsOnTouchEnd, { passive: true });
+  sheet.addEventListener('touchcancel', dsOnTouchEnd, { passive: true });
   sheet.addEventListener('mousedown', dsOnMouseDown);
   const scroll = document.getElementById('dsScroll');
   if (scroll) scroll.addEventListener('scroll', dsOnScroll, { passive: true });
