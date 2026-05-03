@@ -2634,13 +2634,23 @@ function closeListBookDetail() {
   const vv = window.visualViewport;
 
   function update() {
-    const kbHeight = window.innerHeight - vv.offsetTop - vv.height;
+    const kbHeight = Math.max(0, window.innerHeight - vv.offsetTop - vv.height);
     if (kbHeight > 50) {
-      bar.style.transform = `translateY(-${kbHeight}px)`;
+      bar.style.bottom = (kbHeight + 8) + 'px';
     } else {
-      bar.style.transform = '';
+      bar.style.bottom = '';
     }
   }
 
   vv.addEventListener('resize', update);
+  vv.addEventListener('scroll', update);
+
+  const grid = document.getElementById('mainGridContainer');
+  input.addEventListener('focus', () => {
+    if (grid) grid.style.overflowY = 'hidden';
+  });
+  input.addEventListener('blur', () => {
+    if (grid) grid.style.overflowY = '';
+    bar.style.bottom = '';
+  });
 })();
