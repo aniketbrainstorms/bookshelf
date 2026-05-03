@@ -103,6 +103,7 @@ function dsClose() {
   const sheetH = sheetEl ? sheetEl.offsetHeight : window.innerHeight * 0.92;
   dsSetTranslate(sheetH, true);
   DS.isOpen = false;
+  if (sheetEl) sheetEl.style.pointerEvents = 'none';
   const overlay = document.getElementById('detailModal');
   overlay.classList.remove('ds-expanded');
   overlay.style.pointerEvents = 'none';
@@ -114,9 +115,9 @@ function dsClose() {
     DS.isOpen = false;
     DS.isExpanded = false;
     DS.summaryExpanded = false;
+    editingId = null;
     closeEditSheet();
   }, 380);
-}
 
 // ── Touch / drag handling ──
 function dsOnTouchStart(e) {
