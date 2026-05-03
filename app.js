@@ -2629,29 +2629,19 @@ function closeListBookDetail() {
 (function () {
   const bar = document.getElementById('floatingBar');
   const input = document.getElementById('searchInput');
-  if (!bar || !input) return;
-
-  if (!window.visualViewport) return;
+  if (!bar || !input || !window.visualViewport) return;
 
   const vv = window.visualViewport;
 
   function update() {
-    const kbHeight = window.innerHeight - vv.height - vv.offsetTop;
+    const kbHeight = window.innerHeight - vv.offsetTop - vv.height;
     const safeBottom = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')
     ) || 0;
-
-    if (kbHeight > 50) {
-      bar.style.bottom = (kbHeight + Math.max(safeBottom + 10, 16)) + 'px';
-    } else {
-      bar.style.bottom = '';
-    }
-
-    // Cancel iOS scroll — keep window pinned to top
-    if (window.scrollY !== 0) window.scrollTo(0, 0);
+    bar.style.bottom = kbHeight > 50
+      ? (kbHeight + Math.max(safeBottom + 10, 16)) + 'px'
+      : '';
   }
 
   vv.addEventListener('resize', update);
-  vv.addEventListener('scroll', update);
-  window.addEventListener('scroll', () => window.scrollTo(0, 0));
 })();
