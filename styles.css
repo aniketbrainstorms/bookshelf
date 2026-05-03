@@ -118,7 +118,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* ── FLOATING SEARCH + ADD BAR ── */
 .floating-bar {
-  position: absolute;
+  position: fixed;
   bottom: max(calc(var(--safe-bottom) + 18px), 24px);
   left: 16px; right: 16px;
   display: flex;
