@@ -2643,14 +2643,4 @@ function closeListBookDetail() {
   }
 
   vv.addEventListener('resize', update);
-
-  // iOS scrolls to focused inputs — prevent by briefly marking readonly,
-  // then removing it so typing still works. This stops the scroll at the source.
-  input.addEventListener('touchstart', () => {
-    input.setAttribute('readonly', 'readonly');
-  }, { passive: true });
-
-  input.addEventListener('focus', () => {
-    setTimeout(() => input.removeAttribute('readonly'), 50);
-  });
 })();
