@@ -157,6 +157,8 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
   min-width: 0;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
+  cursor: pointer;
+  caret-color: transparent;
 }
 .floating-search-input::placeholder { color: rgba(255,255,255,0.32); }
 .floating-search-clear {
@@ -306,6 +308,40 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .bs-state p { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
 .bs-state .loading-spinner { margin: 0 auto; }
 .bs-footer { padding: 10px max(var(--safe-right),16px) max(calc(var(--safe-bottom)+16px),24px); border-top: 1px solid var(--border); flex-shrink: 0; }
+
+.search-library-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px 32px;
+  text-align: center;
+  gap: 14px;
+  animation: searchStateIn 0.32s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes searchStateIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.95); }
+  to   { opacity: 1; transform: none; }
+}
+.search-library-icon {
+  width: 96px; height: 96px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+  opacity: 0.9;
+}
+.search-library-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.4px;
+  line-height: 1.25;
+}
+.search-library-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  max-width: 250px;
+}
 
 /* MODALS */
 .modal-overlay { position: fixed; inset: 0; background: rgba(14,12,10,0.8); backdrop-filter: blur(8px); display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 10; }
@@ -1868,94 +1904,3 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .ds-author-tap:hover { color: var(--accent); text-decoration-color: rgba(201,113,74,0.5); }
 .ds-author-tap:active { opacity: 0.7; }
 
-/* ── SEARCH ACTIVE MODE ── */
-.app-screen .toolbar {
-  transition: opacity 0.22s ease, max-height 0.28s cubic-bezier(0.32,0.72,0,1), margin 0.22s ease;
-  max-height: 60px;
-}
-
-/* Hide logo/avatar row, keep toolbar visible */
-.app-screen.search-active .header-top {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  margin-bottom: 0;
-  pointer-events: none;
-  transition: max-height 0.26s cubic-bezier(0.32,0.72,0,1), opacity 0.2s ease, margin 0.22s ease;
-}
-.app-screen .header-top {
-  max-height: 60px;
-  overflow: hidden;
-  opacity: 1;
-  transition: max-height 0.26s cubic-bezier(0.32,0.72,0,1), opacity 0.2s ease, margin 0.22s ease;
-}
-
-/* Pad header so toolbar sits below the floating search bar */
-.app-screen.search-active .header {
-  transition: padding-top 0.28s cubic-bezier(0.32,0.72,0,1);
-}
-.app-screen.search-active .hint-bar {
-  display: none;
-}
-
-/* Floating bar moves to top, + button hidden */
-.app-screen.search-active .floating-bar {
-  z-index: 10;
-  bottom: max(calc(var(--safe-bottom) + 18px), 24px);
-}
-.app-screen.search-active .floating-add-btn {
-  width: 0;
-  min-width: 0;
-  padding: 0;
-  margin: 0;
-  opacity: 0;
-  pointer-events: none;
-  overflow: hidden;
-  transition: width 0.22s ease, opacity 0.18s ease, margin 0.22s ease;
-}
-
-.app-screen.search-active .floating-search-field {
-  background: rgba(255,255,255,0.09);
-  border-color: rgba(201,113,74,0.35);
-  box-shadow: 0 2px 24px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(201,113,74,0.12);
-}
-.app-screen.search-active .grid-container {
-  padding-top: 16px;
-  padding-bottom: max(calc(var(--safe-bottom) + 88px), 96px);
-}
-
-/* ── SEARCH EMPTY / PROMPT STATE ── */
-.search-library-state {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 32px 32px;
-  text-align: center;
-  gap: 14px;
-  animation: searchStateIn 0.32s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-@keyframes searchStateIn {
-  from { opacity: 0; transform: translateY(14px) scale(0.95); }
-  to   { opacity: 1; transform: none; }
-}
-.search-library-icon {
-  width: 96px; height: 96px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 4px;
-  opacity: 0.9;
-}
-.search-library-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.4px;
-  line-height: 1.25;
-}
-.search-library-sub {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.65;
-  max-width: 250px;
-}
