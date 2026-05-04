@@ -1892,7 +1892,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* Pad header so toolbar sits below the floating search bar */
 .app-screen.search-active .header {
-  padding-top: calc(max(var(--safe-top), 8px) + 46px + 12px);
+  padding-top: max(var(--safe-top), 16px);
   transition: padding-top 0.28s cubic-bezier(0.32,0.72,0,1);
 }
 .app-screen.search-active .hint-bar {
@@ -1901,13 +1901,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 
 /* Floating bar moves to top, + button hidden */
 .app-screen.search-active .floating-bar {
-  position: absolute;
-  bottom: auto;
-  top: max(var(--safe-top), 8px);
-  left: 16px;
-  right: 16px;
   z-index: 10;
-  transition: top 0.28s cubic-bezier(0.32,0.72,0,1), bottom 0.28s cubic-bezier(0.32,0.72,0,1);
 }
 .app-screen.search-active .floating-add-btn {
   width: 0;
