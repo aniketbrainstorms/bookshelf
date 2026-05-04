@@ -26,22 +26,6 @@ let publicSort = 'title';
 // ── DEVICE DETECTION ──
 const isTouch = () => window.matchMedia('(hover:none)').matches;
 
-document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    searchInput.addEventListener('focus', () => {
-      enterSearchMode();
-    });
-    searchInput.addEventListener('blur', () => {
-      setTimeout(() => {
-        if (!document.getElementById('searchInput').value.trim()) {
-          exitSearchMode();
-        }
-      }, 150);
-    });
-  }
-});
-
 function updateHintBar() {
   const hint = document.getElementById('hintBar');
   if (hint) hint.textContent = isTouch() ? 'Hold to quick-edit' : 'Click to quick-edit';
@@ -407,10 +391,8 @@ function isHiddenFromShelf(b) {
   return b.total_pages === -1;
 }
 function getSortedFiltered() {
-  const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-  let list = q ? [...books] : books.filter(b => b.status === currentFilter);
+  let list = books.filter(b => b.status === currentFilter);
   list = list.filter(b => !isHiddenFromShelf(b));
-  if (q) list = list.filter(b => (b.title||'').toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q));
   list.sort((a, b) => {
     if (currentSort === 'title') return (a.title||'').localeCompare(b.title||'');
     if (currentSort === 'author') {
@@ -482,9 +464,8 @@ function renderGrid() {
   const filtered = getSortedFiltered();
   if (!filtered.length) {
     grid.classList.remove('reading-mode');
-    const q = (document.getElementById('searchInput')?.value || '').trim();
     grid.innerHTML = `<div class="empty-state"><span class="empty-icon">📭</span>
-      <p>${q ? `No results for "<strong>${q}</strong>"` : 'Nothing here yet.'}<br>${!q ? `Tap <strong style="color:var(--accent)">+</strong> to search and add a book.` : ''}</p></div>`;
+      <p>Nothing here yet.<br>Tap <strong style="color:var(--accent)">+</strong> to search and add a book.</p></div>`;
     return;
   }
   if (currentFilter === 'reading') {
@@ -513,68 +494,90 @@ function renderGrid() {
   if (typeof alphaBarRefresh === 'function') alphaBarRefresh('main');
 }
 
-// ── SEARCH (shelf) ──
-function onShelfSearch() {
-  const val = document.getElementById('searchInput').value;
-  document.getElementById('searchClearBtn').classList.toggle('visible', val.length > 0);
-  if (val.trim()) {
-    renderGrid();
-  } else {
-    showSearchEmptyState();
+// ── SHELF SEARCH OVERLAY ──
+function openShelfSearch() {
+  document.getElementById('shelfSearchOverlay').classList.add('open');
+  setTimeout(() => {
+    const input = document.getElementById('shelfSearchInput');
+    if (input) input.focus();
+  }, 380);
+}
+function closeShelfSearch() {
+  document.getElementById('shelfSearchOverlay').classList.remove('open');
+  const input = document.getElementById('shelfSearchInput');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('shelfSearchClearBtn');
+  if (clearBtn) { clearBtn.style.opacity = '0'; clearBtn.style.pointerEvents = 'none'; }
+  renderShelfSearchResults('');
+}
+function clearShelfSearch() {
+  const input = document.getElementById('shelfSearchInput');
+  if (input) { input.value = ''; input.focus(); }
+  const clearBtn = document.getElementById('shelfSearchClearBtn');
+  if (clearBtn) { clearBtn.style.opacity = '0'; clearBtn.style.pointerEvents = 'none'; }
+  renderShelfSearchResults('');
+}
+function onShelfOverlaySearch() {
+  const val = document.getElementById('shelfSearchInput').value;
+  const clearBtn = document.getElementById('shelfSearchClearBtn');
+  if (clearBtn) {
+    clearBtn.style.opacity = val.length > 0 ? '1' : '0';
+    clearBtn.style.pointerEvents = val.length > 0 ? 'auto' : 'none';
   }
+  renderShelfSearchResults(val.trim());
 }
-function showSearchEmptyState() {
-  const grid = document.getElementById('bookGrid');
-  grid.classList.remove('reading-mode');
-  grid.innerHTML = `<div class="search-library-state">
-    <div class="search-library-icon">
-      <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Open book left page -->
-        <path d="M48 72 C48 72 24 64 16 56 L16 28 C24 36 48 44 48 44 L48 72Z" fill="#2c2823" stroke="#4a4540" stroke-width="1.5" stroke-linejoin="round"/>
-        <!-- Open book right page -->
-        <path d="M48 72 C48 72 72 64 80 56 L80 28 C72 36 48 44 48 44 L48 72Z" fill="#332e28" stroke="#4a4540" stroke-width="1.5" stroke-linejoin="round"/>
-        <!-- Book spine -->
-        <line x1="48" y1="44" x2="48" y2="72" stroke="#5a5248" stroke-width="1.5"/>
-        <!-- Left page lines -->
-        <line x1="24" y1="42" x2="44" y2="47" stroke="#5a5248" stroke-width="1.2" stroke-linecap="round"/>
-        <line x1="24" y1="48" x2="44" y2="52" stroke="#5a5248" stroke-width="1.2" stroke-linecap="round"/>
-        <line x1="24" y1="54" x2="40" y2="57" stroke="#5a5248" stroke-width="1.2" stroke-linecap="round"/>
-        <!-- Magnifier glass circle -->
-        <circle cx="66" cy="38" r="14" fill="#1a1814" stroke="var(--accent)" stroke-width="2.5"/>
-        <circle cx="66" cy="38" r="8" fill="rgba(201,113,74,0.08)" stroke="rgba(201,113,74,0.5)" stroke-width="1.5"/>
-        <!-- Magnifier handle -->
-        <line x1="76.8" y1="48.8" x2="85" y2="57" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-        <!-- Sparkle + top right -->
-        <line x1="86" y1="20" x2="86" y2="28" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
-        <line x1="82" y1="24" x2="90" y2="24" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
-        <!-- Small sparkle dots -->
-        <circle cx="18" cy="66" r="2.5" fill="var(--accent)" opacity="0.3"/>
-        <circle cx="12" cy="50" r="1.8" fill="var(--accent)" opacity="0.18"/>
-      </svg>
-    </div>
-    <p class="search-library-title">Search books in your library</p>
-    <p class="search-library-sub">Find titles, authors, or keywords from your reading, read, and unread lists</p>
-  </div>`;
-}
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('searchClearBtn').classList.remove('visible');
-  exitSearchMode();
-  document.getElementById('searchInput').blur();
-}
-function enterSearchMode() {
-  document.getElementById('appScreen').classList.add('search-active');
-  const val = (document.getElementById('searchInput')?.value || '').trim();
-  if (val) {
-    renderGrid();
-  } else {
-    showSearchEmptyState();
+function renderShelfSearchResults(q) {
+  const el = document.getElementById('shelfSearchResults');
+  if (!q) {
+    el.innerHTML = `<div class="search-library-state">
+      <div class="search-library-icon">
+        <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M48 72 C48 72 24 64 16 56 L16 28 C24 36 48 44 48 44 L48 72Z" fill="#2c2823" stroke="#4a4540" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M48 72 C48 72 72 64 80 56 L80 28 C72 36 48 44 48 44 L48 72Z" fill="#332e28" stroke="#4a4540" stroke-width="1.5" stroke-linejoin="round"/>
+          <line x1="48" y1="44" x2="48" y2="72" stroke="#5a5248" stroke-width="1.5"/>
+          <line x1="24" y1="42" x2="44" y2="47" stroke="#5a5248" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="24" y1="48" x2="44" y2="52" stroke="#5a5248" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="24" y1="54" x2="40" y2="57" stroke="#5a5248" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="66" cy="38" r="14" fill="#1a1814" stroke="var(--accent)" stroke-width="2.5"/>
+          <circle cx="66" cy="38" r="8" fill="rgba(201,113,74,0.08)" stroke="rgba(201,113,74,0.5)" stroke-width="1.5"/>
+          <line x1="76.8" y1="48.8" x2="85" y2="57" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="86" y1="20" x2="86" y2="28" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+          <line x1="82" y1="24" x2="90" y2="24" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+          <circle cx="18" cy="66" r="2.5" fill="var(--accent)" opacity="0.3"/>
+          <circle cx="12" cy="50" r="1.8" fill="var(--accent)" opacity="0.18"/>
+        </svg>
+      </div>
+      <p class="search-library-title">Search books in your library</p>
+      <p class="search-library-sub">Find titles, authors, or keywords from your reading, read, and unread lists</p>
+    </div>`;
+    return;
   }
+  const lower = q.toLowerCase();
+  const matched = books.filter(b =>
+    !isHiddenFromShelf(b) &&
+    ((b.title || '').toLowerCase().includes(lower) || (b.author || '').toLowerCase().includes(lower))
+  );
+  if (!matched.length) {
+    el.innerHTML = `<div class="empty-state"><span class="empty-icon">📭</span><p>No results for "<strong>${escapeHtml(q)}</strong>"</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="book-grid" style="padding:12px 0 max(calc(var(--safe-bottom)+80px),88px)">${matched.map((b, i) => `
+    <div class="book-card" data-id="${b.id}" style="animation-delay:${Math.min(i,12)*0.035}s">
+      ${coverHtml(b)}<div class="status-dot ${b.status}"></div>
+    </div>`).join('')}</div>`;
+  el.querySelectorAll('.book-card').forEach(card => {
+    card.addEventListener('click', () => {
+      closeShelfSearch();
+      setTimeout(() => openDetailModal(card.dataset.id), 80);
+    });
+    card.addEventListener('touchend', e => {
+      e.preventDefault();
+      closeShelfSearch();
+      setTimeout(() => openDetailModal(card.dataset.id), 80);
+    });
+  });
 }
-function exitSearchMode() {
-  document.getElementById('appScreen').classList.remove('search-active');
-  renderGrid();
-}
+
 
 // ── PRESS ──
 let _pressStartX = 0, _pressStartY = 0;
