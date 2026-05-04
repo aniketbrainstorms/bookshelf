@@ -26,6 +26,22 @@ let publicSort = 'title';
 // ── DEVICE DETECTION ──
 const isTouch = () => window.matchMedia('(hover:none)').matches;
 
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('focus', () => {
+      enterSearchMode();
+    });
+    searchInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (!document.getElementById('searchInput').value.trim()) {
+          exitSearchMode();
+        }
+      }, 150);
+    });
+  }
+});
+
 function updateHintBar() {
   const hint = document.getElementById('hintBar');
   if (hint) hint.textContent = isTouch() ? 'Hold to quick-edit' : 'Click to quick-edit';
@@ -501,13 +517,41 @@ function renderGrid() {
 function onShelfSearch() {
   const val = document.getElementById('searchInput').value;
   document.getElementById('searchClearBtn').classList.toggle('visible', val.length > 0);
-  renderGrid();
+  if (val.trim()) {
+    renderGrid();
+  } else {
+    showSearchEmptyState();
+  }
+}
+function showSearchEmptyState() {
+  const grid = document.getElementById('bookGrid');
+  grid.classList.remove('reading-mode');
+  grid.innerHTML = `<div class="search-library-state">
+    <div class="search-library-icon">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.45">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        <circle cx="16.5" cy="8" r="3" stroke="var(--accent)" stroke-width="1.4" opacity="0.7"/>
+        <line x1="19" y1="10.5" x2="21" y2="12.5" stroke="var(--accent)" stroke-width="1.6" opacity="0.7"/>
+      </svg>
+    </div>
+    <p class="search-library-title">Search books in your library</p>
+    <p class="search-library-sub">Find titles, authors, or keywords from your reading, read, and unread lists</p>
+  </div>`;
 }
 function clearSearch() {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchClearBtn').classList.remove('visible');
+  exitSearchMode();
+  document.getElementById('searchInput').blur();
+}
+function enterSearchMode() {
+  document.getElementById('appScreen').classList.add('search-active');
+  showSearchEmptyState();
+}
+function exitSearchMode() {
+  document.getElementById('appScreen').classList.remove('search-active');
   renderGrid();
-  document.getElementById('searchInput').focus();
 }
 
 // ── PRESS ──
