@@ -207,7 +207,7 @@
       <button class="bs-back" onclick="clearShelfSearch()" id="shelfSearchClearBtn" style="color:var(--text-muted);border-color:transparent;background:transparent;font-size:20px;opacity:0;pointer-events:none;">×</button>
     </div>
     <div class="divider"></div>
-    <div class="bs-results" id="shelfSearchResults">
+    <div class="bs-results" id="shelfSearchResults" ontouchstart="event.stopPropagation()">
       <div class="search-library-state">
         <div class="search-library-icon">
           <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
