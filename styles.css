@@ -293,7 +293,7 @@ body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--t
 .bs-input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
 .bs-input:focus { border-color: var(--accent); }
 .bs-input::placeholder { color: var(--text-muted); }
-.bs-results { flex: 1; overflow-y: auto; padding: 0 max(var(--safe-right),16px); scrollbar-width: none; }
+.bs-results { flex: 1; overflow-y: auto; padding: 0 max(var(--safe-right),16px); scrollbar-width: none; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .bs-results::-webkit-scrollbar { display: none; }
 .bs-result { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: opacity 0.15s; }
 .bs-result:last-child { border-bottom: none; }
