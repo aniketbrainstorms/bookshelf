@@ -566,11 +566,18 @@ function renderShelfSearchResults(q) {
       ${coverHtml(b)}<div class="status-dot ${b.status}"></div>
     </div>`).join('')}</div>`;
   el.querySelectorAll('.book-card').forEach(card => {
+    let _tsX = 0, _tsY = 0;
+    card.addEventListener('touchstart', e => {
+      _tsX = e.touches[0].clientX;
+      _tsY = e.touches[0].clientY;
+    }, { passive: true });
     card.addEventListener('click', () => {
       closeShelfSearch();
       setTimeout(() => openDetailModal(card.dataset.id), 80);
     });
     card.addEventListener('touchend', e => {
+      const t = e.changedTouches[0];
+      if (Math.abs(t.clientX - _tsX) > 6 || Math.abs(t.clientY - _tsY) > 6) return;
       e.preventDefault();
       closeShelfSearch();
       setTimeout(() => openDetailModal(card.dataset.id), 80);
