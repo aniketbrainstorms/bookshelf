@@ -4315,3 +4315,29 @@ html.standalone-webapp .add-popup {
 .habit-stats .stat { display: flex; flex-direction: column; gap: 2px; }
 .habit-stats .stat .n { font-size: 15px; font-weight: 700; color: var(--text); }
 .habit-stats .stat .l { font-size: 10px; color: var(--text-muted); }
+
+
+/* ── NEXT READ CARD ── */
+.nr-card { margin-bottom: 14px; }
+.nr-collapsed {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px; cursor: pointer;
+}
+.nr-collapsed-text { flex: 1; min-width: 0; }
+.nr-collapsed-title { font-size: 14px; color: var(--text); font-weight: 500; }
+.nr-collapsed-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nr-expanded { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+.nr-expanded-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accent); margin-bottom: 12px; }
+.nr-book-row { display: flex; gap: 12px; margin-bottom: 14px; }
+.nr-cover { width: 56px; height: 80px; border-radius: 4px; overflow: hidden; flex-shrink: 0; background: var(--surface); }
+.nr-book-info { flex: 1; min-width: 0; }
+.nr-book-title { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.nr-book-author { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.nr-headline { font-size: 13px; color: var(--text); }
+.nr-reasons { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid var(--border); margin-bottom: 14px; }
+.nr-reason-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+.nr-reason-icon { display: flex; flex-shrink: 0; opacity: 0.8; }
+.nr-actions { display: flex; gap: 8px; }
+.nr-start-btn { flex: 2; background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; }
+.nr-skip-btn { flex: 1; background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; }
