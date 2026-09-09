@@ -4333,6 +4333,17 @@ html.standalone-webapp .add-popup {
   width: 40px; height: 58px; border-radius: 4px; overflow: hidden;
   flex-shrink: 0; background: var(--surface);
 }
+.nr-skeleton-block, .nr-skeleton-line {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: nrShimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+}
+.nr-skeleton-line { height: 11px; border-radius: 3px; }
+@keyframes nrShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 .nr-collapsed-text { flex: 1; min-width: 0; }
 .nr-collapsed-title { font-size: 14px; color: var(--text); font-weight: 500; }
 .nr-collapsed-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
