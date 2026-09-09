@@ -6162,18 +6162,64 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
       : makePlaceholder(book, 20);
   }
 
-  async function nrRenderCard() {
+  let nrGenerating = false;
+
+  function nrReadCacheSync() {
+    try { return JSON.parse(localStorage.getItem(nrCacheKey()) || 'null'); } catch { return null; }
+  }
+
+  function nrRenderSkeleton() {
+    const card = document.getElementById('nrCard');
+    if (!card) return;
+    card.style.display = 'block';
+    card.innerHTML = `
+      <div class="nr-heading">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+        recommended for you
+      </div>
+      <div class="nr-collapsed nr-skeleton">
+        <div class="nr-collapsed-cover nr-skeleton-block"></div>
+        <div class="nr-collapsed-text">
+          <div class="nr-skeleton-line" style="width:70%"></div>
+          <div class="nr-skeleton-line" style="width:45%;margin-top:6px"></div>
+        </div>
+      </div>`;
+  }
+
+  function nrRenderCard() {
     const card = document.getElementById('nrCard');
     if (!card || !currentUser) return;
 
-    const rec = await nrGetOrGenerate(false);
-    if (!rec) { card.style.display = 'none'; nrCurrentRec = null; return; }
+    // Sync path: paint instantly from cache, same as the book grid does.
+    const cached = nrReadCacheSync();
+    if (cached) {
+      const book = books.find(b => String(b.id) === String(cached.book_id));
+      if (book) {
+        nrCurrentRec = cached;
+        card.style.display = 'block';
+        nrPaint(book, cached);
+        return;
+      }
+    }
 
-    const book = books.find(b => String(b.id) === String(rec.book_id));
-    if (!book) { card.style.display = 'none'; nrCurrentRec = null; return; }
+    // Nothing cached yet (first load of the day) — show skeleton, generate in background.
+    if (nrGenerating) return;
+    nrRenderSkeleton();
+    nrGenerating = true;
+    nrGenerateRecommendation().then(rec => {
+      nrGenerating = false;
+      if (!rec) { card.style.display = 'none'; nrCurrentRec = null; return; }
+      try { localStorage.setItem(nrCacheKey(), JSON.stringify(rec)); } catch {}
+      const book = books.find(b => String(b.id) === String(rec.book_id));
+      if (!book) { card.style.display = 'none'; nrCurrentRec = null; return; }
+      nrCurrentRec = rec;
+      nrPaint(book, rec);
+    });
+  }
 
-    nrCurrentRec = rec;
-    card.style.display = 'block';
+  function nrPaint(book, rec) {
+    const card = document.getElementById('nrCard');
+    if (!card) return;
 
     if (!nrExpanded) {
       card.innerHTML = `
@@ -6249,7 +6295,10 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
         nrRenderCard();
       } else {
         try { localStorage.removeItem(nrCacheKey()); } catch {}
-        await nrGetOrGenerate(true);
+        nrGenerating = true;
+        const rec = await nrGenerateRecommendation();
+        nrGenerating = false;
+        if (rec) { try { localStorage.setItem(nrCacheKey(), JSON.stringify(rec)); } catch {} }
         nrRenderCard();
       }
     });
@@ -6260,7 +6309,9 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
     if (typeof _origRenderGrid === 'function') {
       window.renderGrid = function () {
         _origRenderGrid.apply(this, arguments);
-        if (currentFilter === 'reading' || !window.matchMedia('(min-width: 1024px)').matches) nrRenderCard();
+        if (currentFilter === 'reading' || !window.matchMedia('(min-width: 1024px)').matches) {
+          if (!nrExpanded) nrRenderCard();
+        }
       };
     }
   });
