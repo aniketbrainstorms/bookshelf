@@ -6066,12 +6066,12 @@ Description: ${book.description || 'No description available.'}`;
     return days < 30 ? `been in your tbr for ${label}` : `been in your tbr since ${label}`;
   }
 
-  async function nrFetchGeminiPick(candidates) {
+  async function nrFetchGeminiBatch(candidates) {
     if (!candidates.length) return null;
     const readBooks = books.filter(b => b.status === 'read').slice(0, 15);
-    const prompt = `You are a reading recommendation assistant. Given a reader's profile and a list of candidate books, pick the single best next read and explain briefly why. Respond ONLY with valid JSON (no markdown, no backticks) matching exactly:
-{"book_id":"<id from candidates>","headline_reason":{"type":"author|theme|genre","text":"<lowercase, no punctuation, max 6 words>"},"supporting_reasons":[{"type":"mood|pacing|tone","text":"<lowercase, no punctuation, short phrase>"}]}
-supporting_reasons must have exactly 1 item.
+    const prompt = `You are a reading recommendation assistant. Given a reader's profile and a list of candidate books, rank them best-to-worst as next reads and give each one its own headline reason. Respond ONLY with valid JSON (no markdown, no backticks) matching exactly:
+{"ranked":[{"book_id":"<id>","headline_reason":{"type":"author|theme|genre","text":"<lowercase, no punctuation, max 6 words>"},"supporting_reasons":[{"type":"mood|pacing|tone","text":"<lowercase, no punctuation, short phrase>"}]}]}
+"ranked" must include every candidate id exactly once, best pick first. Each supporting_reasons array must have exactly 1 item. Every headline_reason must be specific to that book — never reuse the same text across two books.
 
 Reader has read: ${readBooks.map(b => `"${b.title}" by ${b.author || 'unknown'}`).join(', ') || 'no books yet'}
 
@@ -6099,27 +6099,14 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
       if (!res.ok) return null;
       const data = await res.json();
       const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      return JSON.parse(raw.replace(/```json|```/g, '').trim());
+      const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+      return Array.isArray(parsed.ranked) ? parsed.ranked : null;
     } catch { return null; }
   }
-
-  async function nrGenerateRecommendation() {
-    const candidates = nrScoreCandidates();
-    if (!candidates.length) return null;
-
-    const pick = await nrFetchGeminiPick(candidates);
-    let book, headline, supporting;
-
-    if (pick && candidates.some(c => String(c.id) === String(pick.book_id))) {
-      book = candidates.find(c => String(c.id) === String(pick.book_id));
-      headline = pick.headline_reason || { type: 'genre', text: 'similar to books you\'ve rated highly' };
-      supporting = (pick.supporting_reasons || [])[0] || null;
-    } else {
-      // fallback: top scored candidate, no Gemini reasoning
-      book = candidates[0];
-      headline = { type: 'genre', text: 'similar to books you\'ve rated highly' };
-      supporting = null;
-    }
+  function nrBuildRecFromRanked(book, ranked) {
+    const entry = ranked ? ranked.find(r => String(r.book_id) === String(book.id)) : null;
+    const headline = (entry && entry.headline_reason) || { type: 'genre', text: 'similar to books you\'ve rated highly' };
+    const supporting = entry && entry.supporting_reasons && entry.supporting_reasons[0] || null;
 
     const reasons = [];
     if (supporting) reasons.push(supporting);
@@ -6127,7 +6114,25 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
     if (ageReason) reasons.push({ type: 'tbr_age', text: ageReason });
     else if (book.page_count) reasons.push({ type: 'page_count', text: `${book.page_count} pages` });
 
-    return { book_id: book.id, headline_reason: headline, supporting_reasons: reasons, candidate_ids: candidates.map(c => c.id) };
+    return { book_id: book.id, headline_reason: headline, supporting_reasons: reasons };
+  }
+
+  async function nrGenerateRecommendation() {
+    const candidates = nrScoreCandidates();
+    if (!candidates.length) return null;
+
+    const ranked = await nrFetchGeminiBatch(candidates);
+    // Order candidates by Gemini's ranking if we got one, else keep local score order.
+    const orderedIds = ranked ? ranked.map(r => String(r.book_id)) : candidates.map(c => String(c.id));
+    const orderedBooks = orderedIds
+      .map(id => candidates.find(c => String(c.id) === id))
+      .filter(Boolean);
+    const finalOrder = orderedBooks.length ? orderedBooks : candidates;
+
+    const rec = nrBuildRecFromRanked(finalOrder[0], ranked);
+    rec.queue = finalOrder.slice(1).map(b => b.id); // remaining candidates, in order, for instant skip
+    rec.ranked = ranked; // cache full reason set so skip never needs another Gemini call
+    return rec;
   }
 
   async function nrGetOrGenerate(force) {
@@ -6251,10 +6256,6 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
         recommended for you
       </div>
       <div class="nr-expanded">
-        <div class="nr-expanded-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
-          your next read
-        </div>
         <div class="nr-book-row">
           <div class="nr-cover">${nrCoverHtml(book)}</div>
           <div class="nr-book-info">
@@ -6284,21 +6285,23 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
 
     document.getElementById('nrSkipBtn').addEventListener('click', async () => {
       nrAddSkipped(book.id);
-      const remaining = (rec.candidate_ids || []).filter(id => String(id) !== String(book.id));
-      const nextBook = remaining.map(id => books.find(b => String(b.id) === String(id))).find(Boolean);
+      const queue = (rec.queue || []).filter(id => String(id) !== String(book.id));
+      const nextId = queue[0];
+      const nextBook = nextId ? books.find(b => String(b.id) === String(nextId)) : null;
+
       if (nextBook) {
-        const newRec = { book_id: nextBook.id, headline_reason: rec.headline_reason, supporting_reasons: rec.supporting_reasons, candidate_ids: remaining };
-        // regenerate a fresh reason locally rather than reusing stale one when possible
-        const ageReason = nrTbrAgeReason(nextBook);
-        newRec.supporting_reasons = ageReason ? [{ type: 'tbr_age', text: ageReason }] : [];
+        const newRec = nrBuildRecFromRanked(nextBook, rec.ranked);
+        newRec.queue = queue.slice(1);
+        newRec.ranked = rec.ranked;
         try { localStorage.setItem(nrCacheKey(), JSON.stringify(newRec)); } catch {}
         nrRenderCard();
       } else {
+        // Exhausted the cached batch — only now is a fresh Gemini call justified.
         try { localStorage.removeItem(nrCacheKey()); } catch {}
         nrGenerating = true;
-        const rec = await nrGenerateRecommendation();
+        const freshRec = await nrGenerateRecommendation();
         nrGenerating = false;
-        if (rec) { try { localStorage.setItem(nrCacheKey(), JSON.stringify(rec)); } catch {} }
+        if (freshRec) { try { localStorage.setItem(nrCacheKey(), JSON.stringify(freshRec)); } catch {} }
         nrRenderCard();
       }
     });
