@@ -6177,8 +6177,12 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
 
     if (!nrExpanded) {
       card.innerHTML = `
+        <div class="nr-heading">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+          recommended for you
+        </div>
         <div class="nr-collapsed" id="nrCollapsedRow">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+          <div class="nr-collapsed-cover">${nrCoverHtml(book)}</div>
           <div class="nr-collapsed-text">
             <div class="nr-collapsed-title">${escapeHtml(book.title)}</div>
             <div class="nr-collapsed-sub">${escapeHtml(rec.headline_reason.text)}</div>
@@ -6196,6 +6200,10 @@ ${candidates.map(b => `id:${b.id} | "${b.title}" by ${b.author || 'unknown'} | g
       </div>`).join('');
 
     card.innerHTML = `
+      <div class="nr-heading">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+        recommended for you
+      </div>
       <div class="nr-expanded">
         <div class="nr-expanded-label">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
