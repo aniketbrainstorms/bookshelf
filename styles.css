@@ -4318,11 +4318,20 @@ html.standalone-webapp .add-popup {
 
 
 /* ── NEXT READ CARD ── */
-.nr-card { margin-bottom: 14px; }
+.nr-card { margin-top: 18px; margin-bottom: 14px; }
+.nr-heading {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: lowercase; color: var(--text-muted); margin-bottom: 8px; padding: 0 2px;
+}
 .nr-collapsed {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 12px;
   background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 14px; padding: 14px 16px; cursor: pointer;
+  border-radius: 14px; padding: 12px 14px; cursor: pointer;
+}
+.nr-collapsed-cover {
+  width: 40px; height: 58px; border-radius: 4px; overflow: hidden;
+  flex-shrink: 0; background: var(--surface);
 }
 .nr-collapsed-text { flex: 1; min-width: 0; }
 .nr-collapsed-title { font-size: 14px; color: var(--text); font-weight: 500; }
